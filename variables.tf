@@ -16,6 +16,24 @@ variable "proxmox_insecure" {
   default     = false
 }
 
+variable "proxmox_ct_template_ubuntu" {
+  description = "The name of the Ubuntu container template to use for the VM"
+  type        = string
+  default     = "ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+}
+
+variable "proxmox_iso_ubuntu" {
+  description = "The name of the Ubuntu ISO file to use for the VM"
+  type        = string
+  default     = "ubuntu-24.04.1-live-server-amd64.iso"
+}
+
+variable "proxmox_node" {
+  description = "The name of the Proxmox node to deploy resources on"
+  type        = string
+  default     = "pve"
+}
+
 variable "proxmox_ssh_username" {
   description = "The SSH username for connecting to the Proxmox node (for cloud-init, etc.)"
   type        = string
@@ -28,8 +46,8 @@ variable "proxmox_ssh_private_key" {
   default     = "~/.ssh/id_rsa"
 }
 
-variable "proxmox_node" {
-  description = "The name of the Proxmox node to deploy resources on"
+variable "proxmox_username" {
+  description = "The Proxmox username for authentication"
   type        = string
-  default     = "pve"
+  default     = "proxmox"
 }

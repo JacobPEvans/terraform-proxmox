@@ -1,58 +1,29 @@
 resource "proxmox_virtual_environment_pool" "logging" {
-  comment = "TF Logging Pool"
+  comment = "TF Pool Logging"
   pool_id = "logging"
 }
 
-resource "proxmox_virtual_environment_vm" "splunk" {
-  vm_id       = 102
-  node_name   = var.proxmox_node
-  name        = "splunk"
-  description = "TF VM Splunk"
-  tags        = ["terraform", "ubuntu", "splunk"]
+resource "random_password" "ubuntu_vm_password" {
+  length           = 16
+  override_special = "_%@"
+  special          = true
+}
 
-  agent {
-    # read 'Qemu guest agent' section, change to true only when ready
-    enabled = false
-  }
+resource "tls_private_key" "ubuntu_vm_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
 
-  cpu {
-    cores = 4
-    type  = "x86-64-v2-AES"
-  }
+output "ubuntu_vm_password" {
+  value     = random_password.ubuntu_vm_password.result
+  sensitive = true
+}
 
-  memory {
-    dedicated = 2048
-    floating  = 2048 # set equal to dedicated to enable ballooning
-    #hugepages = "disable"
-  }
+output "ubuntu_vm_private_key" {
+  value     = tls_private_key.ubuntu_vm_key.private_key_pem
+  sensitive = true
+}
 
-  disk {
-    datastore_id = "local-lvm"
-    interface    = "scsi0"
-    size         = 64
-    file_format  = "raw"
-    iothread     = true
-  }
-
-  initialization {
-    ip_config {
-      ipv4 {
-        address = "10.0.1.102/32"
-      }
-    }
-  }
-
-  network_device {
-    bridge = "vmbr0"
-  }
-
-  cdrom {
-    file_id = "local:iso/ubuntu-24.04.1-live-server-amd64.iso"
-  }
-
-  operating_system {
-    type = "l26"
-  }
-
-  #boot_order = ["cdrom", "scsi0"]
+output "ubuntu_vm_public_key" {
+  value = tls_private_key.ubuntu_vm_key.public_key_openssh
 }
