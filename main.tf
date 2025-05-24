@@ -1,52 +1,58 @@
+resource "proxmox_virtual_environment_pool" "logging" {
+  comment = "TF Logging Pool"
+  pool_id = "logging"
+}
 
-resource "proxmox_vm_qemu" "splunk" {
+resource "proxmox_virtual_environment_vm" "splunk" {
+  vm_id       = 102
+  node_name   = var.proxmox_node
   name        = "splunk"
-  target_node = var.proxmox_node
+  description = "TF VM Splunk"
+  tags        = ["terraform", "ubuntu", "splunk"]
 
-  # VM hardware
-  cores       = 4
-  sockets     = 1
-  memory      = 4096
-  scsihw      = "virtio-scsi-pci"
-  bootdisk    = "scsi0"
-  vmid        = 1
+  agent {
+    # read 'Qemu guest agent' section, change to true only when ready
+    enabled = false
+  }
 
-  disk {
-    slot     = 0
-    size     = "2G"
-    type     = "scsi"
-    storage  = "local-lvm"
-    iothread = true
+  cpu {
+    cores    = 4
+    type     = "x86-64-v2-AES"
+  }
+
+  memory {
+    dedicated = 2048
+    floating  = 2048  # set equal to dedicated to enable ballooning
+    #hugepages = "disable"
   }
 
   disk {
-    slot     = 1
-    size     = "100G"
-    type     = "scsi"
-    storage  = "local-lvm"
-    iothread = true
+    datastore_id = "local-lvm"
+    interface    = "scsi0"
+    size         = 100
+    file_format  = "raw"
+    iothread     = true
+  }
 
-  disks {
-    ide {
-      ide2 {
-        cdrom {
-          iso = "ISO file"
-        }
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "10.0.1.102/32"
       }
     }
   }
-  }
 
-  network {
-    model  = "virtio"
+  network_device {
     bridge = "vmbr0"
   }
 
-  # Attach the ISO for installation
   cdrom {
-    file = "local:iso/ubuntu-24.04.1-live-server-amd64.iso"
+    file_id = "local:iso/ubuntu-24.04.1-live-server-amd64.iso"
   }
 
-  # Optional: set boot order to boot from CD first
-  boot = "cd"
+  operating_system {
+    type = "l26"
+  }
+
+  #boot_order = ["cdrom", "scsi0"]
 }
