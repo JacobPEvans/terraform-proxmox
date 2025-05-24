@@ -6,16 +6,35 @@ resource "proxmox_vm_qemu" "splunk" {
   # VM hardware
   cores       = 4
   sockets     = 1
-  memory      = 8192
+  memory      = 4096
   scsihw      = "virtio-scsi-pci"
   bootdisk    = "scsi0"
+  vmid        = 1
 
   disk {
     slot     = 0
-    size     = "50G"
+    size     = "2G"
     type     = "scsi"
-    storage  = "local-lvm" # Change if your storage is different
+    storage  = "local-lvm"
     iothread = true
+  }
+
+  disk {
+    slot     = 1
+    size     = "100G"
+    type     = "scsi"
+    storage  = "local-lvm"
+    iothread = true
+
+  disks {
+    ide {
+      ide2 {
+        cdrom {
+          iso = "ISO file"
+        }
+      }
+    }
+  }
   }
 
   network {
