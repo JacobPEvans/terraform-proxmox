@@ -16,20 +16,20 @@ resource "proxmox_virtual_environment_vm" "splunk" {
   }
 
   cpu {
-    cores    = 4
-    type     = "x86-64-v2-AES"
+    cores = 4
+    type  = "x86-64-v2-AES"
   }
 
   memory {
     dedicated = 2048
-    floating  = 2048  # set equal to dedicated to enable ballooning
+    floating  = 2048 # set equal to dedicated to enable ballooning
     #hugepages = "disable"
   }
 
   disk {
     datastore_id = "local-lvm"
     interface    = "scsi0"
-    size         = 100
+    size         = 64
     file_format  = "raw"
     iothread     = true
   }
