@@ -23,8 +23,7 @@ resource "proxmox_virtual_environment_vm" "splunk" {
   }
 
   agent {
-    # read 'Qemu guest agent' section, change to true only when ready
-    enabled = false
+    enabled = true
   }
 
   cdrom {
@@ -44,7 +43,7 @@ resource "proxmox_virtual_environment_vm" "splunk" {
 
   disk {
     datastore_id      = "local-lvm"
-    path_in_datastore = "vm-110-disk-0"
+    #path_in_datastore = "vm-110-disk-0"
     interface         = "scsi0"
     size              = 64
     file_format       = "raw"

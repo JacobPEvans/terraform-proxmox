@@ -5,7 +5,6 @@ resource "proxmox_virtual_environment_pool" "logging" {
 
 resource "random_password" "ubuntu_vm_password" {
   length           = 16
-  override_special = "_%@"
   special          = true
 }
 

@@ -1,14 +1,12 @@
-resource "proxmox_virtual_environment_container" "syslog" {
+resource "proxmox_virtual_environment_vm" "syslog" {
   vm_id       = 100
   node_name   = var.proxmox_node
-  description = "TF CT Syslog"
+  name        = "syslog"
+  description = "TF VM Syslog"
   tags        = ["terraform", "ubuntu", "syslog"]
 
-  protection = false
-
   initialization {
-    hostname = "tf-pve-ubuntu-ct-syslog"
-
+    datastore_id = "local-lvm"
     ip_config {
       ipv4 {
         address = "10.0.1.100/32"
@@ -19,38 +17,44 @@ resource "proxmox_virtual_environment_container" "syslog" {
       keys = [
         trimspace(tls_private_key.ubuntu_vm_key.public_key_openssh)
       ]
+      username = var.proxmox_username
       password = random_password.ubuntu_vm_password.result
     }
   }
 
+  agent {
+    enabled = true
+  }
+
+  cdrom {
+    file_id = "local:iso/${var.proxmox_iso_ubuntu}"
+  }
+
   cpu {
-    cores = 2
+    cores = 4
+    type  = "x86-64-v2-AES"
   }
 
   memory {
-    dedicated = 512
-    swap      = 512
+    dedicated = 2048
+    floating  = 2048 # set equal to dedicated to enable ballooning
+    #hugepages = "disable"
   }
 
   disk {
-    datastore_id = "local-lvm"
-    size         = 16
+    datastore_id      = "local-lvm"
+    #path_in_datastore = "vm-100-disk-0"
+    interface         = "scsi0"
+    size              = 16
+    file_format       = "raw"
+    iothread          = true
   }
 
-  mount_point {
-    # volume mount, a new volume will be created by PVE
-    volume = "local-lvm"
-    size   = "8G"
-    path   = "/mnt/volume"
-  }
-
-  network_interface {
-    name   = "eth0"
+  network_device {
     bridge = "vmbr0"
   }
 
   operating_system {
-    template_file_id = "local:vztmpl/${var.proxmox_ct_template_ubuntu}"
-    type             = "ubuntu"
+    type = "l26"
   }
 }
