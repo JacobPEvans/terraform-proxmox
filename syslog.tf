@@ -42,12 +42,12 @@ resource "proxmox_virtual_environment_vm" "syslog" {
   }
 
   disk {
-    datastore_id      = "local-lvm"
+    datastore_id = "local-lvm"
     #path_in_datastore = "vm-100-disk-0"
-    interface         = "scsi0"
-    size              = 16
-    file_format       = "raw"
-    iothread          = true
+    interface   = "scsi0"
+    size        = 16
+    file_format = "raw"
+    iothread    = true
   }
 
   network_device {

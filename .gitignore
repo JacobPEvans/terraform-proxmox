@@ -2,15 +2,74 @@
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfstate.backup
 crash.log
 *.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
 
-# Terraform has created a lock file .terraform.lock.hcl to record the provider
-# selections it made above. Include this file in your version control repository
-# so that Terraform can guarantee to make the same selections by default when
-# you run "terraform init" in the future.
+# Terragrunt files
+.terragrunt-cache/
+backend.tf
+provider_override.tf
+terragrunt-debug.tfvars.json
+
+# Terraform lock file - include this for consistency
+# Uncomment to exclude if needed for different provider versions across environments
 # .terraform.lock.hcl
+
+# SSH keys and certificates
+*.pem
+*.key
+*_rsa*
+*_dsa*
+*_ecdsa*
+*_ed25519*
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+*.crt
+*.p12
+*.pfx
+
+# AWS credentials and config
+.aws/
+aws-credentials
+*.aws
+
+# Environment files
+.env
+.env.*
+!.env.example
 
 # IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS specific files
+*.log
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Local development files
+local/
+temp/
+tmp/
+.local/

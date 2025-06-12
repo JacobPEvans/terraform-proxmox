@@ -4,8 +4,8 @@ resource "proxmox_virtual_environment_pool" "logging" {
 }
 
 resource "random_password" "ubuntu_vm_password" {
-  length           = 16
-  special          = true
+  length  = 16
+  special = true
 }
 
 resource "tls_private_key" "ubuntu_vm_key" {
