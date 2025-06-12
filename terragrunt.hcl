@@ -25,7 +25,7 @@ inputs = {
   # Default Proxmox configuration
   # These can be overridden via terraform.tfvars or environment variables
   proxmox_node     = "pve"
-  proxmox_username = "terraform"
+  proxmox_username = "proxmox"
   proxmox_insecure = false
 }
 
