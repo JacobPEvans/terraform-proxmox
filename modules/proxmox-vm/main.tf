@@ -20,7 +20,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
     [var.environment]
   )
 
-  pool_id = each.value.pool_id
+  pool_id    = each.value.pool_id
   protection = each.value.protection
 
   agent {
@@ -30,8 +30,8 @@ resource "proxmox_virtual_environment_vm" "vms" {
   }
 
   cpu {
-    cores = each.value.cpu_cores
-    type  = each.value.cpu_type
+    cores      = each.value.cpu_cores
+    type       = each.value.cpu_type
     hotplugged = 0
   }
 
