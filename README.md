@@ -2,6 +2,16 @@
 
 This project manages Proxmox VE infrastructure using Terraform and Terragrunt with a modular architecture.
 
+Infrastructure as Code (IaC) for managing Proxmox Virtual Environment resources using Terraform and Terragrunt.
+
+## 🏗️ Overview
+
+This repository provides Terraform configurations to provision and manage:
+- Virtual machines and containers on Proxmox VE
+- Logging infrastructure (Splunk, Syslog)
+- Resource pools and networking
+- SSH keys and authentication
+
 ## Architecture
 
 The project has been refactored into a modular structure for better maintainability and reusability:
@@ -55,12 +65,29 @@ terraform-proxmox/
 4. **Better Security**: Centralized credential management
 5. **Consistent Configuration**: Standardized VM and container settings
 
-## Usage
+## 🚀 Quick Start
 
 ### Prerequisites
+- Terraform >= 1.0
+- Terragrunt >= 0.45.0
+- AWS CLI configured
+- Proxmox API token
+
 1. Proxmox VE server configured and accessible
 2. Terraform and Terragrunt installed
 3. AWS S3 bucket for state storage (configured in terragrunt.hcl)
+
+### Setup
+```bash
+# Initialize the environment
+terragrunt init
+
+# Plan your changes
+terragrunt plan
+
+# Apply the infrastructure
+terragrunt apply
+```
 
 ### Configuration
 1. Update `terraform.tfvars` with your Proxmox configuration:
@@ -81,6 +108,8 @@ terraform-proxmox/
    }
    ```
 
+## Usage
+
 ### Commands
 ```bash
 # Initialize
@@ -98,6 +127,30 @@ terragrunt apply
 # Format code
 terragrunt fmt
 ```
+
+## 📁 Repository Structure
+
+| File | Purpose |
+|------|---------|
+| `main.tf` | Core resource definitions |
+| `provider.tf` | Terraform provider configurations |
+| `variables.tf` | Input variable definitions |
+| `terragrunt.hcl` | Remote state management |
+| `container.tf` | Container resources |
+| `splunk.tf` | Splunk infrastructure |
+| `syslog.tf` | Syslog server configuration |
+
+## 🔧 Configuration
+
+### Required Variables
+- `proxmox_api_endpoint` - Proxmox API URL
+- `proxmox_api_token` - API authentication token
+- `proxmox_ssh_private_key` - SSH key for VM access
+
+### State Management
+- **Backend**: AWS S3 + DynamoDB
+- **Region**: us-east-2
+- **Encryption**: Enabled
 
 ## Storage Configuration
 
@@ -119,12 +172,20 @@ Both VMs (splunk and syslog) are now configured with:
 - Cloud-init integration
 - SSH key authentication
 
-## Security
+## 📖 Documentation
+
+- **[CLAUDE.md](./CLAUDE.md)** - Comprehensive setup guide and best practices
+- **[PLANNING.md](./PLANNING.md)** - Current project status and planning
+
+## 🛡️ Security
 
 - Passwords are randomly generated and stored in Terraform state
 - SSH keys are generated automatically
 - All sensitive outputs are marked as sensitive
 - Credentials are shared across all VMs and containers
+- API tokens and SSH keys are managed securely
+- State files are encrypted in S3
+- Least-privilege access principles applied
 
 ## Best Practices Implemented
 
@@ -135,9 +196,20 @@ Both VMs (splunk and syslog) are now configured with:
 5. **Lifecycle Management**: Proper resource lifecycle configuration
 6. **Error Handling**: Robust error handling and validation
 
+## 🤝 Contributing
+
+1. Plan changes with `terragrunt plan`
+2. Review infrastructure changes carefully
+3. Test in isolated environments
+4. Follow conventional commit messages
+
 ## Future Enhancements
 
 - Add support for additional VM types
 - Implement backup automation
 - Add monitoring and alerting configurations
 - Integrate with configuration management tools
+
+## 📄 License
+
+This project is for internal infrastructure management.
