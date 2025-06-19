@@ -50,7 +50,7 @@ aws configure
 ### Terraform Variables
 Create or update `terraform.tfvars` with your environment-specific values:
 ```hcl
-proxmox_api_endpoint = "https://pve.mgmt:8006/api2/json"
+proxmox_api_endpoint = "https://pve.example.com:8006/api2/json"
 proxmox_api_token = "your-api-token-here"
 proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
 ```
@@ -155,3 +155,36 @@ terragrunt destroy
 - Branch protection for main branch
 - Require pull request reviews
 - Automated testing where possible
+
+## Infrastructure Context
+Real infrastructure details are maintained in a separate private repository for security.
+
+This file contains placeholder/example values for public repository safety. Reference the private context for actual:
+- Hostnames and IP addresses
+- API endpoints and credentials
+- Network configurations
+- Development environment paths
+
+## Git Workflow Standards
+Use the `/commit` command for all git operations. This repository uses:
+
+**Command Location**: `.claude/commands/commit.md`
+**Repository-Specific Overrides**: `.claude/overrides/commit-validation.md` (optional)
+
+### Key Features
+- Universal git workflow with terraform-specific validation guidance
+- Proper branch creation and naming (feat/, fix/, chore/, docs/)
+- Conventional commit message generation
+- Automatic PR creation and management
+- Repository type detection (private/public)
+- Never squash merge - preserves commit history
+- Claude Code maintains reasoning discretion while following repository-specific guidance
+
+### Repository-Specific Validation
+The `.claude/overrides/commit-validation.md` file provides guidance for:
+- Terraform syntax validation priorities
+- Infrastructure security considerations  
+- Resource dependency checks
+- State management best practices
+
+**Usage**: Simply type `/commit` to follow the complete workflow with terraform-specific guidance.

@@ -45,7 +45,7 @@
 ## Repository Context
 
 ### Infrastructure Overview
-- **Target**: Proxmox Virtual Environment (pve.mgmt:8006)
+- **Target**: Proxmox Virtual Environment (pve.jacobpevans.com:8006)
 - **Purpose**: VM/container provisioning and logging infrastructure
 - **State Backend**: AWS S3 + DynamoDB (us-east-2 region)
 - **Tools**: Terraform + Terragrunt
@@ -58,7 +58,7 @@
 - `container.tf`, `splunk.tf`, `syslog.tf` - Service-specific resources
 
 ### Network Status
-- ✅ Connectivity to pve.mgmt (10.0.1.14) verified
+- ✅ Connectivity to pve.jacobpevans.com verified
 - ⚠️ GitHub SSH access blocked (authentication issue)
 - 🔄 AWS connectivity pending verification
 
