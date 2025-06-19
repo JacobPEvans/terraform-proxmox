@@ -1,1 +1,1 @@
-/home/jev/.claude/commands/commit.md
+.claude/commands/commit.md
