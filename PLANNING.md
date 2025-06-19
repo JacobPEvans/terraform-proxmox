@@ -4,9 +4,9 @@
 
 ### ✅ Completed Tasks
 1. **Repository Setup**
-   - Created ~/git directory at `/home/jev/git/`
+   - Created ~/git directory at `${HOME}/git`
    - Successfully cloned terraform-proxmox repository using HTTPS fallback
-   - Repository location: `/home/jev/git/terraform-proxmox/`
+   - Repository location: `${HOME}/git/terraform-proxmox/`
 
 2. **Git Configuration Verified**
    - User: JacobPEvans
