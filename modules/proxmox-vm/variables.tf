@@ -81,7 +81,7 @@ variable "environment" {
 variable "default_datastore" {
   description = "Default datastore for VM storage"
   type        = string
-  default     = "local-lvm"
+  default     = "local-zfs"
 }
 
 variable "proxmox_api_endpoint" {

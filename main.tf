@@ -60,7 +60,7 @@ module "vms" {
   }
 
   environment       = var.environment
-  default_datastore = "local-lvm"
+  default_datastore = "local-zfs"
 
   proxmox_api_token       = var.proxmox_api_token
   proxmox_api_endpoint    = var.proxmox_api_endpoint
@@ -85,7 +85,7 @@ module "containers" {
   }
 
   environment       = var.environment
-  default_datastore = "local-lvm"
+  default_datastore = "local-zfs"
 
   depends_on = [module.pools, module.storage]
 }
