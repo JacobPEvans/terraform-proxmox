@@ -1,0 +1,67 @@
+# Proxmox Configuration Example
+# Copy this file to terraform.tfvars and customize for your environment
+
+# Proxmox API Configuration
+proxmox_api_endpoint = "https://pve.example.com:8006/api2/json"
+proxmox_api_token = "username@realm!tokenid=secret-value-here"
+proxmox_insecure = false
+
+# Proxmox Node Configuration
+proxmox_node = "pve"
+proxmox_username = "ubuntu"
+
+# SSH Configuration - Choose one approach:
+# Option 1: File path (less secure, for development only)
+# proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
+
+# Option 2: Environment variable (recommended)
+# export TF_VAR_proxmox_ssh_private_key="$(cat ~/.ssh/id_rsa_pve)"
+
+# Option 3: AWS Systems Manager Parameter Store (most secure)
+# Store key in AWS SSM: aws ssm put-parameter --name "/terraform/proxmox/ssh_key" --value "$(cat ~/.ssh/id_rsa_pve)" --type "SecureString"
+# Then reference: proxmox_ssh_private_key = data.aws_ssm_parameter.ssh_key.value
+
+# VM Configuration
+vms = {
+  "test-vm" = {
+    vm_id       = 201
+    name        = "test-vm"
+    description = "Test virtual machine"
+    cpu_cores   = 2
+    memory      = 2048
+    disk_size   = 20
+    pool_id     = "test-pool"
+  }
+}
+
+# Container Configuration (optional)
+containers = {
+  # "test-container" = {
+  #   vm_id       = 301
+  #   hostname    = "test-container"
+  #   description = "Test container"
+  #   cpu_cores   = 1
+  #   memory      = 1024
+  #   disk_size   = 8
+  #   pool_id     = "test-pool"
+  # }
+}
+
+# Pool Configuration
+pools = {
+  "test-pool" = {
+    pool_id = "test-pool"
+    comment = "Test resource pool"
+  }
+}
+
+# Storage Configuration (optional)
+datastores = [
+  # {
+  #   datastore_id = "backup-storage"
+  #   type         = "nfs"
+  #   server       = "nas.example.com"
+  #   export       = "/mnt/backup"
+  #   content      = ["backup", "iso", "vztmpl"]
+  # }
+]

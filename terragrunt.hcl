@@ -58,7 +58,7 @@ provider "proxmox" {
   ssh {
     agent       = false
     username    = var.proxmox_ssh_username
-    private_key = file(var.proxmox_ssh_private_key)
+    private_key = can(regex("^-----BEGIN", var.proxmox_ssh_private_key)) ? var.proxmox_ssh_private_key : try(file(var.proxmox_ssh_private_key), var.proxmox_ssh_private_key)
   }
 }
 EOF
@@ -78,9 +78,9 @@ proxmox_api_endpoint = ""
 # Example: "root@pam!terraform=your-secret-token-here"
 proxmox_api_token = ""
 
-# SSH Configuration
+# SSH Configuration  
 proxmox_ssh_username = "root@pam"
-proxmox_ssh_private_key = "~/.ssh/id_rsa"
+proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
 
 # VM Configuration
 proxmox_node = "pve"

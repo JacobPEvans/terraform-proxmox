@@ -98,23 +98,23 @@ terragrunt destroy
 
 ## Best Practices
 
-### Code Organization
+**For generic Claude Code and development best practices, see**: `~/CLAUDE.md` (source: ai-assistant-instructions repository)
+
+### Terraform-Specific Best Practices
 - Keep resource definitions modular
 - Use consistent naming conventions
 - Document all variables with descriptions
 - Use sensitive = true for secrets
-
-### Security
-- Never commit API tokens or passwords
-- Use separate SSH keys for different environments
-- Enable encryption for state files
-- Implement least-privilege access
-
-### State Management
 - Always use remote state for production
 - Enable state locking to prevent conflicts
 - Regular state backups via S3 versioning
 - Use consistent state key naming
+
+### Security Best Practices
+- Never commit API tokens or passwords
+- Use separate SSH keys for different environments
+- Enable encryption for state files
+- Implement least-privilege access
 
 ## Troubleshooting
 
@@ -151,10 +151,7 @@ terragrunt destroy
 - Documentation updates
 
 ## Repository Standards
-- Use conventional commit messages
-- Branch protection for main branch
-- Require pull request reviews
-- Automated testing where possible
+**For generic Git workflow and repository standards, see**: `~/CLAUDE.md`
 
 ## Infrastructure Context
 Real infrastructure details are maintained in a separate private repository for security.

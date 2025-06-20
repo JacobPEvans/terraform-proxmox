@@ -37,9 +37,14 @@ variable "proxmox_ssh_username" {
 }
 
 variable "proxmox_ssh_private_key" {
-  description = "The path to the SSH private key for connecting to the Proxmox node"
+  description = "The SSH private key content for connecting to the Proxmox node (use secure parameter store or environment variable)"
   type        = string
-  default     = "~/.ssh/id_rsa"
+  sensitive   = true
+  default     = "~/.ssh/id_rsa_pve"
+  validation {
+    condition     = can(regex("^(~/.ssh/|/.*|-----BEGIN)", var.proxmox_ssh_private_key))
+    error_message = "SSH private key must be either a file path starting with ~/ or /, or the actual key content starting with -----BEGIN."
+  }
 }
 
 variable "proxmox_username" {
@@ -141,6 +146,27 @@ variable "vms" {
     os_type       = optional(string, "l26")
   }))
   default = {}
+  
+  validation {
+    condition = alltrue([
+      for k, v in var.vms : v.vm_id >= 100 && v.vm_id <= 999999999
+    ])
+    error_message = "VM IDs must be between 100 and 999999999."
+  }
+  
+  validation {
+    condition = alltrue([
+      for k, v in var.vms : v.cpu_cores >= 1 && v.cpu_cores <= 32
+    ])
+    error_message = "CPU cores must be between 1 and 32."
+  }
+  
+  validation {
+    condition = alltrue([
+      for k, v in var.vms : v.memory_dedicated >= 256 && v.memory_dedicated <= 65536
+    ])
+    error_message = "Memory must be between 256 MB and 64 GB."
+  }
 }
 
 # Containers configuration
