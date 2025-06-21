@@ -187,6 +187,7 @@ module "containers" {
 ### Organization Strategies
 
 1. **By Environment**
+
    ```hcl
    pools = {
      "development" = { pool_id = "development", comment = "Dev environment" }
@@ -196,6 +197,7 @@ module "containers" {
    ```
 
 2. **By Application Stack**
+
    ```hcl
    pools = {
      "frontend"  = { pool_id = "frontend", comment = "Frontend services" }
@@ -206,6 +208,7 @@ module "containers" {
    ```
 
 3. **By Team/Project**
+
    ```hcl
    pools = {
      "team-alpha"   = { pool_id = "team-alpha", comment = "Team Alpha resources" }

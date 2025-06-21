@@ -30,3 +30,15 @@ variable "environment" {
   type        = string
   default     = "homelab"
 }
+
+variable "default_datastore" {
+  description = "Default datastore for VM disks"
+  type        = string
+  default     = "local-zfs"
+}
+
+variable "enable_cloud_init_config" {
+  description = "Enable cloud-init configuration file creation"
+  type        = bool
+  default     = false
+}

@@ -1,0 +1,21 @@
+# Markdownlint configuration for terraform-proxmox repository
+# See https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+# Default state for all rules
+default: true
+
+# Extend line length for code blocks and tables
+MD013:
+  line_length: 120
+  code_blocks: false
+  tables: false
+
+# Allow duplicate headers in CHANGELOG files (standard changelog format)
+MD024:
+  siblings_only: true
+
+# Allow inline HTML for GitHub issue templates
+MD033: false
+
+# Allow first line to not be heading (for GitHub templates with frontmatter)
+MD041: false

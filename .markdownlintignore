@@ -1,0 +1,4 @@
+# Ignore Terraform provider files and cache directories
+.terraform/**
+.terragrunt-cache/**
+node_modules/**

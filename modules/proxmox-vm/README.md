@@ -179,6 +179,7 @@ module "vms" {
 ## Examples
 
 See the `examples/` directory for complete working examples:
+
 - `examples/basic-vm/` - Simple single VM setup
 - `examples/multi-vm/` - Multiple VMs with different configurations
 - `examples/advanced/` - Advanced features and configurations

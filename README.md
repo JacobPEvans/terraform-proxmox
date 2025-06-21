@@ -7,6 +7,7 @@ Infrastructure as Code (IaC) for managing Proxmox Virtual Environment resources 
 ## 🏗️ Overview
 
 This repository provides Terraform configurations to provision and manage:
+
 - Virtual machines and containers on Proxmox VE
 - Ansible infrastructure to manage all VMs and containers
 - Logging infrastructure (Splunk, Syslog)
@@ -17,7 +18,7 @@ This repository provides Terraform configurations to provision and manage:
 
 The project has been refactored into a modular structure for better maintainability and reusability:
 
-```
+```text
 terraform-proxmox/
 ├── main.tf                    # Root module orchestrating all components
 ├── variables.tf               # Root-level variable definitions
@@ -51,6 +52,7 @@ terraform-proxmox/
 ## Features
 
 ### Implemented
+
 - **Modular Design**: Separate modules for different resource types
 - **Security**: Centralized password and SSH key generation
 - **Resource Pools**: Organized resource management
@@ -60,6 +62,7 @@ terraform-proxmox/
 - **Terragrunt Integration**: Backend configuration and state management
 
 ### Benefits of the New Structure
+
 1. **Eliminated Duplication**: VMs (splunk, syslog) now use the same module
 2. **Improved Reusability**: Modules can be used across different environments
 3. **Enhanced Maintainability**: Clear separation of concerns
@@ -69,6 +72,7 @@ terraform-proxmox/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Terraform >= 1.0
 - Terragrunt >= 0.45.0
 - AWS CLI configured
@@ -79,6 +83,7 @@ terraform-proxmox/
 3. AWS S3 bucket for state storage (configured in terragrunt.hcl)
 
 ### Setup
+
 ```bash
 # Initialize the environment
 terragrunt init
@@ -91,7 +96,9 @@ terragrunt apply
 ```
 
 ### Configuration
+
 1. Update `terraform.tfvars` with your Proxmox configuration:
+
    ```hcl
    proxmox_api_endpoint = "https://your-proxmox:8006/api2/json"
    proxmox_api_token    = "your-api-token"
@@ -99,6 +106,7 @@ terragrunt apply
    ```
 
 2. Configure your VMs in the `vms` variable:
+
    ```hcl
    vms = {
      splunk = {
@@ -112,6 +120,7 @@ terragrunt apply
 ## Usage
 
 ### Commands
+
 ```bash
 # Initialize
 terragrunt run-all init
@@ -144,20 +153,25 @@ terragrunt fmt
 ## 🔧 Configuration
 
 ### Required Variables
+
 - `proxmox_api_endpoint` - Proxmox API URL
 - `proxmox_api_token` - API authentication token
 - `proxmox_ssh_private_key` - SSH key for VM access
 
 ### State Management
+
 - **Backend**: AWS S3 + DynamoDB
 - **Region**: us-east-2
 - **Encryption**: Enabled
 
 ## Storage Configuration
 
-**Note**: Proxmox datastore creation is typically done manually or via Proxmox API. The bpg/proxmox provider doesn't support datastore creation through Terraform. This follows Proxmox best practices to manage storage at the hypervisor level.
+**Note**: Proxmox datastore creation is typically done manually or via Proxmox API.
+The bpg/proxmox provider doesn't support datastore creation through Terraform.
+This follows Proxmox best practices to manage storage at the hypervisor level.
 
 Default datastores used:
+
 - `local`: For ISO images, snippets, backups
 - `local-lvm`: For VM disks
 
@@ -166,6 +180,7 @@ Additional datastores should be configured directly in Proxmox VE before running
 ## VM Configuration
 
 Both VMs (splunk and syslog) are now configured with:
+
 - 4 CPU cores
 - 2048 MB memory with ballooning
 - 64 GB disk (standardized)
