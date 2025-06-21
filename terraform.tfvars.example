@@ -12,13 +12,13 @@ proxmox_username = "ubuntu"
 
 # SSH Configuration - Choose one approach:
 # Option 1: File path (less secure, for development only)
-# proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
+# proxmox_ssh_private_key = "~/.ssh/id_rsa"
 
 # Option 2: Environment variable (recommended)
-# export TF_VAR_proxmox_ssh_private_key="$(cat ~/.ssh/id_rsa_pve)"
+# export TF_VAR_proxmox_ssh_private_key="$(cat ~/.ssh/id_rsa)"
 
 # Option 3: AWS Systems Manager Parameter Store (most secure)
-# Store key in AWS SSM: aws ssm put-parameter --name "/terraform/proxmox/ssh_key" --value "$(cat ~/.ssh/id_rsa_pve)" --type "SecureString"
+# Store key in AWS SSM: aws ssm put-parameter --name "/terraform/proxmox/ssh_key" --value "$(cat ~/.ssh/id_rsa)" --type "SecureString"
 # Then reference: proxmox_ssh_private_key = data.aws_ssm_parameter.ssh_key.value
 
 # VM Configuration

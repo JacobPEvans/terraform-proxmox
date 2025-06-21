@@ -73,9 +73,9 @@ proxmox_api_endpoint = ""
 # Example: "root@pam!terraform=your-secret-token-here"
 proxmox_api_token = ""
 
-# SSH Configuration  
+# SSH Configuration
 proxmox_ssh_username = "root@pam"
-proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
+proxmox_ssh_private_key = "~/.ssh/id_rsa"
 
 # VM Configuration
 proxmox_node = "pve"

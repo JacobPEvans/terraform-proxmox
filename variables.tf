@@ -40,7 +40,7 @@ variable "proxmox_ssh_private_key" {
   description = "The SSH private key content for connecting to the Proxmox node (use secure parameter store or environment variable)"
   type        = string
   sensitive   = true
-  default     = "~/.ssh/id_rsa_pve"
+  default     = "~/.ssh/id_rsa"
   validation {
     condition     = can(regex("^(~/.ssh/|/.*|-----BEGIN)", var.proxmox_ssh_private_key))
     error_message = "SSH private key must be either a file path starting with ~/ or /, or the actual key content starting with -----BEGIN."

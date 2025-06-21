@@ -6,14 +6,13 @@ This repository contains Terraform/Terragrunt configurations for managing Proxmo
 ## Architecture & Components
 
 ### Core Files
-- `main.tf` - Core resource definitions (pools, VMs, keys, passwords)
-- `provider.tf` - Terraform provider configurations
+- `main.tf` - Core resource definitions using modular architecture
 - `variables.tf` - Input variable definitions
+- `outputs.tf` - Output definitions
+- `locals.tf` - Local computed values
 - `terragrunt.hcl` - Terragrunt configuration with remote state management
 - `container.tf` - Container-specific resource definitions
-- `ansible.tf` - Ansible-related infrastructure
-- `splunk.tf` - Splunk-related infrastructure
-- `syslog.tf` - Syslog server configuration
+- `modules/` - Modular components (security, proxmox-vm, proxmox-container, proxmox-pool, storage)
 
 ### State Management
 - **Backend**: AWS S3 + DynamoDB for state locking
@@ -164,25 +163,12 @@ This file contains placeholder/example values for public repository safety. Refe
 - Development environment paths
 
 ## Git Workflow Standards
-Use the `/commit` command for all git operations. This repository uses:
+**For generic Git workflow and repository standards, see**: `~/CLAUDE.md`
 
-**Command Location**: `.claude/commands/commit.md`
-**Repository-Specific Overrides**: `.claude/overrides/commit-validation.md` (optional)
-
-### Key Features
-- Universal git workflow with terraform-specific validation guidance
-- Proper branch creation and naming (feat/, fix/, chore/, docs/)
-- Conventional commit message generation
-- Automatic PR creation and management
-- Repository type detection (private/public)
-- Never squash merge - preserves commit history
-- Claude Code maintains reasoning discretion while following repository-specific guidance
-
-### Repository-Specific Validation
-The `.claude/overrides/commit-validation.md` file provides guidance for:
-- Terraform syntax validation priorities
-- Infrastructure security considerations
-- Resource dependency checks
-- State management best practices
-
-**Usage**: Simply type `/commit` to follow the complete workflow with terraform-specific guidance.
+### Repository-Specific Guidelines
+- Always run `terragrunt plan` before commits
+- Validate terraform syntax with `terragrunt validate`
+- Test infrastructure changes in isolated environments
+- Follow conventional commit messages
+- Never commit sensitive information (API tokens, passwords)
+- Use feature branches for all changes
