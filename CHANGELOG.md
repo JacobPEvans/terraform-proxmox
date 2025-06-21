@@ -51,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [25.6.20] - 2025-06-20
 
+<!-- Calendar Versioning Format: YY.M.DD -->
+
 ### Added
 
 - Initial Terraform/Terragrunt infrastructure for Proxmox VE

@@ -13,7 +13,7 @@ terraform {
 # https://github.com/JevonM/int_homelab/pull/1
 # Cloud-init configuration file for VMs
 resource "proxmox_virtual_environment_file" "cloud_init_config" {
-  count = 0 # Temporarily disabled due to datastore issues
+  count = var.enable_cloud_init_config ? 1 : 0
 
   content_type = "snippets"
   datastore_id = "local"

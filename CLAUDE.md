@@ -115,7 +115,7 @@ terragrunt destroy
 
 ## Best Practices
 
-**For generic Claude Code and development best practices, see**: `~/CLAUDE.md` (source: ai-assistant-instructions repository)
+**For generic Claude Code and development best practices, see**: [Standardized CLAUDE.md](../CLAUDE.md)
 
 ### Terraform-Specific Best Practices
 
@@ -174,7 +174,7 @@ terragrunt destroy
 
 ## Repository Standards
 
-**For generic Git workflow and repository standards, see**: `~/CLAUDE.md`
+**For generic Git workflow and repository standards, see**: [Standardized CLAUDE.md](../CLAUDE.md)
 
 ## Infrastructure Context
 
@@ -189,7 +189,7 @@ This file contains placeholder/example values for public repository safety. Refe
 
 ## Git Workflow Standards
 
-**For generic Git workflow and repository standards, see**: `~/CLAUDE.md`
+**For generic Git workflow and repository standards, see**: [Standardized CLAUDE.md](../CLAUDE.md)
 
 ### Repository-Specific Guidelines
 
