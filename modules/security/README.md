@@ -200,12 +200,6 @@ chmod 600 ~/.ssh/proxmox_key
 ssh -i ~/.ssh/proxmox_key ubuntu@vm-ip-address
 ```
 
-## Requirements
-
-- Terraform >= 1.0
-- hashicorp/tls provider >= 4.1.0
-- hashicorp/random provider >= 3.7.2
-
 ## Security Considerations
 
 - Never commit private keys to version control
