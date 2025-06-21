@@ -86,18 +86,21 @@ locals {
 ## Security Best Practices
 
 ### Password Security
+
 - Use minimum 16 characters for passwords
 - Enable special characters for increased entropy
 - Store passwords in secure parameter stores (AWS SSM, HashiCorp Vault)
 - Rotate passwords regularly
 
 ### SSH Key Security
+
 - Use minimum 2048-bit RSA keys (4096-bit for high-security environments)
 - Store private keys securely with appropriate file permissions (600)
 - Use separate keys for different environments
 - Implement key rotation policies
 
 ### Terraform State Security
+
 - Enable state encryption for remote backends
 - Restrict access to state files
 - Use state locking to prevent concurrent modifications

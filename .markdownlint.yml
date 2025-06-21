@@ -13,3 +13,9 @@ MD013:
 # Allow duplicate headers in CHANGELOG files (standard changelog format)
 MD024:
   siblings_only: true
+
+# Allow inline HTML for GitHub issue templates
+MD033: false
+
+# Allow first line to not be heading (for GitHub templates with frontmatter)
+MD041: false

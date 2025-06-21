@@ -1,0 +1,7 @@
+# Ignore Terraform provider files and cache directories
+.terraform/**
+.terragrunt-cache/**
+node_modules/**
+
+# Ignore claude commands that have complex formatting
+.claude/commands/**
