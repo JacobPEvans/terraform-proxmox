@@ -55,7 +55,8 @@
 - `terragrunt.hcl` - Remote state configuration
 - `provider.tf` - Terraform providers
 - `variables.tf` - Input variables
-- `container.tf`, `splunk.tf`, `syslog.tf` - Service-specific resources
+- `container.tf` - LXC container definitions
+- `ansible.tf`, `splunk.tf`, `syslog.tf` - Service-specific resources
 
 ### Network Status
 - ✅ Connectivity to pve.jacobpevans.com verified

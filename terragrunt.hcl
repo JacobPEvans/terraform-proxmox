@@ -55,11 +55,6 @@ provider "proxmox" {
   endpoint  = var.proxmox_api_endpoint
   api_token = var.proxmox_api_token
   insecure  = var.proxmox_insecure
-  ssh {
-    agent       = false
-    username    = var.proxmox_ssh_username
-    private_key = can(regex("^-----BEGIN", var.proxmox_ssh_private_key)) ? var.proxmox_ssh_private_key : try(file(var.proxmox_ssh_private_key), var.proxmox_ssh_private_key)
-  }
 }
 EOF
 }
@@ -88,7 +83,7 @@ proxmox_username = "proxmox"
 proxmox_insecure = false
 
 # ISO and Template Configuration
-proxmox_iso_ubuntu = "ubuntu-24.04.1-live-server-amd64.iso"
+proxmox_iso_ubuntu = "ubuntu-24.04.2-live-server-amd64.iso"
 proxmox_ct_template_ubuntu = "ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 EOF
 }

@@ -57,6 +57,9 @@ variable "vms" {
 
     # Cloud-init / OS configuration
     cdrom_file_id = optional(string)
+    clone_template = optional(object({
+      template_id = number
+    }))
     user_account = object({
       username = string
       password = string

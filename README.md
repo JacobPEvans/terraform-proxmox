@@ -8,6 +8,7 @@ Infrastructure as Code (IaC) for managing Proxmox Virtual Environment resources 
 
 This repository provides Terraform configurations to provision and manage:
 - Virtual machines and containers on Proxmox VE
+- Ansible infrastructure to manage all VMs and containers
 - Logging infrastructure (Splunk, Syslog)
 - Resource pools and networking
 - SSH keys and authentication
