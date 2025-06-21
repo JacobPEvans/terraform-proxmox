@@ -13,7 +13,7 @@ body:
     id: description
     attributes:
       label: "Description"
-      description: "Provide a clear and concise description of the changes. What is the purpose of this pull request? What problem does it solve?"
+      description: "Provide a clear and concise description of the changes. What is the purpose of this pull request?"
     validations:
       required: true
 
