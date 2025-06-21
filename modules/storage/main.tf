@@ -9,7 +9,7 @@ terraform {
 
 # Cloud-init configuration file for VMs
 resource "proxmox_virtual_environment_file" "cloud_init_config" {
-  count = var.environment != "" ? 1 : 0
+  count = 0 # Temporarily disabled due to datastore issues
 
   content_type = "snippets"
   datastore_id = "local"

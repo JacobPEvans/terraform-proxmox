@@ -81,6 +81,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
     }
   }
 
+  dynamic "clone" {
+    for_each = each.value.clone_template != null ? [each.value.clone_template] : []
+    content {
+      vm_id = clone.value.template_id
+    }
+  }
+
   initialization {
     datastore_id = var.default_datastore
 

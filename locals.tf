@@ -16,12 +16,12 @@ locals {
 
   # VM defaults computed from variables
   vm_defaults = {
-    cpu_cores   = 2
-    memory      = 2048
-    disk_size   = 20
-    os_type     = "l26"
-    agent       = true
-    protection  = false
+    cpu_cores  = 2
+    memory     = 2048
+    disk_size  = 20
+    os_type    = "l26"
+    agent      = true
+    protection = false
   }
 
   # Container defaults
@@ -36,7 +36,7 @@ locals {
   }
 
   # ISO and template configurations
-  default_iso = var.proxmox_iso_ubuntu
+  default_iso         = var.proxmox_iso_ubuntu
   default_ct_template = var.proxmox_ct_template_ubuntu
 
   # Validation helpers
@@ -63,7 +63,7 @@ locals {
 
   # Storage configurations
   storage_defaults = {
-    datastore_id = "local-lvm"
+    datastore_id = "local-zfs"
     file_format  = "raw"
     iothread     = true
     ssd          = false

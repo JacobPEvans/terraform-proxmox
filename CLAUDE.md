@@ -11,21 +11,23 @@ This repository contains Terraform/Terragrunt configurations for managing Proxmo
 - `variables.tf` - Input variable definitions
 - `terragrunt.hcl` - Terragrunt configuration with remote state management
 - `container.tf` - Container-specific resource definitions
+- `ansible.tf` - Ansible-related infrastructure
 - `splunk.tf` - Splunk-related infrastructure
 - `syslog.tf` - Syslog server configuration
 
 ### State Management
 - **Backend**: AWS S3 + DynamoDB for state locking
-- **Bucket**: `terraform-proxmox-state-useast2-{account_id}`
+- **Bucket**: `terraform-proxmox-state-{region}-{account_id}`
 - **State Key**: `terraform-proxmox/{path}/terraform.tfstate`
 - **Region**: `us-east-2`
-- **Lock Table**: `terraform-proxmox-locks-useast2`
+- **Lock Table**: `terraform-proxmox-locks-{region}`
 
 ### Proxmox Configuration
 - **Default Node**: `pve`
 - **API Endpoint**: Configured via `proxmox_api_endpoint` variable
 - **Authentication**: API token based (`proxmox_api_token`)
 - **SSH Access**: Uses private key authentication for VM provisioning
+- **SSH VM Access**: SSH keys should be generated at Image or VM creation and known by Proxmox and Terraform
 
 ## Prerequisites
 
@@ -52,7 +54,7 @@ Create or update `terraform.tfvars` with your environment-specific values:
 ```hcl
 proxmox_api_endpoint = "https://pve.example.com:8006/api2/json"
 proxmox_api_token = "your-api-token-here"
-proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
+proxmox_ssh_private_key = "~/.ssh/id_rsa"
 ```
 
 ## Development Workflow
@@ -106,9 +108,9 @@ terragrunt destroy
 - Document all variables with descriptions
 - Use sensitive = true for secrets
 - Always use remote state for production
-- Enable state locking to prevent conflicts
 - Regular state backups via S3 versioning
 - Use consistent state key naming
+- Never update VM or container configurations directly. Always use Terraform.
 
 ### Security Best Practices
 - Never commit API tokens or passwords
@@ -125,8 +127,7 @@ terragrunt destroy
    - Confirm Proxmox API endpoint
 
 2. **State Lock Issues**
-   - Check DynamoDB table accessibility
-   - Force unlock if necessary: `terragrunt force-unlock LOCK_ID`
+   - Force unlock if necessary: `terragrunt force-unlock -force LOCK_ID`
 
 3. **Resource Conflicts**
    - Review existing resources in Proxmox
@@ -180,7 +181,7 @@ Use the `/commit` command for all git operations. This repository uses:
 ### Repository-Specific Validation
 The `.claude/overrides/commit-validation.md` file provides guidance for:
 - Terraform syntax validation priorities
-- Infrastructure security considerations  
+- Infrastructure security considerations
 - Resource dependency checks
 - State management best practices
 

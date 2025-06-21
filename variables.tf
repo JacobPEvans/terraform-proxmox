@@ -63,7 +63,7 @@ variable "proxmox_ct_template_ubuntu" {
 variable "proxmox_iso_ubuntu" {
   description = "The name of the Ubuntu ISO file to use for VMs"
   type        = string
-  default     = "ubuntu-24.04.1-live-server-amd64.iso"
+  default     = "ubuntu-24.04.2-live-server-amd64.iso"
 }
 
 # Resource pools configuration
@@ -140,27 +140,44 @@ variable "vms" {
       ipv4_gateway = optional(string)
     }), {})
 
+    # Template cloning
+    cdrom_file_id = optional(string)
+    clone_template = optional(object({
+      template_id = number
+    }))
+
+    # User account configuration
+    user_account = optional(object({
+      username = string
+      password = string
+      keys     = list(string)
+      }), {
+      username = "ubuntu"
+      password = "temp123"
+      keys     = []
+    })
+
     # Features
     agent_enabled = optional(bool, true)
     protection    = optional(bool, false)
     os_type       = optional(string, "l26")
   }))
   default = {}
-  
+
   validation {
     condition = alltrue([
       for k, v in var.vms : v.vm_id >= 100 && v.vm_id <= 999999999
     ])
     error_message = "VM IDs must be between 100 and 999999999."
   }
-  
+
   validation {
     condition = alltrue([
       for k, v in var.vms : v.cpu_cores >= 1 && v.cpu_cores <= 32
     ])
     error_message = "CPU cores must be between 1 and 32."
   }
-  
+
   validation {
     condition = alltrue([
       for k, v in var.vms : v.memory_dedicated >= 256 && v.memory_dedicated <= 65536

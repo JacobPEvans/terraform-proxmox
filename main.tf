@@ -13,7 +13,16 @@ terraform {
       source  = "hashicorp/random"
       version = ">= 3.7.2"
     }
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.4.0"
+    }
   }
+}
+
+# Read VM SSH public key
+data "local_file" "vm_ssh_public_key" {
+  filename = pathexpand("~/.ssh/id_rsa_vm.pub")
 }
 
 # Security module - generates passwords and SSH keys
@@ -49,13 +58,10 @@ module "vms" {
 
   vms = {
     for k, v in var.vms : k => merge(v, {
-      node_name     = var.proxmox_node
-      cdrom_file_id = "local:iso/${var.proxmox_iso_ubuntu}"
-      user_account = {
-        username = var.proxmox_username
-        password = module.security.vm_password
-        keys     = [module.security.vm_public_key_trimmed]
-      }
+      node_name      = var.proxmox_node
+      cdrom_file_id  = v.cdrom_file_id != null ? "local:iso/${var.proxmox_iso_ubuntu}" : null
+      clone_template = v.clone_template
+      user_account   = v.user_account
     })
   }
 
