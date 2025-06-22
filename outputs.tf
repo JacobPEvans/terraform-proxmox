@@ -1,19 +1,12 @@
-# Security outputs
-output "vm_password" {
-  description = "Generated password for VMs and containers"
-  value       = module.security.vm_password
-  sensitive   = true
+# SSH key outputs
+output "vm_ssh_public_key" {
+  description = "SSH public key used for VMs and containers"
+  value       = trimspace(data.local_file.vm_ssh_public_key.content)
 }
 
-output "vm_private_key" {
-  description = "Private SSH key for VMs and containers"
-  value       = module.security.vm_private_key
-  sensitive   = true
-}
-
-output "vm_public_key" {
-  description = "Public SSH key for VMs and containers"
-  value       = module.security.vm_public_key
+output "vm_ssh_key_file" {
+  description = "Path to the SSH public key file"
+  value       = data.local_file.vm_ssh_public_key.filename
 }
 
 # Pool outputs

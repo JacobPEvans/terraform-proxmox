@@ -298,9 +298,9 @@ pvesh get /pools/{poolid} --output-format json
 
 ## Requirements
 
-- Terraform >= 1.0
+- Terraform >= 1.12.2
 - Proxmox VE >= 7.0
-- bpg/proxmox provider >= 0.78.0
+- bpg/proxmox provider ~> 0.78
 
 ## Security Considerations
 

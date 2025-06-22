@@ -30,7 +30,8 @@ module "vms" {
       memory_dedicated = 2048
       
       boot_disk = {
-        size = 20
+        size      = 20
+        interface = "virtio0"  # Recommended for performance and compatibility
       }
       
       ip_config = {
@@ -78,7 +79,7 @@ module "vms" {
         {
           datastore_id = "hdd-storage"
           size         = 500
-          interface    = "scsi1"
+          interface    = "virtio1"  # Use virtio for additional disks too
         }
       ]
       
@@ -132,7 +133,7 @@ module "vms" {
   # Storage configuration
   boot_disk = optional(object({
     datastore_id = optional(string, "local-lvm")
-    interface    = optional(string, "scsi0")
+    interface    = optional(string, "virtio0")  # Changed from scsi0 to eliminate Proxmox warnings
     size         = optional(number, 32)      # Size in GB
     file_format  = optional(string, "raw")
     iothread     = optional(bool, true)
@@ -186,9 +187,9 @@ See the `examples/` directory for complete working examples:
 
 ## Requirements
 
-- Terraform >= 1.0
+- Terraform >= 1.12.2
 - Proxmox VE >= 7.0
-- bpg/proxmox provider >= 0.78.0
+- bpg/proxmox provider ~> 0.78
 
 ## Security Considerations
 

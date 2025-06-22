@@ -5,7 +5,47 @@ All notable changes to the terraform-proxmox infrastructure project will be docu
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## 2025-06-22
+
+### Changed
+
+- **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
+- **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach using `~/.ssh/id_rsa_vm.pub`
+- **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
+- **Terraform Version**: Updated minimum requirement to >= 1.12.2
+- **Terragrunt Version**: Updated to latest stable v0.81.10
+- **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance
+- **Resource Allocation**: Adjusted Splunk VM memory from 8192MB to 6144MB to fit hardware constraints
+- **Timeout Configuration**: Limited all timeouts to maximum 3 minutes for faster failure detection
+- **Secrets Sanitization**: Replaced all sensitive tokens and usernames with example values in public documentation
+
+### Added
+
+- **Ansible VM**: New VM configuration
+- **VERSION_UPDATE.md**: Comprehensive documentation of version updates and configuration fixes
+- **TROUBLESHOOTING.md**: Detailed troubleshooting guide for state locks, timeouts, and connectivity issues
+- **Hardware Documentation**: Detailed hardware constraints analysis (8 core AMD CPU, 16GB RAM)
+
+### Fixed
+
+- **Proxmox Warnings**: Eliminated "iothread is only valid with virtio disk" warnings by switching to virtio0 interface
+- **Cloud-init Warnings**: Resolved perl warnings in Proxmox cloud-init configuration
+- **State Management**: Cleaned up orphaned state entries and resolved state drift issues
+- **Provider Configuration**: Fixed invalid timeout configuration in proxmox provider
+
+### Removed
+
+- **Security Module**: Completely removed dynamic SSH key generation module from configuration
+- **Module Dependencies**: Cleaned up references to removed security module in outputs and main configuration
+- **Duplicate Documentation**: Removed DOCS.md, SYNC_SUMMARY.md, and VERSION_UPDATE.md files to eliminate redundancy
+
+### Security
+
+- **Static SSH Keys**: Improved security by using static SSH keys outside Terraform state management
+- **Cloud-init Integration**: Secure SSH key distribution via Proxmox cloud-init functionality
+- **Provider Validation**: Updated to latest provider versions with security fixes
+
+## 2025-06-21
 
 ### Added
 
@@ -49,9 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Operational improvements (automated inventory, monitoring)
 - Configure Ansible for VM management (Syslog, Splunk)
 
-## [25.6.20] - 2025-06-20
-
-<!-- Calendar Versioning Format: YY.M.DD -->
+## 2025-06-20
 
 ### Added
 

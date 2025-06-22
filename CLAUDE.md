@@ -32,7 +32,7 @@ Infrastructure as Code (IaC) principles.
 - **API Endpoint**: Configured via `proxmox_api_endpoint` variable
 - **Authentication**: API token based (`proxmox_api_token`)
 - **SSH Access**: Uses private key authentication for VM provisioning
-- **SSH VM Access**: SSH keys should be generated at Image or VM creation and known by Proxmox and Terraform
+- **SSH VM Access**: SSH keys should be generated before running Terraform/Terragrunt commands and injected into Proxmox using Cloud-Init `data "local_file" "ssh_public_key"`
 
 ## Prerequisites
 
@@ -42,6 +42,7 @@ Infrastructure as Code (IaC) principles.
 - Terragrunt >= 0.45.0
 - AWS CLI configured with appropriate permissions
 - SSH key pair for Proxmox access
+- SSH key pairs for VMs/containers
 
 ### Required Permissions
 
@@ -126,7 +127,7 @@ terragrunt destroy
 - Always use remote state for production
 - Regular state backups via S3 versioning
 - Use consistent state key naming
-- Never update VM or container configurations directly. Always use Terraform.
+- Never update VM or container configurations directly. Always use Terragrunt or Ansible.
 
 ### Security Best Practices
 
