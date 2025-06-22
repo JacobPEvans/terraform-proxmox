@@ -2,7 +2,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = ">= 0.78.0"
+      version = "~> 0.78"
     }
   }
 }
@@ -25,6 +25,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
 
   agent {
     enabled = each.value.agent_enabled
+    timeout = "3m"
     trim    = true
     type    = "virtio"
   }
@@ -42,7 +43,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
 
   disk {
     datastore_id = each.value.boot_disk.datastore_id != null ? each.value.boot_disk.datastore_id : var.default_datastore
-    interface    = each.value.boot_disk.interface != null ? each.value.boot_disk.interface : "scsi0"
+    interface    = each.value.boot_disk.interface != null ? each.value.boot_disk.interface : "virtio0"
     size         = each.value.boot_disk.size != null ? each.value.boot_disk.size : 32
     file_format  = each.value.boot_disk.file_format != null ? each.value.boot_disk.file_format : "raw"
     iothread     = each.value.boot_disk.iothread != null ? each.value.boot_disk.iothread : true
@@ -119,6 +120,15 @@ resource "proxmox_virtual_environment_vm" "vms" {
   operating_system {
     type = each.value.os_type
   }
+
+  # Timeout configurations - maximum 3 minutes for all operations
+  timeout_clone           = 180
+  timeout_create          = 180
+  timeout_migrate         = 180
+  timeout_reboot          = 180
+  timeout_shutdown_vm     = 180
+  timeout_start_vm        = 180
+  timeout_stop_vm         = 180
 
   lifecycle {
     create_before_destroy = false

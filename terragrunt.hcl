@@ -35,18 +35,23 @@ generate "provider" {
   if_exists = "overwrite"
   contents  = <<EOF
 terraform {
+  required_version = ">= 1.12.2"
   required_providers {
     tls = {
       source  = "hashicorp/tls"
-      version = ">= 4.1.0"
+      version = "~> 4.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = ">= 3.7.2"
+      version = "~> 3.7"
     }
     proxmox = {
       source  = "bpg/proxmox"
-      version = ">= 0.78.0"
+      version = "~> 0.78"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.5"
     }
   }
 }

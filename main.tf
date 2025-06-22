@@ -1,38 +1,28 @@
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.12.2"
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = ">= 0.78.0"
+      version = "~> 0.78"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = ">= 4.1.0"
+      version = "~> 4.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = ">= 3.7.2"
+      version = "~> 3.7"
     }
     local = {
       source  = "hashicorp/local"
-      version = ">= 2.4.0"
+      version = "~> 2.5"
     }
   }
 }
 
-# Read VM SSH public key
+# Read VM SSH public key for cloud-init
 data "local_file" "vm_ssh_public_key" {
   filename = pathexpand("~/.ssh/id_rsa_vm.pub")
-}
-
-# Security module - generates passwords and SSH keys
-module "security" {
-  source = "./modules/security"
-
-  environment      = var.environment
-  password_length  = 16
-  password_special = true
-  rsa_bits         = 2048
 }
 
 # Storage module - manages datastores and storage configuration
@@ -61,7 +51,11 @@ module "vms" {
       node_name      = var.proxmox_node
       cdrom_file_id  = v.cdrom_file_id != null ? "local:iso/${var.proxmox_iso_ubuntu}" : null
       clone_template = v.clone_template
-      user_account   = v.user_account
+      user_account = {
+        username = v.user_account.username
+        password = v.user_account.password
+        keys     = [trimspace(data.local_file.vm_ssh_public_key.content)]
+      }
     })
   }
 
@@ -84,8 +78,8 @@ module "containers" {
       node_name        = var.proxmox_node
       template_file_id = "local:vztmpl/${var.proxmox_ct_template_ubuntu}"
       user_account = {
-        password = module.security.vm_password
-        keys     = [module.security.vm_public_key_trimmed]
+        password = "ubuntu"  # default password
+        keys     = [trimspace(data.local_file.vm_ssh_public_key.content)]
       }
     })
   }
