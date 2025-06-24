@@ -9,34 +9,63 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## 2025-06-24
 
-### Fixed
+### Added
 
-- Fixed markdown formatting issues across all documentation files for better readability
-- Resolved Terraform provider checksum validation error by upgrading provider dependencies
-- Fixed line length violations in CHANGELOG.md, CLAUDE.md, PLANNING.md, README.md, DESTROY_ANALYSIS.md, and
-  modules/security/README.md
-- Corrected ordered list numbering in PLANNING.md for proper markdown compliance
+- **Comprehensive Troubleshooting Guide**: Consolidated destroy operation procedures, state consistency checks,
+  and operational best practices into TROUBLESHOOTING.md
 
 ### Changed
 
+- **Documentation Consolidation**: Applied DRY principles across all documentation files
+- **Infrastructure Sanitization**: Removed all infrastructure-specific details from public documentation
+- **CLAUDE.md Restructure**: Focused exclusively on AI-specific instructions for repository
+- **PLANNING.md Cleanup**: Restructured to contain only unfinished tasks, moved completed tasks to CHANGELOG.md
+- **README.md Optimization**: Eliminated duplication with TROUBLESHOOTING.md, created clean project overview
 - Enhanced GitHub Actions workflow with 20-minute timeout for better CI/CD reliability
 - Updated infrastructure timeout configurations from 4-minute to 5-10 minute maximums
 - Improved agent timeout from 4 minutes to 15 minutes for better VM provisioning reliability
 
+### Fixed
+
+- Fixed markdown formatting issues across all documentation files for better readability
+- Resolved Terraform provider checksum validation error by upgrading provider dependencies
+- Fixed line length violations across all documentation files
+- Corrected ordered list numbering in PLANNING.md for proper markdown compliance
+
+### Removed
+
+- **DESTROY_ANALYSIS.md**: Content consolidated into TROUBLESHOOTING.md
+- **modules/security/README.md**: Deprecated module documentation removed
+- **Infrastructure-specific details**: All specific IPs, hostnames, and configuration details sanitized
+
 ## 2025-06-22
+
+### Added
+
+- **Control VM Configuration**: Added new control VM for automation management
+- **Comprehensive Troubleshooting Guide**: Created detailed troubleshooting documentation for state locks, timeouts,
+  and connectivity issues
+- **Hardware Optimization Documentation**: Added hardware constraints analysis and resource allocation guidance
 
 ### Changed
 
-- **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
-- **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach using `~/.ssh/id_rsa_vm.pub`
+- **Infrastructure Modernization**: Updated all software to latest stable versions
+- **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach
 - **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7,
   local ~> 2.5)
 - **Terraform Version**: Updated minimum requirement to >= 1.12.2
 - **Terragrunt Version**: Updated to latest stable v0.81.10
-- **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance
-- **Resource Allocation**: Adjusted Splunk VM memory from 8192MB to 6144MB to fit hardware constraints
-- **Timeout Configuration**: Limited all timeouts to maximum 3 minutes for faster failure detection
+- **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance and warning elimination
+- **Resource Allocation**: Optimized memory and CPU allocations within hardware constraints
+- **Timeout Configuration**: Enhanced timeout configurations for faster failure detection
+- **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
 - **Secrets Sanitization**: Replaced all sensitive tokens and usernames with example values in public documentation
+
+### Fixed
+
+- **Infrastructure State Management**: Performed complete infrastructure cleanup and state file optimization
+- **State Lock Issues**: Resolved state locking problems and timeout conflicts
+- **Proxmox Warnings**: Eliminated infrastructure warnings through virtio interface adoption
 
 ### Added
 

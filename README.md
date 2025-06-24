@@ -1,40 +1,21 @@
 # Terraform Proxmox Infrastructure
 
-This project contains Terraform/Terragrunt configurations for managing Proxmox VE infrastructure with 4 VMs:
-ansible, claude, splunk, and syslog.
-
-## Current Infrastructure Status ✅
-
-## Successfully deployed with 5-10 minute timeouts and clean state management
-
-### Deployed VMs
-
-- **ansible** (ID: 130): 2 cores, 4GB RAM, 10.0.1.130 - Automation control node
-- **claude** (ID: 100): 4 cores, 4GB RAM, 10.0.1.100 - Development environment
-- **splunk** (ID: 110): 4 cores, 6GB RAM, 10.0.1.110 - Log analysis platform
-- **syslog** (ID: 120): 2 cores, 2GB RAM, 10.0.1.120 - Centralized logging
-
-### Infrastructure Specifications
-
-- **Total Resources**: 12 cores, 16GB RAM (optimized for AMD Ryzen)
-- **Network**: 10.0.1.0/24 with static IP assignments
-- **Storage**: ZFS datastore with virtio0 interfaces (eliminates Proxmox warnings)
-- **SSH Access**: Static key management via ~/.ssh/id_rsa_vm.pub
-- **State Management**: AWS S3 + DynamoDB
+This project contains Terraform/Terragrunt configurations for managing Proxmox VE infrastructure with virtual machines
+for automation, development, logging, and service management.
 
 ## 🏗️ Overview
 
 This repository provides Terraform configurations to provision and manage:
 
 - Virtual machines and containers on Proxmox VE
-- Ansible infrastructure to manage all VMs and containers
-- Logging infrastructure (Splunk, Syslog)
+- Automation infrastructure to manage all VMs and containers
+- Logging infrastructure and centralized syslog
 - Resource pools and networking
 - SSH keys and authentication
 
 ## Architecture
 
-The project has been refactored into a modular structure for better maintainability and reusability:
+The project uses a modular structure for better maintainability and reusability:
 
 ```text
 terraform-proxmox/
@@ -76,9 +57,9 @@ terraform-proxmox/
 - **Terragrunt Integration**: Backend configuration and state management
 - **Latest Versions**: All tools and providers updated to latest stable versions
 
-### Benefits of the New Structure
+### Benefits of the Modular Structure
 
-1. **Eliminated Duplication**: VMs (splunk, syslog, ansible, claude) now use the same module
+1. **Eliminated Duplication**: All VMs use the same module
 2. **Improved Reusability**: Modules can be used across different environments
 3. **Enhanced Maintainability**: Clear separation of concerns
 4. **Better Security**: Static SSH key management with cloud-init
@@ -93,7 +74,7 @@ terraform-proxmox/
 - Terragrunt >= 0.81.10
 - AWS CLI configured
 - Proxmox API token
-- SSH key pair (~/.ssh/id_rsa_vm)
+- SSH key pair
 
 ### Essential Commands
 
@@ -116,11 +97,11 @@ terragrunt show
 
 ### Configuration
 
-1. Update `terraform.tfvars` with your Proxmox configuration:
+1. Update `terraform.tfvars` with your infrastructure configuration:
 
    ```hcl
-   proxmox_api_endpoint = "https://pve.example.com:8006/api2/json"
-   proxmox_api_token    = "root@pve!root=example-token-here"
+   proxmox_api_endpoint = "https://infrastructure.example.com:8006/api2/json"
+   proxmox_api_token    = "user@pam!token=example-token-here"
    # ... other variables
    ```
 
@@ -136,40 +117,6 @@ terragrunt show
    }
    ```
 
-## Troubleshooting Guide
-
-### Common Issues
-
-#### State Lock Problems
-
-```bash
-# Check active locks
-aws dynamodb scan --table-name terraform-proxmox-locks-useast2 --region us-east-2
-
-# Force unlock
-terragrunt force-unlock -force <LOCK_ID>
-
-# Manual cleanup
-aws dynamodb delete-item --table-name terraform-proxmox-locks-useast2 --region us-east-2 --key '{"LockID": {"S": "<LOCK_ID>"}}'
-```
-
-#### Timeout Issues
-
-- All operations limited to 300-600 seconds (5-10 minutes)
-- VM creation can take up to 5 minutes
-- Use longer command timeouts for complex operations
-
-#### State Drift
-
-```bash
-# Verify state vs reality
-terragrunt state list
-curl -k GET "https://pve.example.com:8006/api2/json/cluster/resources?type=vm"
-
-# Clean orphaned resources
-terragrunt state rm <resource>
-```
-
 ## 📁 Repository Structure
 
 | File | Purpose |
@@ -179,8 +126,6 @@ terragrunt state rm <resource>
 | `variables.tf` | Input variable definitions |
 | `terragrunt.hcl` | Remote state management |
 | `container.tf` | Container resources |
-| `splunk.tf` | Splunk infrastructure |
-| `syslog.tf` | Syslog server configuration |
 
 ## 🔧 Configuration
 
@@ -193,8 +138,8 @@ terragrunt state rm <resource>
 ### State Management
 
 - **Backend**: AWS S3 + DynamoDB
-- **Region**: us-east-2
 - **Encryption**: Enabled
+- **Locking**: DynamoDB table for state locking
 
 ## Storage Configuration
 
@@ -211,71 +156,32 @@ Additional datastores should be configured directly in Proxmox VE before running
 
 ## VM Configuration
 
-All VMs (splunk, syslog, ansible, claude) are configured with:
+All VMs are configured with:
 
-- Hardware-constrained resource allocation (AMD Ryzen 7 1700, 16GB total RAM)
+- Hardware-constrained resource allocation
 - Virtio disk interfaces for optimal performance
 - Ubuntu 24.04.2 LTS
 - Cloud-init integration with static SSH keys
-- SSH key authentication from ~/.ssh/id_rsa_vm.pub
+- SSH key authentication from configured SSH key
 
 Example allocations:
 
-- **Example VM 1**: 4 cores, 6144MB RAM, 64GB disk (ID: 110)
-- **Example VM 2**: 2 cores, 2048MB RAM, 32GB disk (ID: 120)
-- **Example VM 3**: 2 cores, 4096MB RAM, 32GB disk (ID: 130)
-- **Example VM 4**: 2 cores, 2048MB RAM, 32GB disk (ID: 100)
-
-## Emergency Procedures
-
-### Complete State Reset
-
-```bash
-# Only use if all other methods fail
-terragrunt state list | xargs -I {} terragrunt state rm {}
-```
-
-### Manual VM Cleanup
-
-```bash
-# Stop VM
-curl -k -X POST "https://pve.example.com:8006/api2/json/nodes/pve/qemu/<VM_ID>/status/stop"
-
-# Delete VM
-curl -k -X DELETE "https://pve.example.com:8006/api2/json/nodes/pve/qemu/<VM_ID>"
-```
-
-## Version History & Changes
-
-### 2025-06-22 - Major Update
-
-- **Timeout Optimization**: Reduced to 5-10 minute maximum for all operations
-- **SSH Key Migration**: Moved to static key management (improved security)
-- **Provider Updates**: Latest stable versions (proxmox ~> 0.78, terraform 1.12.2)
-- **Performance Fix**: Changed disk interfaces to virtio0 (eliminates warnings)
-- **Resource Optimization**: Adjusted allocations for hardware constraints
-- **State Management**: Clean deployment with consistent S3/DynamoDB state
-
-### Key Improvements
-
-- Faster failure detection with 5-10 minute timeouts
-- Elimination of Proxmox iothread warnings
-- Optimized resource allocation within hardware limits
-- Enhanced security with static SSH key approach
-- Comprehensive troubleshooting procedures
+- **Service VM 1**: 4 cores, 6144MB RAM, 64GB disk
+- **Service VM 2**: 2 cores, 2048MB RAM, 32GB disk
+- **Service VM 3**: 2 cores, 4096MB RAM, 32GB disk
+- **Service VM 4**: 2 cores, 2048MB RAM, 32GB disk
 
 ## 📖 Documentation
 
-- **[CLAUDE.md](./CLAUDE.md)** - Project-specific context and standards
-- **[PLANNING.md](./PLANNING.md)** - Current project status and planning
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Detailed troubleshooting procedures
+- **[CLAUDE.md](./CLAUDE.md)** - AI-specific instructions for this repository
+- **[PLANNING.md](./PLANNING.md)** - Current project status and remaining tasks
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Detailed troubleshooting procedures and operational guidance
+- **[CHANGELOG.md](./CHANGELOG.md)** - History of completed changes and improvements
 
 ## 🛡️ Security
 
-- Static SSH keys managed via cloud-init (~/.ssh/id_rsa_vm)
 - Passwords configured per VM via cloud-init user accounts
 - All sensitive outputs are marked as sensitive
-- API tokens managed securely via Proxmox API
 - State files are encrypted in S3
 - Least-privilege access principles applied
 - Virtio interfaces provide secure disk access
