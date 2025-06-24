@@ -25,7 +25,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
 
   agent {
     enabled = each.value.agent_enabled
-    timeout = "3m"
+    timeout = "15m"
     trim    = true
     type    = "virtio"
   }
@@ -121,14 +121,14 @@ resource "proxmox_virtual_environment_vm" "vms" {
     type = each.value.os_type
   }
 
-  # Timeout configurations - maximum 3 minutes for all operations
-  timeout_clone           = 180
-  timeout_create          = 180
-  timeout_migrate         = 180
-  timeout_reboot          = 180
-  timeout_shutdown_vm     = 180
-  timeout_start_vm        = 180
-  timeout_stop_vm         = 180
+  # Timeout configurations - maximum 15 minutes
+  timeout_clone           = 900
+  timeout_create          = 900
+  timeout_migrate         = 900
+  timeout_reboot          = 300
+  timeout_shutdown_vm     = 300
+  timeout_start_vm        = 600
+  timeout_stop_vm         = 300
 
   lifecycle {
     create_before_destroy = false
