@@ -6,9 +6,10 @@
 
 1. **Infrastructure Modernization (2025-06-22)**
    - Updated all software to latest stable versions (Terraform 1.12.2, Terragrunt 0.81.10)
-   - Updated all provider versions to latest stable (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
+   - Updated all provider versions to latest stable (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7,
+     local ~> 2.5)
    - Fixed Proxmox warnings by changing disk interfaces from scsi0 to virtio0
-   - Limited all timeouts to maximum 4 minutes for faster failure detection
+   - Limited all timeouts to maximum 10 minutes for faster failure detection
 
 2. **SSH Key Strategy Migration**
    - Migrated from security module generated keys to static cloud-init approach
@@ -37,8 +38,9 @@
 ### 📋 Remaining Tasks
 
 ## Phase 1: Fresh Infrastructure Deployment (HIGH PRIORITY)
+
 1. **Execute Infrastructure Deployment**
-   - Run `terragrunt apply` with clean state to deploy all VMs
+   - Run `terragrunt apply -auto-approve` with clean state to deploy all VMs
    - Monitor deployment through Proxmox console
    - Verify all VMs deploy with virtio disk interfaces
 
@@ -54,23 +56,25 @@
    - Confirm memory and CPU allocations are optimal
 
 ## Phase 3: Ansible Configuration & Management (MEDIUM PRIORITY)
-7. **Configure Ansible Control Node**
+
+1. **Configure Ansible Control Node**
    - SSH into ansible VM and install Ansible
    - Generate dynamic inventory from Terraform outputs
    - Create Ansible playbooks for VM configuration management
 
-8. **Establish VM Management Framework**
+2. **Establish VM Management Framework**
    - Configure Ansible to manage Splunk VM
    - Set up Syslog VM configuration via Ansible
    - Implement standardized VM configuration playbooks
 
 ## Phase 4: Service Deployment & Validation (MEDIUM PRIORITY)
-9. **Deploy Core Services**
+
+1. **Deploy Core Services**
    - Install and configure Splunk on splunk VM
    - Configure centralized syslog on syslog VM
    - Set up log forwarding from all VMs to syslog server
 
-10. **Validation & Testing**
+2. **Validation & Testing**
     - Test end-to-end log flow (VMs → Syslog → Splunk)
     - Verify SSH key rotation capabilities
     - Validate backup and disaster recovery procedures
@@ -112,11 +116,11 @@
 - ✅ Static SSH key management implemented and tested
 - ✅ All VM configurations include Ansible VM (4 total VMs)
 - ✅ Virtio disk interfaces configured for all VMs
-- ✅ Timeout configurations optimized (4-minute maximum)
+- ✅ Timeout configurations optimized (5-minute maximum)
 
 ## Next Session Actions
 
-1. Execute `terragrunt apply` to deploy fresh infrastructure
+1. Execute `terragrunt apply -auto-approve` to deploy fresh infrastructure
 2. Validate all VMs deploy successfully with virtio interfaces
 3. Test SSH connectivity to all deployed VMs
 4. Configure Ansible control node with required packages
@@ -127,7 +131,7 @@
 
 - **Hardware Limitations**: 8 core AMD CPU with 16GB RAM requires careful resource allocation
 - **Network Configuration**: 10.0.1.0/24 management network with static IP assignments
-- **Timeout Limits**: All operations limited to 4-minute maximum for quick failure detection
+- **Timeout Limits**: All operations limited to 5-10 minute maximum for quick failure detection
 - **Storage Performance**: Virtio interfaces provide optimal disk performance for all VMs
 
 ## Notes

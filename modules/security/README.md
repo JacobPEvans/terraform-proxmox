@@ -2,18 +2,21 @@
 
 ⚠️ **This module has been deprecated and removed from the main configuration.** ⚠️
 
-As of 2025-06-22, this project has transitioned to static SSH key management using cloud-init instead of dynamic key generation. This change improves security by avoiding key generation within Terraform state.
+As of 2025-06-22, this project has transitioned to static SSH key management using cloud-init instead of dynamic
+key generation. This change improves security by avoiding key generation within Terraform state.
 
 ## Migration Information
 
 The functionality of this module has been replaced with:
+
 - Static SSH key management via `~/.ssh/id_rsa_vm.pub`
 - Cloud-init integration for SSH key distribution
 - Individual VM password configuration in terraform.tfvars
 
 ## Previous Functionality
 
-This module previously generated and managed security-related resources including SSH keys, passwords, and other credentials for Proxmox infrastructure.
+This module previously generated and managed security-related resources including SSH keys, passwords, and other
+credentials for Proxmox infrastructure.
 
 ## Features
 

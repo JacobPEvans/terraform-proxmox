@@ -1,9 +1,27 @@
 # Changelog
 
+<!-- markdownlint-disable-file MD024 -->
+
 All notable changes to the terraform-proxmox infrastructure project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Calendar Versioning](https://calver.org/).
+
+## 2025-06-24
+
+### Fixed
+
+- Fixed markdown formatting issues across all documentation files for better readability
+- Resolved Terraform provider checksum validation error by upgrading provider dependencies
+- Fixed line length violations in CHANGELOG.md, CLAUDE.md, PLANNING.md, README.md, DESTROY_ANALYSIS.md, and
+  modules/security/README.md
+- Corrected ordered list numbering in PLANNING.md for proper markdown compliance
+
+### Changed
+
+- Enhanced GitHub Actions workflow with 20-minute timeout for better CI/CD reliability
+- Updated infrastructure timeout configurations from 4-minute to 5-10 minute maximums
+- Improved agent timeout from 4 minutes to 15 minutes for better VM provisioning reliability
 
 ## 2025-06-22
 
@@ -11,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
 - **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach using `~/.ssh/id_rsa_vm.pub`
-- **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
+- **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7,
+  local ~> 2.5)
 - **Terraform Version**: Updated minimum requirement to >= 1.12.2
 - **Terragrunt Version**: Updated to latest stable v0.81.10
 - **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance

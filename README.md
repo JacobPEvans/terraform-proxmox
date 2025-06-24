@@ -1,18 +1,21 @@
 # Terraform Proxmox Infrastructure
 
-This project contains Terraform/Terragrunt configurations for managing Proxmox VE infrastructure with 4 VMs: ansible, claude-code, splunk, and syslog.
+This project contains Terraform/Terragrunt configurations for managing Proxmox VE infrastructure with 4 VMs:
+ansible, claude, splunk, and syslog.
 
 ## Current Infrastructure Status ✅
 
-**Successfully deployed with 3-minute timeouts and clean state management**
+## Successfully deployed with 5-10 minute timeouts and clean state management
 
 ### Deployed VMs
+
 - **ansible** (ID: 130): 2 cores, 4GB RAM, 10.0.1.130 - Automation control node
-- **claude-code** (ID: 100): 4 cores, 4GB RAM, 10.0.1.100 - Development environment
+- **claude** (ID: 100): 4 cores, 4GB RAM, 10.0.1.100 - Development environment
 - **splunk** (ID: 110): 4 cores, 6GB RAM, 10.0.1.110 - Log analysis platform
 - **syslog** (ID: 120): 2 cores, 2GB RAM, 10.0.1.120 - Centralized logging
 
 ### Infrastructure Specifications
+
 - **Total Resources**: 12 cores, 16GB RAM (optimized for AMD Ryzen)
 - **Network**: 10.0.1.0/24 with static IP assignments
 - **Storage**: ZFS datastore with virtio0 interfaces (eliminates Proxmox warnings)
@@ -75,7 +78,7 @@ terraform-proxmox/
 
 ### Benefits of the New Structure
 
-1. **Eliminated Duplication**: VMs (splunk, syslog, ansible, claude-code) now use the same module
+1. **Eliminated Duplication**: VMs (splunk, syslog, ansible, claude) now use the same module
 2. **Improved Reusability**: Modules can be used across different environments
 3. **Enhanced Maintainability**: Clear separation of concerns
 4. **Better Security**: Static SSH key management with cloud-init
@@ -85,6 +88,7 @@ terraform-proxmox/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Terraform >= 1.12.2
 - Terragrunt >= 0.81.10
 - AWS CLI configured
@@ -92,6 +96,7 @@ terraform-proxmox/
 - SSH key pair (~/.ssh/id_rsa_vm)
 
 ### Essential Commands
+
 ```bash
 # Plan changes
 terragrunt plan
@@ -136,6 +141,7 @@ terragrunt show
 ### Common Issues
 
 #### State Lock Problems
+
 ```bash
 # Check active locks
 aws dynamodb scan --table-name terraform-proxmox-locks-useast2 --region us-east-2
@@ -148,11 +154,13 @@ aws dynamodb delete-item --table-name terraform-proxmox-locks-useast2 --region u
 ```
 
 #### Timeout Issues
-- All operations limited to 180 seconds (3 minutes)
-- VM creation typically completes within 2-3 minutes
+
+- All operations limited to 300-600 seconds (5-10 minutes)
+- VM creation can take up to 5 minutes
 - Use longer command timeouts for complex operations
 
 #### State Drift
+
 ```bash
 # Verify state vs reality
 terragrunt state list
@@ -203,7 +211,7 @@ Additional datastores should be configured directly in Proxmox VE before running
 
 ## VM Configuration
 
-All VMs (splunk, syslog, ansible, claude-code) are configured with:
+All VMs (splunk, syslog, ansible, claude) are configured with:
 
 - Hardware-constrained resource allocation (AMD Ryzen 7 1700, 16GB total RAM)
 - Virtio disk interfaces for optimal performance
@@ -212,6 +220,7 @@ All VMs (splunk, syslog, ansible, claude-code) are configured with:
 - SSH key authentication from ~/.ssh/id_rsa_vm.pub
 
 Example allocations:
+
 - **Example VM 1**: 4 cores, 6144MB RAM, 64GB disk (ID: 110)
 - **Example VM 2**: 2 cores, 2048MB RAM, 32GB disk (ID: 120)
 - **Example VM 3**: 2 cores, 4096MB RAM, 32GB disk (ID: 130)
@@ -220,12 +229,14 @@ Example allocations:
 ## Emergency Procedures
 
 ### Complete State Reset
+
 ```bash
 # Only use if all other methods fail
 terragrunt state list | xargs -I {} terragrunt state rm {}
 ```
 
 ### Manual VM Cleanup
+
 ```bash
 # Stop VM
 curl -k -X POST "https://pve.example.com:8006/api2/json/nodes/pve/qemu/<VM_ID>/status/stop"
@@ -237,7 +248,8 @@ curl -k -X DELETE "https://pve.example.com:8006/api2/json/nodes/pve/qemu/<VM_ID>
 ## Version History & Changes
 
 ### 2025-06-22 - Major Update
-- **Timeout Optimization**: Reduced to 3-minute maximum for all operations
+
+- **Timeout Optimization**: Reduced to 5-10 minute maximum for all operations
 - **SSH Key Migration**: Moved to static key management (improved security)
 - **Provider Updates**: Latest stable versions (proxmox ~> 0.78, terraform 1.12.2)
 - **Performance Fix**: Changed disk interfaces to virtio0 (eliminates warnings)
@@ -245,7 +257,8 @@ curl -k -X DELETE "https://pve.example.com:8006/api2/json/nodes/pve/qemu/<VM_ID>
 - **State Management**: Clean deployment with consistent S3/DynamoDB state
 
 ### Key Improvements
-- Faster failure detection with 3-minute timeouts
+
+- Faster failure detection with 5-10 minute timeouts
 - Elimination of Proxmox iothread warnings
 - Optimized resource allocation within hardware limits
 - Enhanced security with static SSH key approach
