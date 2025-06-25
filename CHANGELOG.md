@@ -7,6 +7,33 @@ All notable changes to the terraform-proxmox infrastructure project will be docu
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## 2025-06-25
+
+### Added
+
+- **Cloud-init Support**: Extended VM module to support custom cloud-init user_data configuration
+- **Secure SSH Key Provisioning**: Implemented null_resource approach for securely copying SSH private keys to Ansible VMs
+- **Comprehensive Ansible Configuration**: Created complete cloud-init script for Ansible VM with all required packages
+- **Ansible Infrastructure**: Added Ansible control node configuration with inventory, playbooks, and configuration files
+- **Null Provider Integration**: Added hashicorp/null provider (~> 3.2) to main Terraform configuration
+
+### Changed
+
+- **Ansible VM Disk Size**: Increased from 32GB to 64GB to accommodate additional packages and tools
+- **VM Module Variables**: Extended variables.tf to support optional cloud_init_user_data parameter
+- **Infrastructure as Code**: All VM configuration now managed through Terraform/cloud-init instead of manual setup
+
+### Fixed
+
+- **SSH Key Security**: Removed any potential exposure of private keys in configuration files
+- **Terraform Syntax**: Corrected provisioner implementation using null_resource instead of dynamic blocks
+
+### Planned
+
+- **Ansible VM Deployment**: Resolve Proxmox VM 100 config conflict and complete deployment
+- **Service Configuration**: Deploy rsyslog and Splunk services via Ansible automation
+- **Centralized Logging**: Implement complete log forwarding and analysis infrastructure
+
 ## 2025-06-24
 
 ### Added

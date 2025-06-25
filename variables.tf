@@ -161,6 +161,9 @@ variable "vms" {
     agent_enabled = optional(bool, true)
     protection    = optional(bool, false)
     os_type       = optional(string, "l26")
+    
+    # Cloud-init configuration
+    cloud_init_user_data = optional(string)
   }))
   default = {}
 
@@ -183,6 +186,28 @@ variable "vms" {
       for k, v in var.vms : v.memory_dedicated >= 256 && v.memory_dedicated <= 65536
     ])
     error_message = "Memory must be between 256 MB and 64 GB."
+  }
+}
+
+# SSH Key Configuration for VMs
+variable "vm_ssh_public_key_path" {
+  description = "Path to the SSH public key for VM authentication (e.g., ~/.ssh/id_rsa_vm.pub)"
+  type        = string
+  default     = "~/.ssh/id_rsa_vm.pub"
+  validation {
+    condition     = can(regex("^(~/.ssh/|/).*\\.pub$", var.vm_ssh_public_key_path))
+    error_message = "SSH public key path must be a valid file path ending with .pub"
+  }
+}
+
+variable "vm_ssh_private_key_path" {
+  description = "Path to the SSH private key for VM authentication (e.g., ~/.ssh/id_rsa_vm)"
+  type        = string
+  default     = "~/.ssh/id_rsa_vm"
+  sensitive   = true
+  validation {
+    condition     = can(regex("^(~/.ssh/|/)", var.vm_ssh_private_key_path))
+    error_message = "SSH private key path must be a valid file path starting with ~/ or /"
   }
 }
 

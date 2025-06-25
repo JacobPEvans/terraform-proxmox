@@ -65,6 +65,9 @@ variable "vms" {
       password = string
       keys     = list(string)
     })
+    
+    # Cloud-init user data
+    cloud_init_user_data = optional(string)
     # Agent and features
     agent_enabled = optional(bool, true)
     protection    = optional(bool, false)

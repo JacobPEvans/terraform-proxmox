@@ -2,66 +2,161 @@
 # Copy this file to terraform.tfvars and customize for your environment
 
 # Proxmox API Configuration
-proxmox_api_endpoint = "https://pve.example.com:8006/api2/json"
-proxmox_api_token = "username@realm!tokenid=secret-value-here"
-proxmox_insecure = false
+proxmox_api_endpoint = "https://proxmox.example.com:8006/api2/json"
+proxmox_api_token    = "user@realm!tokenid=secret-token-value"
+proxmox_insecure     = true
 
 # Proxmox Node Configuration
-proxmox_node = "pve"
-proxmox_username = "ubuntu"
+proxmox_node     = "pve"
+proxmox_username = "proxmox"
 
-# SSH Configuration - Choose one approach:
-# Option 1: File path (less secure, for development only)
-# proxmox_ssh_private_key = "~/.ssh/id_rsa"
+# SSH Configuration for Proxmox Host
+proxmox_ssh_username    = "root@pam"
+proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
 
-# Option 2: Environment variable (recommended)
-# export TF_VAR_proxmox_ssh_private_key="$(cat ~/.ssh/id_rsa)"
+# SSH Configuration for VMs
+# These paths should point to your VM SSH keys
+vm_ssh_public_key_path  = "~/.ssh/id_rsa_vm.pub"
+vm_ssh_private_key_path = "~/.ssh/id_rsa_vm"
 
-# Option 3: AWS Systems Manager Parameter Store (most secure)
-# Store key in AWS SSM: aws ssm put-parameter --name "/terraform/proxmox/ssh_key" --value "$(cat ~/.ssh/id_rsa)" --type "SecureString"
-# Then reference: proxmox_ssh_private_key = data.aws_ssm_parameter.ssh_key.value
+# Environment
+environment = "homelab"
 
-# VM Configuration
+# VM Configuration - Example with cloud-init
 vms = {
-  "test-vm" = {
-    vm_id       = 201
-    name        = "test-vm"
-    description = "Test virtual machine"
-    cpu_cores   = 2
-    memory      = 2048
-    disk_size   = 20
-    pool_id     = "test-pool"
+  "ansible" = {
+    vm_id            = 100
+    name             = "ansible"
+    description      = "Ansible control node for VM management"
+    cpu_cores        = 2
+    memory_dedicated = 4096
+    tags             = ["terraform", "automation", "ansible"]
+
+    boot_disk = {
+      datastore_id = "local-zfs"
+      interface    = "virtio0"
+      size         = 64
+      file_format  = "raw"
+      iothread     = true
+      ssd          = false
+      discard      = "ignore"
+    }
+
+    network_interfaces = [{
+      bridge   = "vmbr0"
+      model    = "virtio"
+      firewall = false
+    }]
+
+    ip_config = {
+      ipv4_address = "10.0.1.100/24"
+      ipv4_gateway = "10.0.1.1"
+    }
+
+    clone_template = {
+      template_id = 9000
+    }
+
+    agent_enabled = true
+    protection    = false
+    os_type       = "l26"
+
+    user_account = {
+      username = "ubuntu"
+      password = "ubuntu"
+      keys     = []  # populated by cloud-init from SSH key file
+    }
+
+    # Cloud-init configuration
+    cloud_init_user_data = <<-EOF
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - ansible
+  - python3-pip
+  - python3-venv
+  - git
+  - vim
+  - curl
+  - wget
+  - jq
+  - tree
+  - htop
+  - net-tools
+  - rsync
+
+runcmd:
+  - mkdir -p /opt/ansible/{inventory,playbooks,roles,files}
+  - chown -R ubuntu:ubuntu /opt/ansible
+  - pip3 install ansible-lint
+  - apt-get autoremove -y
+  - apt-get autoclean
+
+write_files:
+  - path: /opt/ansible/ansible.cfg
+    content: |
+      [defaults]
+      inventory = /opt/ansible/inventory/hosts.yml
+      host_key_checking = False
+      retry_files_enabled = False
+      gathering = smart
+      fact_caching = memory
+      stdout_callback = yaml
+      timeout = 30
+      
+      [ssh_connection]
+      ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
+      pipelining = True
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+
+  - path: /opt/ansible/inventory/hosts.yml
+    content: |
+      ---
+      all:
+        vars:
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa_vm
+          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+        children:
+          homelab:
+            children:
+              logging:
+                hosts:
+                  syslog:
+                    ansible_host: 10.0.1.120
+                  splunk:
+                    ansible_host: 10.0.1.130
+              development:
+                hosts:
+                  claude:
+                    ansible_host: 10.0.1.110
+              automation:
+                hosts:
+                  ansible:
+                    ansible_host: 10.0.1.100
+                    ansible_connection: local
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+
+final_message: "Ansible control node is ready! SSH key setup and initial configuration complete."
+EOF
   }
+
+  # Add other VMs here following the same pattern
 }
 
 # Container Configuration (optional)
-containers = {
-  # "test-container" = {
-  #   vm_id       = 301
-  #   hostname    = "test-container"
-  #   description = "Test container"
-  #   cpu_cores   = 1
-  #   memory      = 1024
-  #   disk_size   = 8
-  #   pool_id     = "test-pool"
-  # }
-}
+containers = {}
 
-# Pool Configuration
-pools = {
-  "test-pool" = {
-    pool_id = "test-pool"
-    comment = "Test resource pool"
-  }
-}
+# Resource Pool Configuration (optional)
+pools = {}
 
 # Storage Configuration (optional)
-datastores = [
-  # {
-  #   datastore_id = "backup-storage"
-  #   type         = "nfs"
-  #   server       = "nas.example.com"
-  #   export       = "/mnt/backup"
-  #   content      = ["backup", "iso", "vztmpl"]
-  # }
-]
+datastores = {}
+
+# ISO Configuration
+proxmox_iso_ubuntu         = "ubuntu-24.04.2-live-server-amd64.iso"
+proxmox_ct_template_ubuntu = "ubuntu-24.04-standard_24.04-2_amd64.tar.zst"

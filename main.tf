@@ -17,12 +17,16 @@ terraform {
       source  = "hashicorp/local"
       version = "~> 2.5"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
   }
 }
 
 # Read VM SSH public key for cloud-init
 data "local_file" "vm_ssh_public_key" {
-  filename = pathexpand("~/.ssh/id_rsa_vm.pub")
+  filename = pathexpand(var.vm_ssh_public_key_path)
 }
 
 # Storage module - manages datastores and storage configuration
@@ -88,4 +92,35 @@ module "containers" {
   default_datastore = "local-zfs"
 
   depends_on = [module.pools, module.storage]
+}
+
+# Secure SSH key provisioning for Ansible VM
+resource "null_resource" "ansible_ssh_key_setup" {
+  count = contains(keys(var.vms), "ansible") ? 1 : 0
+
+  depends_on = [module.vms]
+
+  connection {
+    type        = "ssh"
+    user        = var.vms["ansible"].user_account.username
+    private_key = file(pathexpand(var.vm_ssh_private_key_path))
+    host        = split("/", var.vms["ansible"].ip_config.ipv4_address)[0]
+    timeout     = "2m"
+  }
+
+  provisioner "file" {
+    source      = pathexpand(var.vm_ssh_private_key_path)
+    destination = "/home/${var.vms["ansible"].user_account.username}/.ssh/id_rsa_vm"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod 600 /home/${var.vms["ansible"].user_account.username}/.ssh/id_rsa_vm",
+      "chown ${var.vms["ansible"].user_account.username}:${var.vms["ansible"].user_account.username} /home/${var.vms["ansible"].user_account.username}/.ssh/id_rsa_vm"
+    ]
+  }
+
+  triggers = {
+    vm_id = module.vms.vm_ids["ansible"]
+  }
 }
