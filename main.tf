@@ -104,7 +104,7 @@ resource "null_resource" "ansible_ssh_key_setup" {
     type        = "ssh"
     user        = var.vms["ansible"].user_account.username
     private_key = file(pathexpand(var.vm_ssh_private_key_path))
-    host        = split("/", var.vms["ansible"].ip_config.ipv4_address)[0]
+    host        = cidrhost(var.vms["ansible"].ip_config.ipv4_address, 0)
     timeout     = "2m"
   }
 
