@@ -62,3 +62,31 @@ This repository contains placeholder/example values for public repository safety
 - Reference TROUBLESHOOTING.md for operational procedures
 - Update PLANNING.md for unfinished tasks only
 - Update CHANGELOG.md for completed tasks
+
+### Pull Request Review Guidelines
+
+When reviewing pull requests, focus on:
+
+#### Security Analysis
+- Check for exposed secrets, API keys, or sensitive data
+- Verify SSH key management follows best practices
+- Ensure no hardcoded credentials in committed files
+- Review variable sensitivity markings
+
+#### Infrastructure Best Practices
+- Validate Terraform syntax and structure
+- Check for proper resource naming conventions
+- Verify state management patterns
+- Ensure modular and reusable code
+
+#### Code Quality
+- Review variable documentation and validation
+- Check for proper error handling
+- Verify lifecycle management rules
+- Ensure consistent formatting
+
+#### Operational Readiness
+- Validate deployment procedures
+- Check for proper backup and recovery considerations
+- Review monitoring and alerting setup
+- Ensure documentation is updated
