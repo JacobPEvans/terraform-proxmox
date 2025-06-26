@@ -161,7 +161,7 @@ variable "vms" {
     agent_enabled = optional(bool, true)
     protection    = optional(bool, false)
     os_type       = optional(string, "l26")
-    
+
     # Cloud-init configuration
     cloud_init_user_data = optional(string)
   }))

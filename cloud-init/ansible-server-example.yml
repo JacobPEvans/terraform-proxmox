@@ -1,0 +1,112 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - ansible
+  - python3-pip
+  - python3-venv
+  - git
+  - vim
+  - curl
+  - wget
+  - jq
+  - tree
+  - htop
+  - net-tools
+  - rsync
+
+runcmd:
+  - mkdir -p /opt/ansible/{inventory,playbooks,roles,files}
+  - chown -R ubuntu:ubuntu /opt/ansible
+  - pip3 install ansible-lint
+  - apt-get autoremove -y
+  - apt-get autoclean
+
+write_files:
+  - path: /opt/ansible/ansible.cfg
+    content: |
+      [defaults]
+      inventory = /opt/ansible/inventory/hosts.yml
+      host_key_checking = False
+      retry_files_enabled = False
+      gathering = smart
+      fact_caching = memory
+      stdout_callback = yaml
+      timeout = 30
+      
+      [ssh_connection]
+      ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
+      pipelining = True
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+
+  - path: /opt/ansible/inventory/hosts.yml
+    content: |
+      ---
+      all:
+        vars:
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa_vm
+          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+        children:
+          homelab:
+            children:
+              logging:
+                hosts:
+                  syslog:
+                    ansible_host: 192.168.1.120
+                  splunk:
+                    ansible_host: 192.168.1.130
+              development:
+                hosts:
+                  claude:
+                    ansible_host: 192.168.1.110
+              automation:
+                hosts:
+                  ansible:
+                    ansible_host: 192.168.1.100
+                    ansible_connection: local
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+
+  - path: /opt/ansible/playbooks/site.yml
+    content: |
+      ---
+      - name: Configure all homelab servers
+        hosts: all
+        become: yes
+        gather_facts: yes
+        
+        tasks:
+          - name: Update apt cache
+            apt:
+              update_cache: yes
+              cache_valid_time: 3600
+            
+          - name: Upgrade all packages
+            apt:
+              upgrade: dist
+              autoremove: yes
+              autoclean: yes
+            
+          - name: Install common packages
+            apt:
+              name:
+                - htop
+                - vim
+                - curl
+                - wget
+                - git
+                - rsyslog
+              state: present
+            
+          - name: Ensure rsyslog is running
+            systemd:
+              name: rsyslog
+              state: started
+              enabled: yes
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+
+final_message: "Ansible control node is ready! SSH key setup and initial configuration complete."

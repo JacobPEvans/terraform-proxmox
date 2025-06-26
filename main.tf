@@ -29,6 +29,11 @@ data "local_file" "vm_ssh_public_key" {
   filename = pathexpand(var.vm_ssh_public_key_path)
 }
 
+# Local variables for cloud-init files
+locals {
+  ansible_cloud_init = file("cloud-init/ansible-server.local.yml")
+}
+
 # Storage module - manages datastores and storage configuration
 module "storage" {
   source = "./modules/storage"
@@ -60,6 +65,8 @@ module "vms" {
         password = v.user_account.password
         keys     = [trimspace(data.local_file.vm_ssh_public_key.content)]
       }
+      # Override cloud-init for ansible VM to use external file
+      cloud_init_user_data = k == "ansible" ? local.ansible_cloud_init : v.cloud_init_user_data
     })
   }
 
@@ -82,7 +89,7 @@ module "containers" {
       node_name        = var.proxmox_node
       template_file_id = "local:vztmpl/${var.proxmox_ct_template_ubuntu}"
       user_account = {
-        password = "ubuntu"  # default password
+        password = "ubuntu" # default password
         keys     = [trimspace(data.local_file.vm_ssh_public_key.content)]
       }
     })

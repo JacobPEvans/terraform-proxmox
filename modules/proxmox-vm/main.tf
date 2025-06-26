@@ -123,9 +123,9 @@ resource "proxmox_virtual_environment_vm" "vms" {
     type = each.value.os_type
   }
 
-  # Timeout configurations - maximum 15 minutes
-  timeout_clone           = 900
-  timeout_create          = 900
+  # Timeout configurations - 30 minutes for clone/create, 15 minutes for others
+  timeout_clone           = 1800
+  timeout_create          = 1800
   timeout_migrate         = 900
   timeout_reboot          = 300
   timeout_shutdown_vm     = 300
