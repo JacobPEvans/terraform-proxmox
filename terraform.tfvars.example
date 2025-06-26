@@ -2,8 +2,8 @@
 # Copy this file to terraform.tfvars and customize for your environment
 
 # Proxmox API Configuration
-proxmox_api_endpoint = "https://proxmox.example.com:8006/api2/json"
-proxmox_api_token    = "user@realm!tokenid=secret-token-value"
+proxmox_api_endpoint = "https://your-proxmox-server.local:8006/api2/json"
+proxmox_api_token    = "terraform@pve!terraform=your-api-token-here"
 proxmox_insecure     = true
 
 # Proxmox Node Configuration
@@ -49,8 +49,8 @@ vms = {
     }]
 
     ip_config = {
-      ipv4_address = "10.0.1.100/24"
-      ipv4_gateway = "10.0.1.1"
+      ipv4_address = "192.168.1.100/24"
+      ipv4_gateway = "192.168.1.1"
     }
 
     clone_template = {
@@ -67,82 +67,7 @@ vms = {
       keys     = []  # populated by cloud-init from SSH key file
     }
 
-    # Cloud-init configuration
-    cloud_init_user_data = <<-EOF
-#cloud-config
-package_update: true
-package_upgrade: true
-
-packages:
-  - ansible
-  - python3-pip
-  - python3-venv
-  - git
-  - vim
-  - curl
-  - wget
-  - jq
-  - tree
-  - htop
-  - net-tools
-  - rsync
-
-runcmd:
-  - mkdir -p /opt/ansible/{inventory,playbooks,roles,files}
-  - chown -R ubuntu:ubuntu /opt/ansible
-  - pip3 install ansible-lint
-  - apt-get autoremove -y
-  - apt-get autoclean
-
-write_files:
-  - path: /opt/ansible/ansible.cfg
-    content: |
-      [defaults]
-      inventory = /opt/ansible/inventory/hosts.yml
-      host_key_checking = False
-      retry_files_enabled = False
-      gathering = smart
-      fact_caching = memory
-      stdout_callback = yaml
-      timeout = 30
-      
-      [ssh_connection]
-      ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
-      pipelining = True
-    owner: ubuntu:ubuntu
-    permissions: '0644'
-
-  - path: /opt/ansible/inventory/hosts.yml
-    content: |
-      ---
-      all:
-        vars:
-          ansible_user: ubuntu
-          ansible_ssh_private_key_file: ~/.ssh/id_rsa_vm
-          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-        children:
-          homelab:
-            children:
-              logging:
-                hosts:
-                  syslog:
-                    ansible_host: 10.0.1.120
-                  splunk:
-                    ansible_host: 10.0.1.130
-              development:
-                hosts:
-                  claude:
-                    ansible_host: 10.0.1.110
-              automation:
-                hosts:
-                  ansible:
-                    ansible_host: 10.0.1.100
-                    ansible_connection: local
-    owner: ubuntu:ubuntu
-    permissions: '0644'
-
-final_message: "Ansible control node is ready! SSH key setup and initial configuration complete."
-EOF
+    # cloud_init_user_data is handled by external file in main.tf
   }
 
   # Add other VMs here following the same pattern

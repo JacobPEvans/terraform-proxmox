@@ -6,6 +6,8 @@
 crash.log
 *.tfvars
 *.tfvars.json
+# Specifically protect local configuration
+terraform.tfvars
 override.tf
 override.tf.json
 *_override.tf
@@ -77,3 +79,4 @@ tmp/
 # Local context files with sensitive data (never commit)
 # Note: Real infrastructure context is maintained in private int_homelab repo
 *_LOCAL.md
+*.local.*

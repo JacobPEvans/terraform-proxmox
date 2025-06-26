@@ -26,7 +26,16 @@
    - Deploy and configure Splunk on splunk VM
    - Set up log forwarding from all VMs to syslog server
 
-### Phase 3: Service Validation & Operations (LOW PRIORITY)
+### Phase 3: Repository Organization (MEDIUM PRIORITY)
+
+1. **Clean Up Root Directory Structure**
+   - Separate Terraform .tf files from documentation .md files
+   - Reorganize *.tf files into logical subdirectories (infrastructure/, environments/, etc.)
+   - Keep high-level documentation (README.md, etc.) in root directory
+   - Ensure terragrunt.hcl and configuration files work after reorganization
+   - Test complete infrastructure deployment after reorganization
+
+### Phase 4: Service Validation & Operations (LOW PRIORITY)
 
 1. **End-to-End Testing**
    - Test complete log flow: VMs → Syslog → Splunk
