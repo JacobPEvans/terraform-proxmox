@@ -2,17 +2,19 @@
 
 ## 📋 Remaining Tasks
 
-### Phase 1: Ansible VM Completion (HIGH PRIORITY)
+### Phase 1: Cloud-init Configuration Fix (HIGH PRIORITY)
 
-1. **Resolve Ansible VM Deployment Conflict**
-   - VM 100 config file already exists in Proxmox
-   - Need to clean up existing VM configuration safely
-   - Redeploy with proper cloud-init and SSH key provisioning
+1. **Fix External Cloud-init File Integration** 
+   - Investigate why external cloud-init file `ansible-server.local.yml` is not being applied to VMs
+   - VM creates successfully but only applies basic template cloud-init, not external file content
+   - External file contains comprehensive Ansible installation and configuration
+   - Use targeted VM operations for faster troubleshooting (2-5 minute cycles vs 30+ minute full cycles)
 
-2. **Test Ansible VM Functionality**
-   - Verify SSH key access and Ansible installation
-   - Test inventory file generation and connectivity
-   - Validate cloud-init package installation completed
+2. **Complete Infrastructure Testing Cycle**
+   - ✅ Perform clean terragrunt destroy → apply cycle (COMPLETED - VMs created successfully)
+   - 🔄 Verify Ansible cloud-init configuration works fully (BLOCKED - external file not applied)
+   - ⏳ Test SSH connectivity from Ansible server to all VMs without manual intervention (PENDING - depends on cloud-init fix)
+   - ⏳ Validate Ansible server is completely configured via cloud-init only (PENDING - ansible not installed)
 
 ### Phase 2: Ansible Configuration Management (MEDIUM PRIORITY)
 
@@ -49,16 +51,32 @@
 
 ## Current Infrastructure Status
 
-- ✅ VMs Deployed: ansible (100), claude (110), syslog (120), splunk (130)
-- ✅ SSH Connectivity: All VMs accessible with shared SSH key
-- ✅ Cloud-init Configuration: Prepared for Ansible VM with packages and tools
+- ✅ VMs Configuration: ansible (100), claude (110), syslog (120), splunk (130)
+- ✅ Cloud-init Configuration: External file-based configuration implemented
 - ✅ SSH Key Provisioning: Secure null_resource approach implemented
-- ⚠️ Ansible VM: Needs redeployment due to Proxmox config conflict
+- ✅ Variable-based Security: Sensitive files protected by .gitignore patterns
+- ✅ DynamoDB Lock Issues: Resolved with proper timeout configuration
+- ✅ Infrastructure Testing: Complete destroy/apply cycle validated - VMs create successfully
+- ✅ Troubleshooting Documentation: Added targeted VM operations for faster iteration
+- 🔄 Cloud-init External File Integration: External files not being applied to VMs (critical issue)
+- ⏳ Ansible Installation: Not working due to cloud-init issue
 
 ## Next Session Actions
 
-1. Resolve Proxmox VM 100 config conflict (manual cleanup or different approach)
-2. Complete Ansible VM deployment with cloud-init configuration
-3. Test Ansible functionality and inventory connectivity
-4. Begin service deployment via Ansible playbooks
-5. Implement centralized logging infrastructure
+1. **Investigate cloud-init external file integration issue**
+   - Use targeted VM operations from TROUBLESHOOTING.md for faster iteration
+   - Debug why `locals.ansible_cloud_init = file(var.ansible_cloud_init_file)` content isn't being applied
+   - Examine how cloud-init content is passed to Proxmox VM module
+
+2. **Fix cloud-init configuration**
+   - Ensure external cloud-init files are properly merged with VM configuration
+   - Validate cloud-init syntax and structure
+   - Test cloud-init application via targeted VM destroy/apply cycles
+
+3. **Validate Ansible server configuration**
+   - Test SSH connectivity from Ansible server to all other VMs
+   - Verify Ansible installation and configuration via cloud-init
+   - Begin service deployment via Ansible playbooks once cloud-init works
+
+4. **Implement centralized logging infrastructure**
+   - Deploy rsyslog and Splunk services via Ansible automation

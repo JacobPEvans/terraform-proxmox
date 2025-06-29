@@ -3,7 +3,6 @@ package_update: true
 package_upgrade: true
 
 packages:
-  - ansible
   - python3-pip
   - python3-venv
   - git
@@ -19,7 +18,9 @@ packages:
 runcmd:
   - mkdir -p /opt/ansible/{inventory,playbooks,roles,files}
   - chown -R ubuntu:ubuntu /opt/ansible
-  - pip3 install ansible-lint
+  - sudo -H -u ubuntu bash -c 'python3 -m venv /opt/ansible/venv'
+  - sudo -H -u ubuntu bash -c 'source /opt/ansible/venv/bin/activate && pip install ansible==9.5.1 ansible-lint'
+  - sudo -H -u ubuntu bash -c 'git clone https://your-tfs-git-repo/ansible-playbooks.git /opt/ansible/playbooks' # Placeholder for TFS repo
   - apt-get autoremove -y
   - apt-get autoclean
 
@@ -34,6 +35,7 @@ write_files:
       fact_caching = memory
       stdout_callback = yaml
       timeout = 30
+      python_interpreter = /opt/ansible/venv/bin/python3
       
       [ssh_connection]
       ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no

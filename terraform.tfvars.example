@@ -22,6 +22,9 @@ vm_ssh_private_key_path = "~/.ssh/id_rsa_vm"
 # Environment
 environment = "homelab"
 
+# Cloud-init configuration (use .local.yml for real deployment)
+ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
+
 # VM Configuration - Example with cloud-init
 vms = {
   "ansible" = {
