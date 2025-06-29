@@ -2,15 +2,13 @@
 
 ## Repository Context
 
-This repository manages infrastructure as code using Terraform and Terragrunt. All infrastructure-specific details
-and general usage instructions are documented in README.md. This file contains AI-specific instructions for working
-with this repository.
+This repository manages infrastructure as code using Terraform and Terragrunt. All infrastructure-specific details and general usage instructions are documented in README.md. This file contains AI-specific instructions for working with this repository.
 
 ## Infrastructure Context
 
 Real infrastructure details are maintained in a separate private repository for security.
 
-This repository contains placeholder/example values for public repository safety. Reference the private context for actual:
+This repository contains placeholder/example values for public repository safety. Reference the private context for actual infrastructure details:
 
 - Hostnames and IP addresses
 - API endpoints and credentials

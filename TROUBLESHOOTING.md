@@ -234,6 +234,7 @@ terragrunt apply -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name
 ### Problem: Terragrunt operations hanging or timing out
 
 Common causes include:
+
 - Proxmox API timeouts during VM operations
 - DynamoDB locks from previous interrupted operations  
 - Network connectivity issues
@@ -308,12 +309,14 @@ terragrunt apply \
 ### Operational Guidelines
 
 #### Before Operations
+
 1. Check for existing locks
 2. Verify state consistency: `terragrunt state list`
 3. Test API connectivity
 4. Use targeted operations for specific troubleshooting
 
 #### After Interrupted Runs
+
 1. Clean up locks immediately: `terragrunt force-unlock -force <LOCK_ID>`
 2. Verify state vs infrastructure consistency
 3. Remove orphaned resources from state if needed
@@ -352,16 +355,19 @@ aws dynamodb scan --table-name <lock-table> --region <region> \
 ## Key Operational Principles
 
 ### Timeout Management
+
 - Set appropriate timeouts (5-15 minutes typically)
 - Monitor operations through both Terraform and infrastructure consoles
 - Use targeted operations to reduce timeout exposure
 
 ### State Consistency
+
 - Regular state vs infrastructure checks
 - Backup state files before major operations
 - Clean up orphaned resources promptly
 
 ### Monitoring
+
 - Track DynamoDB lock table size
 - Verify API connectivity before operations
 - Monitor resource usage on Proxmox hosts
