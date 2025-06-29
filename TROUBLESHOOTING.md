@@ -16,7 +16,7 @@
 1. **Check active locks:**
 
    ```bash
-   aws dynamodb scan --table-name terraform-proxmox-locks-{region} --region us-east-2
+   aws dynamodb scan --table-name <lock-table-name> --region <region>
    ```
 
 2. **Force unlock via Terragrunt:**
@@ -29,9 +29,9 @@
 
    ```bash
    aws dynamodb delete-item \
-     --table-name terraform-proxmox-locks-{region} \
-     --region {region} \
-     --key '{"LockID": {"S": "{LOCK_ID}"}}'
+     --table-name <lock-table-name> \
+     --region <region> \
+     --key '{"LockID": {"S": "<LOCK_ID>"}}'
    ```
 
 ### State Drift Issues
@@ -68,8 +68,8 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
 1. **Test API connectivity first:**
 
    ```bash
-   curl -k -X GET "https://pve.example.com:8006/api2/json/version" \
-     -H "Authorization: PVEAPIToken=root@pve!root=example-token-here" --max-time 10
+   curl -k -X GET "https://proxmox.example.com:8006/api2/json/version" \
+     -H "Authorization: PVEAPIToken=<user>@<realm>!<token-name>=<token-value>" --max-time 10
    ```
 
 2. **Emergency: Replace problematic VM resources:**
@@ -182,27 +182,142 @@ This occurs when operations are interrupted, leaving orphaned resources in infra
 - Command timeouts can interrupt state updates, creating orphaned resources
 - Destroy operations require careful monitoring to ensure completion
 
+## Targeted VM Operations for Fast Troubleshooting
+
+### Problem: Full destroy/apply cycles take 30+ minutes
+
+When troubleshooting cloud-init configurations, VM provisioning issues, or testing specific VM changes, full infrastructure cycles are inefficient and time-consuming.
+
+### Solution: Targeted VM Operations
+
+#### Single VM Operations
+
+```bash
+# Target single VM for destroy/apply (replace 'vm-name' with actual VM name)
+terragrunt destroy -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name\"] -auto-approve
+terragrunt apply -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name\"] -auto-approve
+
+# Multiple VM targeting
+terragrunt destroy \
+  -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm1\"] \
+  -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm2\"] \
+  -auto-approve
+```
+
+#### Cloud-init Troubleshooting (2-5 minute cycles)
+
+```bash
+# Quick VM recreation for cloud-init testing
+terragrunt destroy -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name\"] -auto-approve
+terragrunt apply -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name\"] -auto-approve
+
+# Test SSH and cloud-init status
+ssh -i <ssh-key> <user>@<vm-ip> 'sudo cloud-init status --long'
+ssh -i <ssh-key> <user>@<vm-ip> 'sudo cat /var/log/cloud-init-output.log'
+```
+
+#### Emergency VM Cleanup
+
+```bash
+# Remove VM from state if targeted destroy fails
+terragrunt state rm module.vms.proxmox_virtual_environment_vm.vms[\"vm-name\"]
+
+# Manually destroy via Proxmox host
+ssh -i <ssh-key> <user>@<proxmox-host> 'qm stop <vm-id> && qm destroy <vm-id>'
+
+# Re-create VM
+terragrunt apply -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name\"] -auto-approve
+```
+
+## Provider Timeout & Performance Issues
+
+### Problem: Terragrunt operations hanging or timing out
+
+Common causes include:
+- Proxmox API timeouts during VM operations
+- DynamoDB locks from previous interrupted operations  
+- Network connectivity issues
+- Resource contention on Proxmox host
+
+### Solutions by Issue Type
+
+#### API Connectivity Issues
+
+```bash
+# Test Proxmox API responsiveness
+curl -k -X GET "https://proxmox.example.com:8006/api2/json/version" \
+  -H "Authorization: PVEAPIToken=<user>@<realm>!<token-name>=<token-value>" --max-time 10
+
+# Check basic connectivity
+ping -c 3 proxmox.example.com
+ssh -i <ssh-key> <user>@<proxmox-host> 'uptime'
+```
+
+#### DynamoDB Lock Management
+
+```bash
+# Check for existing locks
+aws dynamodb scan --table-name <lock-table-name> --region <region>
+
+# Force unlock specific lock
+terragrunt force-unlock -force <LOCK_ID>
+
+# Bulk lock cleanup (use with caution)
+aws dynamodb scan --table-name <lock-table-name> --region <region> \
+  --query 'Items[].LockID.S' --output text | \
+  xargs -I {} terragrunt force-unlock -force {}
+```
+
+#### Resource Monitoring
+
+```bash
+# Check Proxmox host resources
+ssh -i <ssh-key> <user>@<proxmox-host> 'free -h && df -h'
+
+# List VMs and containers
+ssh -i <ssh-key> <user>@<proxmox-host> 'qm list && pct list'
+```
+
+### Prevention & Best Practices
+
+#### Pre-Operation Checks
+
+```bash
+# Check for locks and API connectivity before major operations
+aws dynamodb scan --table-name <lock-table-name> --region <region> --query 'Count'
+curl -k -s "https://proxmox.example.com:8006/api2/json/version" \
+  -H "Authorization: PVEAPIToken=<token>" --max-time 10
+```
+
+#### Gradual Operations
+
+```bash
+# Phase operations instead of full destroy/apply cycles
+terragrunt destroy \
+  -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm1\"] \
+  -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm2\"] \
+  -auto-approve
+
+terragrunt apply \
+  -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm1\"] \
+  -auto-approve
+```
+
 ## Best Practices
 
-### Before Running Terragrunt Commands
+### Operational Guidelines
 
-1. Check for existing locks: `aws dynamodb scan --table-name <lock-table> --region <region>`
+#### Before Operations
+1. Check for existing locks
 2. Verify state consistency: `terragrunt state list`
-3. Test connectivity: `curl -k <api-endpoint>/version`
-4. Verify state vs infrastructure consistency
+3. Test API connectivity
+4. Use targeted operations for specific troubleshooting
 
-### During Development
-
-1. Use targeted operations for testing: `terragrunt plan -target=<resource>`
-2. Set reasonable timeouts in provider configuration
-
-### After Interrupted Runs
-
-1. Clean up locks immediately
-2. Verify state consistency between Terraform and actual infrastructure
-3. Check for orphaned resources in both state and infrastructure
-4. Perform manual cleanup of orphaned resources if found
-5. Implement post-operation verification checks
+#### After Interrupted Runs
+1. Clean up locks immediately: `terragrunt force-unlock -force <LOCK_ID>`
+2. Verify state vs infrastructure consistency
+3. Remove orphaned resources from state if needed
+4. Perform manual cleanup via API/SSH if necessary
 
 ## Emergency Procedures
 
@@ -222,10 +337,10 @@ terragrunt state rm data.local_file.vm_ssh_public_key
 terragrunt state list | xargs -I {} terragrunt state rm {}
 ```
 
-### Lock Table Cleanup
+### Complete Lock Table Cleanup
 
 ```bash
-# Remove all locks (use only when no legitimate operations are running)
+# Remove all locks (emergency use only when no operations are running)
 aws dynamodb scan --table-name <lock-table> --region <region> \
   --query 'Items[].LockID.S' --output text | \
   xargs -I {} aws dynamodb delete-item \
@@ -234,41 +349,20 @@ aws dynamodb scan --table-name <lock-table> --region <region> \
     --key '{"LockID": {"S": "{}"}}'
 ```
 
-## Operational Best Practices
+## Key Operational Principles
 
-### Timeout Strategy
+### Timeout Management
+- Set appropriate timeouts (5-15 minutes typically)
+- Monitor operations through both Terraform and infrastructure consoles
+- Use targeted operations to reduce timeout exposure
 
-- Set appropriate timeouts to prevent indefinite hangs (5-15 minutes typically)
-- Ensure command timeouts are longer than resource timeouts
-- Monitor operations through both Terraform output and infrastructure console
-
-### State Management
-
-- Perform regular state consistency checks between Terraform and infrastructure
+### State Consistency
+- Regular state vs infrastructure checks
 - Backup state files before major operations
-- Implement automated cleanup scripts for orphaned resources
+- Clean up orphaned resources promptly
 
-### Monitoring Requirements
-
-- Monitor both Terraform output and infrastructure console during operations
-- Use API calls to verify actual infrastructure state
-- Track resource IDs and states throughout lifecycle
-- Implement infrastructure drift detection
-- Monitor infrastructure API for untracked resources
-- Alert on state inconsistencies
-
-## Monitoring and Maintenance
-
-### Regular Health Checks
-
-- Monitor DynamoDB lock table size
-- Check state file consistency
-- Verify API token validity
-- Monitor Proxmox server resources
-
-### Performance Optimization
-
-- Use targeted operations when possible
-- Enable parallel execution where safe
-- Optimize provider timeout settings
-- Monitor API response times
+### Monitoring
+- Track DynamoDB lock table size
+- Verify API connectivity before operations
+- Monitor resource usage on Proxmox hosts
+- Use targeted operations for faster troubleshooting cycles

@@ -31,7 +31,7 @@ data "local_file" "vm_ssh_public_key" {
 
 # Local variables for cloud-init files
 locals {
-  ansible_cloud_init = file("cloud-init/ansible-server.local.yml")
+  ansible_cloud_init = file(var.ansible_cloud_init_file)
 }
 
 # Storage module - manages datastores and storage configuration

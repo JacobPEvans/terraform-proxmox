@@ -7,6 +7,52 @@ All notable changes to the terraform-proxmox infrastructure project will be docu
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## 2025-06-29
+
+### Added
+
+- **Targeted VM Troubleshooting**: Added comprehensive TROUBLESHOOTING.md section for single VM operations to avoid 30+ minute full cycles
+- **Cloud-init Debugging Workflow**: Added 2-5 minute iteration cycles for cloud-init troubleshooting using targeted VM destroy/apply operations
+- **DynamoDB Lock Management**: Enhanced lock cleanup procedures for targeted operations and bulk lock removal
+- **Provider Timeout Troubleshooting**: Added detailed timeout handling for Proxmox API, network connectivity, and resource contention issues
+- **Pre-flight Check Scripts**: Added comprehensive health check procedures before major infrastructure operations
+- **Gradual Operations Strategy**: Added phased deployment approach for large infrastructure changes
+
+### Fixed
+
+- **Documentation Organization**: Updated PLANNING.md to accurately reflect current cloud-init external file integration issue
+- **Troubleshooting Efficiency**: Reduced cloud-init troubleshooting cycles from 30+ minutes to 2-5 minutes using targeted operations
+- **Infrastructure Status Tracking**: Enhanced project status tracking with accurate completion indicators and blocking issue identification
+
+### Changed
+
+- **Troubleshooting Approach**: Shifted from full infrastructure cycles to targeted VM operations for faster iteration
+- **Documentation Accuracy**: Updated status tracking to reflect actual infrastructure state and known issues
+- **Operational Procedures**: Enhanced emergency cleanup procedures and provider-specific timeout handling
+
+## 2025-06-26
+
+### Fixed
+
+- **DynamoDB Lock Abandonment**: Resolved critical timeout issue causing abandoned state locks during long-running VM operations
+- **Terraform Timeout Configuration**: Increased VM creation and clone timeouts from 900s to 1800s (30 minutes) to prevent premature operation abandonment
+- **Infrastructure Deployment Reliability**: Enhanced timeout settings now allow operations to complete naturally without lock conflicts
+- **Cloud-init File Reference**: Fixed hardcoded file path in main.tf that was causing Terraform failures, replaced with variable-based configuration
+
+### Added
+
+- **External Cloud-init Files**: Moved cloud-init configuration from inline strings to dedicated external files for better maintainability
+- **Enhanced Ansible Installation**: Improved cloud-init script with complete package updates, both ansible and ansible-core packages, and installation verification logging
+- **Cloud-init Directory Structure**: Added organized cloud-init/ directory with ansible-server.local.yml for comprehensive Ansible server setup
+- **Variable-based Cloud-init Management**: Added `ansible_cloud_init_file` variable with validation to allow flexible cloud-init file configuration
+
+### Changed
+
+- **Repository Security**: Enhanced .gitignore protection with explicit terraform.tfvars exclusion and additional local file patterns
+- **Documentation Examples**: Updated terraform.tfvars.example with more realistic example values and external cloud-init file references
+- **Cloud-init Management**: Transitioned from embedded cloud-init strings to external file-based configuration using locals and variables
+- **Configuration Security**: Implemented variable-based approach ensuring sensitive local file paths never get committed to public repository
+
 ## 2025-06-25
 
 ### Added

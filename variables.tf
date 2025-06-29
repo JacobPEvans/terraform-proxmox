@@ -211,6 +211,17 @@ variable "vm_ssh_private_key_path" {
   }
 }
 
+# Cloud-init configuration
+variable "ansible_cloud_init_file" {
+  description = "Path to the cloud-init configuration file for Ansible server"
+  type        = string
+  default     = "cloud-init/ansible-server-example.yml"
+  validation {
+    condition     = can(regex("^cloud-init/.*\\.ya?ml$", var.ansible_cloud_init_file))
+    error_message = "Cloud-init file must be in cloud-init/ directory and have .yml or .yaml extension."
+  }
+}
+
 # Containers configuration
 variable "containers" {
   description = "Map of containers to create"

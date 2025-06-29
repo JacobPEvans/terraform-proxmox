@@ -7,9 +7,7 @@ terraform {
   }
 }
 
-# Note: Cloud-init user data is now handled inline in the initialization block
-
-resource "proxmox_virtual_environment_vm" "vms" {
+    resource "proxmox_virtual_environment_vm" "vms" {
   for_each = var.vms
 
   vm_id       = each.value.vm_id
