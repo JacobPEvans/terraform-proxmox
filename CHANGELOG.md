@@ -84,8 +84,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ### Added
 
-- **Comprehensive Troubleshooting Guide**: Consolidated destroy operation procedures, state consistency checks,
-  and operational best practices into TROUBLESHOOTING.md
+- **Comprehensive Troubleshooting Guide**: Consolidated destroy operation procedures, state consistency checks, and operational best practices into TROUBLESHOOTING.md
 
 ### Changed
 
@@ -116,16 +115,14 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 
 - **Control VM Configuration**: Added new control VM for automation management
-- **Comprehensive Troubleshooting Guide**: Created detailed troubleshooting documentation for state locks, timeouts,
-  and connectivity issues
+- **Comprehensive Troubleshooting Guide**: Created detailed troubleshooting documentation for state locks, timeouts, and connectivity issues
 - **Hardware Optimization Documentation**: Added hardware constraints analysis and resource allocation guidance
 
 ### Changed
 
 - **Infrastructure Modernization**: Updated all software to latest stable versions
 - **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach
-- **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7,
-  local ~> 2.5)
+- **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
 - **Terraform Version**: Updated minimum requirement to >= 1.12.2
 - **Terragrunt Version**: Updated to latest stable v0.81.10
 - **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance and warning elimination
