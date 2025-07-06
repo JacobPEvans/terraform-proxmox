@@ -1,140 +1,82 @@
 # Project Status & Planning
 
-## Current Session Progress
+## 📋 Remaining Tasks
 
-### ✅ Completed Tasks
+### Phase 1: Cloud-init Configuration Fix (HIGH PRIORITY)
 
-1. **Infrastructure Modernization (2025-06-22)**
-   - Updated all software to latest stable versions (Terraform 1.12.2, Terragrunt 0.81.10)
-   - Updated all provider versions to latest stable (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
-   - Fixed Proxmox warnings by changing disk interfaces from scsi0 to virtio0
-   - Limited all timeouts to maximum 4 minutes for faster failure detection
+1. **Fix External Cloud-init File Integration**
+   - Investigate why external cloud-init file `ansible-server.local.yml` is not being applied to VMs
+   - VM creates successfully but only applies basic template cloud-init, not external file content
+   - External file contains comprehensive Ansible installation and configuration
+   - Use targeted VM operations for faster troubleshooting (2-5 minute cycles vs 30+ minute full cycles)
 
-2. **SSH Key Strategy Migration**
-   - Migrated from security module generated keys to static cloud-init approach
-   - Removed security module completely from configuration
-   - Implemented static SSH key management using ~/.ssh/id_rsa_vm.pub
-   - Updated all VM configurations to use cloud-init with static keys
+2. **Complete Infrastructure Testing Cycle**
+   - ✅ Perform clean terragrunt destroy → apply cycle (COMPLETED - VMs created successfully)
+   - 🔄 Verify Ansible cloud-init configuration works fully (BLOCKED - external file not applied)
+   - ⏳ Test SSH connectivity from Ansible server to all VMs without manual intervention (PENDING - depends on cloud-init fix)
+   - ⏳ Validate Ansible server is completely configured via cloud-init only (PENDING - ansible not installed)
 
-3. **Infrastructure State Management**
-   - Performed complete terragrunt destroy of all existing VMs
-   - Cleaned up terraform state file and removed orphaned entries
-   - Resolved state lock issues and timeouts
-   - Prepared clean state for fresh infrastructure deployment
+### Phase 2: Ansible Configuration Management (MEDIUM PRIORITY)
 
-4. **Hardware-Optimized Configuration**
-   - Analyzed hardware constraints: AMD Ryzen 7 1700 (8 cores, 16 threads), 16GB RAM
-   - Adjusted resource allocations within hardware limits
-   - Reduced Splunk VM memory from 8192MB to 6144MB
-   - Added Ansible VM configuration (ID: 130, IP: 10.0.1.130, 2 cores, 4GB RAM)
+1. **Create Ansible Playbooks**
+   - Develop base system configuration playbooks
+   - Create security update and hardening playbooks
+   - Implement VM-specific service deployment playbooks
 
-5. **Documentation and Troubleshooting**
-   - Created comprehensive TROUBLESHOOTING.md guide
-   - Documented version updates in VERSION_UPDATE.md
-   - Updated all *.md files for consistency
-   - Established detailed troubleshooting procedures
-
-### 📋 Remaining Tasks
-
-## Phase 1: Fresh Infrastructure Deployment (HIGH PRIORITY)
-1. **Execute Infrastructure Deployment**
-   - Run `terragrunt apply` with clean state to deploy all VMs
-   - Monitor deployment through Proxmox console
-   - Verify all VMs deploy with virtio disk interfaces
-
-2. **Validate VM Provisioning**
-   - Test SSH access to all deployed VMs using ~/.ssh/id_rsa_vm
-   - Verify cloud-init configuration applied correctly
-   - Confirm network connectivity and IP assignments
-   - Validate resource allocations match hardware constraints
-
-3. **Infrastructure Health Check**
-   - Verify all VMs are running without Proxmox warnings
-   - Check disk performance with virtio interfaces
-   - Confirm memory and CPU allocations are optimal
-
-## Phase 3: Ansible Configuration & Management (MEDIUM PRIORITY)
-7. **Configure Ansible Control Node**
-   - SSH into ansible VM and install Ansible
-   - Generate dynamic inventory from Terraform outputs
-   - Create Ansible playbooks for VM configuration management
-
-8. **Establish VM Management Framework**
-   - Configure Ansible to manage Splunk VM
-   - Set up Syslog VM configuration via Ansible
-   - Implement standardized VM configuration playbooks
-
-## Phase 4: Service Deployment & Validation (MEDIUM PRIORITY)
-9. **Deploy Core Services**
-   - Install and configure Splunk on splunk VM
-   - Configure centralized syslog on syslog VM
+2. **Deploy Services via Ansible**
+   - Configure rsyslog on syslog VM for centralized logging
+   - Deploy and configure Splunk on splunk VM
    - Set up log forwarding from all VMs to syslog server
 
-10. **Validation & Testing**
-    - Test end-to-end log flow (VMs → Syslog → Splunk)
-    - Verify SSH key rotation capabilities
-    - Validate backup and disaster recovery procedures
+### Phase 3: Repository Organization (MEDIUM PRIORITY)
 
-## Repository Context
+1. **Clean Up Root Directory Structure**
+   - Separate Terraform .tf files from documentation .md files
+   - Reorganize *.tf files into logical subdirectories (infrastructure/, environments/, etc.)
+   - Keep high-level documentation (README.md, etc.) in root directory
+   - Ensure terragrunt.hcl and configuration files work after reorganization
+   - Test complete infrastructure deployment after reorganization
 
-### Infrastructure Overview
+### Phase 4: Service Validation & Operations (LOW PRIORITY)
 
-- **Target**: Proxmox Virtual Environment (PVE)
-- **Purpose**: VM/container provisioning with Ansible automation
-- **State Backend**: AWS S3 + DynamoDB (us-east-2 region)
-- **Tools**: Terraform + Terragrunt + Ansible
+1. **End-to-End Testing**
+   - Test complete log flow: VMs → Syslog → Splunk
+   - Verify log analysis and search capabilities in Splunk
+   - Validate monitoring and alerting functionality
 
-### Key Files
+2. **Operational Readiness**
+   - Document standard operating procedures
+   - Implement backup and recovery testing
+   - Verify SSH key rotation and access management
 
-- `main.tf` - Core resources using modular architecture
-- `terragrunt.hcl` - Remote state configuration
-- `variables.tf` - Input variables with SSH key configuration
-- `modules/security/` - Password and SSH key generation
-- `modules/proxmox-vm/` - VM provisioning with cloud-init
-- `modules/proxmox-container/` - Container management
-- `modules/proxmox-pool/` - Resource pool organization
-- `modules/storage/` - Storage and cloud-init configuration
+## Current Infrastructure Status
 
-### Current Infrastructure Status
-
-- ✅ Static SSH key configuration implemented (~/.ssh/id_rsa_vm.pub)
-- ✅ All software updated to latest stable versions
-- ✅ Proxmox warnings eliminated with virtio disk interfaces
-- ✅ Hardware-optimized resource allocation configured
-- ✅ Infrastructure state completely cleaned and ready for deployment
-- 🔄 Fresh deployment pending (terragrunt apply)
-- 🔄 VM provisioning and SSH access validation pending
-
-### Configuration Status
-
-- ✅ Terragrunt configuration updated to latest versions
-- ✅ Modular architecture optimized (4 modules: proxmox-vm, proxmox-container, proxmox-pool, storage)
-- ✅ Static SSH key management implemented and tested
-- ✅ All VM configurations include Ansible VM (4 total VMs)
-- ✅ Virtio disk interfaces configured for all VMs
-- ✅ Timeout configurations optimized (4-minute maximum)
+- ✅ VMs Configuration: ansible (100), claude (110), syslog (120), splunk (130)
+- ✅ Cloud-init Configuration: External file-based configuration implemented
+- ✅ SSH Key Provisioning: Secure null_resource approach implemented
+- ✅ Variable-based Security: Sensitive files protected by .gitignore patterns
+- ✅ DynamoDB Lock Issues: Resolved with proper timeout configuration
+- ✅ Infrastructure Testing: Complete destroy/apply cycle validated - VMs create successfully
+- ✅ Troubleshooting Documentation: Added targeted VM operations for faster iteration
+- 🔄 Cloud-init External File Integration: External files not being applied to VMs (critical issue)
+- ⏳ Ansible Installation: Not working due to cloud-init issue
 
 ## Next Session Actions
 
-1. Execute `terragrunt apply` to deploy fresh infrastructure
-2. Validate all VMs deploy successfully with virtio interfaces
-3. Test SSH connectivity to all deployed VMs
-4. Configure Ansible control node with required packages
-5. Generate dynamic Ansible inventory from Terraform outputs
-6. Begin service deployment (Splunk, Syslog configuration)
+1. **Investigate cloud-init external file integration issue**
+   - Use targeted VM operations from TROUBLESHOOTING.md for faster iteration
+   - Debug why `locals.ansible_cloud_init = file(var.ansible_cloud_init_file)` content isn't being applied
+   - Examine how cloud-init content is passed to Proxmox VM module
 
-## Known Constraints
+2. **Fix cloud-init configuration**
+   - Ensure external cloud-init files are properly merged with VM configuration
+   - Validate cloud-init syntax and structure
+   - Test cloud-init application via targeted VM destroy/apply cycles
 
-- **Hardware Limitations**: 8 core AMD CPU with 16GB RAM requires careful resource allocation
-- **Network Configuration**: 10.0.1.0/24 management network with static IP assignments
-- **Timeout Limits**: All operations limited to 4-minute maximum for quick failure detection
-- **Storage Performance**: Virtio interfaces provide optimal disk performance for all VMs
+3. **Validate Ansible server configuration**
+   - Test SSH connectivity from Ansible server to all other VMs
+   - Verify Ansible installation and configuration via cloud-init
+   - Begin service deployment via Ansible playbooks once cloud-init works
 
-## Notes
-
-- Infrastructure completely rebuilt with latest versions and optimized configuration
-- Security model improved with static SSH key management outside Terraform state
-- All Proxmox warnings eliminated through virtio interface adoption
-- State management optimized with clean slate and proper timeout handling
-- Ready for immediate fresh deployment and service configuration
-- Comprehensive troubleshooting documentation available for common issues
+4. **Implement centralized logging infrastructure**
+   - Deploy rsyslog and Splunk services via Ansible automation

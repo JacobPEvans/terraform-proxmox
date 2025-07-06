@@ -1,23 +1,141 @@
 # Changelog
 
+<!-- markdownlint-disable-file MD024 -->
+
 All notable changes to the terraform-proxmox infrastructure project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Calendar Versioning](https://calver.org/).
 
-## 2025-06-22
+## 2025-06-29
+
+### Added
+
+- **Targeted VM Troubleshooting**: Added comprehensive TROUBLESHOOTING.md section for single VM operations to avoid 30+ minute full cycles
+- **Cloud-init Debugging Workflow**: Added 2-5 minute iteration cycles for cloud-init troubleshooting using targeted VM destroy/apply operations
+- **DynamoDB Lock Management**: Enhanced lock cleanup procedures for targeted operations and bulk lock removal
+- **Provider Timeout Troubleshooting**: Added detailed timeout handling for Proxmox API, network connectivity, and resource contention issues
+- **Pre-flight Check Scripts**: Added comprehensive health check procedures before major infrastructure operations
+- **Gradual Operations Strategy**: Added phased deployment approach for large infrastructure changes
+
+### Fixed
+
+- **Documentation Organization**: Updated PLANNING.md to accurately reflect current cloud-init external file integration issue
+- **Troubleshooting Efficiency**: Reduced cloud-init troubleshooting cycles from 30+ minutes to 2-5 minutes using targeted operations
+- **Infrastructure Status Tracking**: Enhanced project status tracking with accurate completion indicators and blocking issue identification
 
 ### Changed
 
-- **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
+- **Troubleshooting Approach**: Shifted from full infrastructure cycles to targeted VM operations for faster iteration
+- **Documentation Accuracy**: Updated status tracking to reflect actual infrastructure state and known issues
+- **Operational Procedures**: Enhanced emergency cleanup procedures and provider-specific timeout handling
+
+## 2025-06-26
+
+### Fixed
+
+- **DynamoDB Lock Abandonment**: Resolved critical timeout issue causing abandoned state locks during long-running VM operations
+- **Terraform Timeout Configuration**: Increased VM creation and clone timeouts from 900s to 1800s (30 minutes) to prevent premature operation abandonment
+- **Infrastructure Deployment Reliability**: Enhanced timeout settings now allow operations to complete naturally without lock conflicts
+- **Cloud-init File Reference**: Fixed hardcoded file path in main.tf that was causing Terraform failures, replaced with variable-based configuration
+
+### Added
+
+- **External Cloud-init Files**: Moved cloud-init configuration from inline strings to dedicated external files for better maintainability
+- **Enhanced Ansible Installation**: Improved cloud-init script with complete package updates, both ansible and ansible-core packages, and installation verification logging
+- **Cloud-init Directory Structure**: Added organized cloud-init/ directory with ansible-server.local.yml for comprehensive Ansible server setup
+- **Variable-based Cloud-init Management**: Added `ansible_cloud_init_file` variable with validation to allow flexible cloud-init file configuration
+
+### Changed
+
+- **Repository Security**: Enhanced .gitignore protection with explicit terraform.tfvars exclusion and additional local file patterns
+- **Documentation Examples**: Updated terraform.tfvars.example with more realistic example values and external cloud-init file references
+- **Cloud-init Management**: Transitioned from embedded cloud-init strings to external file-based configuration using locals and variables
+- **Configuration Security**: Implemented variable-based approach ensuring sensitive local file paths never get committed to public repository
+
+## 2025-06-25
+
+### Added
+
+- **Cloud-init Support**: Extended VM module to support custom cloud-init user_data configuration
+- **Secure SSH Key Provisioning**: Implemented null_resource approach for securely copying SSH private keys to Ansible VMs
+- **Comprehensive Ansible Configuration**: Created complete cloud-init script for Ansible VM with all required packages
+- **Ansible Infrastructure**: Added Ansible control node configuration with inventory, playbooks, and configuration files
+- **Null Provider Integration**: Added hashicorp/null provider (~> 3.2) to main Terraform configuration
+
+### Changed
+
+- **Ansible VM Disk Size**: Increased from 32GB to 64GB to accommodate additional packages and tools
+- **VM Module Variables**: Extended variables.tf to support optional cloud_init_user_data parameter
+- **Infrastructure as Code**: All VM configuration now managed through Terraform/cloud-init instead of manual setup
+
+### Fixed
+
+- **SSH Key Security**: Removed any potential exposure of private keys in configuration files
+- **Terraform Syntax**: Corrected provisioner implementation using null_resource instead of dynamic blocks
+
+### Planned
+
+- **Ansible VM Deployment**: Resolve Proxmox VM 100 config conflict and complete deployment
+- **Service Configuration**: Deploy rsyslog and Splunk services via Ansible automation
+- **Centralized Logging**: Implement complete log forwarding and analysis infrastructure
+
+## 2025-06-24
+
+### Added
+
+- **Comprehensive Troubleshooting Guide**: Consolidated destroy operation procedures, state consistency checks, and operational best practices into TROUBLESHOOTING.md
+
+### Changed
+
+- **Documentation Consolidation**: Applied DRY principles across all documentation files
+- **Infrastructure Sanitization**: Removed all infrastructure-specific details from public documentation
+- **CLAUDE.md Restructure**: Focused exclusively on AI-specific instructions for repository
+- **PLANNING.md Cleanup**: Restructured to contain only unfinished tasks, moved completed tasks to CHANGELOG.md
+- **README.md Optimization**: Eliminated duplication with TROUBLESHOOTING.md, created clean project overview
+- Enhanced GitHub Actions workflow with 20-minute timeout for better CI/CD reliability
+- Updated infrastructure timeout configurations from 4-minute to 5-10 minute maximums
+- Improved agent timeout from 4 minutes to 15 minutes for better VM provisioning reliability
+
+### Fixed
+
+- Fixed markdown formatting issues across all documentation files for better readability
+- Resolved Terraform provider checksum validation error by upgrading provider dependencies
+- Fixed line length violations across all documentation files
+- Corrected ordered list numbering in PLANNING.md for proper markdown compliance
+
+### Removed
+
+- **DESTROY_ANALYSIS.md**: Content consolidated into TROUBLESHOOTING.md
+- **modules/security/README.md**: Deprecated module documentation removed
+- **Infrastructure-specific details**: All specific IPs, hostnames, and configuration details sanitized
+
+## 2025-06-22
+
+### Added
+
+- **Control VM Configuration**: Added new control VM for automation management
+- **Comprehensive Troubleshooting Guide**: Created detailed troubleshooting documentation for state locks, timeouts, and connectivity issues
+- **Hardware Optimization Documentation**: Added hardware constraints analysis and resource allocation guidance
+
+### Changed
+
+- **Infrastructure Modernization**: Updated all software to latest stable versions
 - **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach
 - **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
 - **Terraform Version**: Updated minimum requirement to >= 1.12.2
 - **Terragrunt Version**: Updated to latest stable v0.81.10
-- **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance
-- **Resource Allocation**: Adjusted Splunk VM memory from 8192MB to 6144MB to fit hardware constraints
-- **Timeout Configuration**: Limited all timeouts to maximum 3 minutes for faster failure detection
+- **Disk Interface**: Changed all VM boot disks from scsi0 to virtio0 for optimal performance and warning elimination
+- **Resource Allocation**: Optimized memory and CPU allocations within hardware constraints
+- **Timeout Configuration**: Enhanced timeout configurations for faster failure detection
+- **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
 - **Secrets Sanitization**: Replaced all sensitive tokens and usernames with example values in public documentation
+
+### Fixed
+
+- **Infrastructure State Management**: Performed complete infrastructure cleanup and state file optimization
+- **State Lock Issues**: Resolved state locking problems and timeout conflicts
+- **Proxmox Warnings**: Eliminated infrastructure warnings through virtio interface adoption
 
 ### Added
 
@@ -67,7 +185,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved SSH key handling in terragrunt configuration with conditional logic
 - Simplified Git workflow documentation to reference standardized guidelines
 - Repository documentation cleanup and standardization
-- SSH key configuration standardized to use id_rsa instead of id_rsa_pve
 
 ### Fixed
 

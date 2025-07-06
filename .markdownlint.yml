@@ -4,18 +4,11 @@
 # Default state for all rules
 default: true
 
-# Extend line length for code blocks and tables
+# Extend line length
 MD013:
-  line_length: 120
-  code_blocks: false
+  line_length: 150
   tables: false
 
 # Allow duplicate headers in CHANGELOG files (standard changelog format)
 MD024:
   siblings_only: true
-
-# Allow inline HTML for GitHub issue templates
-MD033: false
-
-# Allow first line to not be heading (for GitHub templates with frontmatter)
-MD041: false
