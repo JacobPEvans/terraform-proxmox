@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Documentation Structure**: Consolidated all duplicate documentation files into comprehensive README.md
-- **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach using `~/.ssh/id_rsa_vm.pub`
+- **SSH Key Strategy**: Migrated from security module generated keys to static cloud-init approach
 - **Provider Versions**: Updated all providers to latest stable versions (proxmox ~> 0.78, tls ~> 4.0, random ~> 3.7, local ~> 2.5)
 - **Terraform Version**: Updated minimum requirement to >= 1.12.2
 - **Terragrunt Version**: Updated to latest stable v0.81.10

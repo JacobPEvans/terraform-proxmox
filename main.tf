@@ -78,7 +78,7 @@ module "containers" {
       node_name        = var.proxmox_node
       template_file_id = "local:vztmpl/${var.proxmox_ct_template_ubuntu}"
       user_account = {
-        password = "ubuntu"  # default password
+        password = "ubuntu" # default password
         keys     = [trimspace(data.local_file.vm_ssh_public_key.content)]
       }
     })
