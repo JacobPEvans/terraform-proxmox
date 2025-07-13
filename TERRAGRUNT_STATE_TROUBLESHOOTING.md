@@ -90,8 +90,7 @@ module.vms.proxmox_virtual_environment_vm.vms["ansible"]: Refreshing state... [i
 #### Lock Information from Multiple Failures
 
 **Lock ID 1**: `b71cd269-bd22-3ad0-bf1f-0157e1d622db`
-- Path: `terraform-proxmox-state-useast2-${get_aws_account_id()}/terraform-proxmox/
-  ./terraform.tfstate`
+- Path: `terraform-proxmox-state-useast2-${get_aws_account_id()}/terraform-proxmox/terraform.tfstate`
 - Who: `jev@JarvisMobile`
 - Version: `1.12.2`
 - Created: `2025-07-13 00:44:19.520754859 +0000 UTC`
