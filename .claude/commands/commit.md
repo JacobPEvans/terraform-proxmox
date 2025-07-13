@@ -1,1 +1,0 @@
-/home/jev/git/ai-assistant-instructions/.claude/commands/commit.md

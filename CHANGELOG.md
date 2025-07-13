@@ -7,6 +7,33 @@ All notable changes to the terraform-proxmox infrastructure project will be docu
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## 2025-07-13
+
+### Added
+
+- **Comprehensive State Troubleshooting**: Created TERRAGRUNT_STATE_TROUBLESHOOTING.md with 400+ lines of detailed analysis for DynamoDB lock abandonment and state drift issues
+- **Provider Version Updates**: Successfully updated hashicorp/tls provider from ~> 4.0 to ~> 4.1
+- **Enhanced Force Unlock Procedures**: Documented multiple successful DynamoDB lock cleanup operations with exact command patterns
+- **Import Operation Analysis**: Detailed technical analysis of why VM imports consistently hang during refresh phase
+
+### Changed
+
+- **Terraform Provider Constraints**: Updated TLS provider version constraints in both main.tf and terragrunt.hcl
+- **Backend Configuration**: Resolved terragrunt.hcl generate block conflicts with successful `init -reconfigure` operations
+- **Troubleshooting Documentation**: Enhanced TROUBLESHOOTING.md with references to new comprehensive state guide
+
+### Fixed
+
+- **Backend Configuration Drift**: Successfully resolved backend configuration changes requiring reconfiguration
+- **Configuration Validation**: All Terraform configurations pass validation after provider updates
+- **Lock Table Cleanup**: Successfully cleaned up 3 abandoned DynamoDB locks from failed import operations
+
+### Identified Issues (Unresolved)
+
+- **State Synchronization Failure**: VM imports consistently hang during Proxmox provider refresh phase
+- **Infrastructure State Mismatch**: Terraform state shows no managed VMs while 3 VMs exist in Proxmox (IDs: 100, 110, 120)
+- **Provider Communication**: bpg/proxmox provider appears unable to reconcile existing VM configurations with Terraform expectations
+
 ## 2025-06-29
 
 ### Added
