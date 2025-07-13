@@ -86,7 +86,7 @@ terragrunt plan
 terragrunt apply -auto-approve
 
 # Destroy infrastructure
-terragrunt destroy
+terragrunt destroy --terragrunt-parallelism=1
 
 # Check state
 terragrunt state list
