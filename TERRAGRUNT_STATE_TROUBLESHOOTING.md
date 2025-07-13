@@ -143,7 +143,7 @@ obtain a new lock on the remote state.
 
 ```bash
 # Attempted direct terraform commands in cache directory
-cd .terragrunt-cache/*/2wL3H7Z-e9-cUl5eYaJ4cCrHpQY
+cd .terragrunt-cache/*/<generated-hash-directory>
 terraform import 'module.vms.proxmox_virtual_environment_vm.vms["ansible"]' pve/100
 # Status: ❌ TIMEOUT - Same hanging behavior at refresh step
 ```
