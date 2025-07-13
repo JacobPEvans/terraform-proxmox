@@ -73,7 +73,7 @@ generate "terraform_vars" {
 # Proxmox API Configuration
 # You need to set these values for your environment
 
-# Example: "https://pve.mgmt:8006/api2/json"
+# Example: "https://pve.<example>:8006/api2/json"
 proxmox_api_endpoint = ""
 
 # Example: "root@pam!terraform=your-secret-token-here"

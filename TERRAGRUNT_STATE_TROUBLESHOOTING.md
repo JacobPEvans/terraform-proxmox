@@ -198,7 +198,7 @@ The consistent hanging during VM refresh operations suggests several possible ca
 
 ```bash
 # Test command for API verification (not executed during session)
-curl -k -X GET "https://proxmox.mgmt:8006/api2/json/version" \
+curl -k -X GET "https://proxmox.<example>:8006/api2/json/version" \
   -H "Authorization: PVEAPIToken=root@pam!terraform=<token>" --max-time 10
 ```
 
@@ -219,6 +219,9 @@ mismatches:
 The provider may be attempting to reconcile significant differences between the
 actual VM state and expected state, causing timeout during state refresh.
 
+The provider may also be incorrect. Future troubleshooting sessions can debug
+where it is failing to retrieve VMs to refresh the state.
+
 ### State Consistency Analysis
 
 #### Current State vs Expected State
@@ -229,7 +232,7 @@ actual VM state and expected state, causing timeout during state refresh.
 
 **Plan Output Verification**:
 ```bash
-terragrunt plan -lock=false | head -20
+terragrunt plan -lock=false
 # Shows: Will create all 3 VMs
 # Indicates: No VMs currently in state
 ```
@@ -250,7 +253,7 @@ From successful plan output, expected resources:
 
 ```bash
 # Connect to Proxmox host and audit VM configurations
-ssh -i ~/.ssh/id_rsa root@proxmox.mgmt
+ssh -i ~/.ssh/id_rsa root@proxmox.<example>
 
 # Check VM configurations for each problematic VM
 qm config 100  # ansible VM
@@ -294,7 +297,7 @@ terragrunt state list
 
 ```bash
 # Connect to Proxmox and cleanly shut down VMs
-ssh -i ~/.ssh/id_rsa root@proxmox.mgmt
+ssh -i ~/.ssh/id_rsa root@proxmox.<example>
 qm stop 100 && qm destroy 100
 qm stop 110 && qm destroy 110
 qm stop 120 && qm destroy 120
@@ -342,7 +345,7 @@ grep -A 20 -B 5 "timeout\|error\|failed" terraform-debug.log
 # In separate terminal during import operation:
 while true; do
   curl -k -s -w "%{time_total}\n" -o /dev/null \
-    "https://proxmox.mgmt:8006/api2/json/version" \
+    "https://proxmox.<example>:8006/api2/json/version" \
     -H "Authorization: PVEAPIToken=root@pam!terraform=<token>"
   sleep 2
 done
@@ -429,7 +432,7 @@ fi
 # Check Proxmox API connectivity
 echo "Testing Proxmox API connectivity..."
 if ! curl -k -s --max-time 10 \
-  "https://proxmox.mgmt:8006/api2/json/version" \
+  "https://proxmox.<example>:8006/api2/json/version" \
   -H "Authorization: PVEAPIToken=root@pam!terraform=$PROXMOX_API_TOKEN" \
   > /dev/null; then
   echo "❌ ERROR: Cannot reach Proxmox API"
@@ -514,7 +517,7 @@ terragrunt state pull > corrupted-state-backup.json
 terragrunt state list | xargs -I {} terragrunt state rm {}
 
 # 3. Manually clean infrastructure if needed
-ssh root@proxmox.mgmt 'qm list'
+ssh root@proxmox.<example> 'qm list'
 # Manually destroy VMs if they should not exist
 
 # 4. Rebuild from configuration
@@ -571,7 +574,7 @@ printf '%s\n' "${EXPECTED_VMS[@]}"
 
 # Check Proxmox reality
 echo -e "\nActual VMs in Proxmox:"
-ssh root@proxmox.mgmt 'qm list | grep -E "(100|110|120)"'
+ssh root@proxmox.<example> 'qm list | grep -E "(100|110|120)"'
 
 echo -e "\n=== Drift Analysis ==="
 for vm in "${EXPECTED_VMS[@]}"; do
