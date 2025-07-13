@@ -1,5 +1,9 @@
 # Terraform/Terragrunt Troubleshooting Guide
 
+## ⚠️ Critical State Issues
+
+**For comprehensive analysis of current DynamoDB lock abandonment and state synchronization failures, see [TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md).**
+
 ## Common Issues and Solutions
 
 ### State Lock Issues

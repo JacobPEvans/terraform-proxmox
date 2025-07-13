@@ -55,7 +55,7 @@ terraform-proxmox/
 - **Containers**: LXC container support (configurable)
 - **Storage**: Cloud-init configuration management
 - **Terragrunt Integration**: Backend configuration and state management
-- **Latest Versions**: All tools and providers updated to latest stable versions
+- **Latest Versions**: Terraform 1.12.2, bpg/proxmox 0.79.0, hashicorp/tls ~> 4.1 (updated 2025-07-13)
 
 ### Benefits of the Modular Structure
 
@@ -86,7 +86,7 @@ terragrunt plan
 terragrunt apply -auto-approve
 
 # Destroy infrastructure
-terragrunt destroy --terragrunt-parallelism=1
+terragrunt destroy
 
 # Check state
 terragrunt state list
@@ -175,8 +175,13 @@ Example allocations:
 
 - **[CLAUDE.md](./CLAUDE.md)** - AI-specific instructions for this repository
 - **[PLANNING.md](./PLANNING.md)** - Current project status and remaining tasks
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Detailed troubleshooting procedures and operational guidance
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - General troubleshooting procedures and operational guidance
+- **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - ⚠️ **CRITICAL**: Comprehensive guide for current state synchronization issues
 - **[CHANGELOG.md](./CHANGELOG.md)** - History of completed changes and improvements
+
+## ⚠️ Current Status
+
+**CRITICAL ISSUE**: Complete Terraform state synchronization failure. VM imports hang indefinitely during provider refresh phase, preventing proper infrastructure lifecycle management. See [TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md) for detailed analysis and resolution strategies.
 
 ## 🛡️ Security
 

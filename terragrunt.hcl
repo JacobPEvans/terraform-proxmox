@@ -16,6 +16,7 @@ remote_state {
     key            = "terraform-proxmox/${path_relative_to_include()}/terraform.tfstate"
     region         = "us-east-2"
     encrypt        = true
+    use_lockfile   = true
     dynamodb_table = "terraform-proxmox-locks-useast2"
   }
 }
@@ -39,7 +40,7 @@ terraform {
   required_providers {
     tls = {
       source  = "hashicorp/tls"
-      version = "~> 4.0"
+      version = "~> 4.1"
     }
     random = {
       source  = "hashicorp/random"
@@ -47,7 +48,7 @@ terraform {
     }
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.78"
+      version = "~> 0.79"
     }
     local = {
       source  = "hashicorp/local"
