@@ -2,12 +2,12 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.78"
+      version = "~> 0.79"
     }
   }
 }
 
-    resource "proxmox_virtual_environment_vm" "vms" {
+resource "proxmox_virtual_environment_vm" "vms" {
   for_each = var.vms
 
   vm_id       = each.value.vm_id
