@@ -22,9 +22,10 @@ terraform-proxmox/
 ├── main.tf                    # Root module orchestrating all components
 ├── variables.tf               # Root-level variable definitions
 ├── outputs.tf                 # Root-level outputs
-├── provider.tf                # Provider configuration
-├── terraform.tfvars          # Variable values
-├── terragrunt.hcl            # Terragrunt configuration
+├── locals.tf                  # Local value definitions
+├── container.tf               # Container resource definitions
+├── terraform.tfvars.example   # Variable values template
+├── terragrunt.hcl            # Terragrunt configuration (generates provider.tf)
 └── modules/
     ├── proxmox-pool/          # Resource pool management
     │   ├── main.tf
@@ -35,6 +36,10 @@ terraform-proxmox/
     │   ├── variables.tf
     │   └── outputs.tf
     ├── proxmox-container/     # Container management
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
+    ├── security/              # Security resources (SSH keys, passwords)
     │   ├── main.tf
     │   ├── variables.tf
     │   └── outputs.tf
@@ -97,7 +102,7 @@ terragrunt show
 
 ### Configuration
 
-1. Update `terraform.tfvars` with your infrastructure configuration:
+1. Copy `terraform.tfvars.example` to `terraform.tfvars` and update with your infrastructure configuration:
 
    ```hcl
    proxmox_api_endpoint = "https://infrastructure.example.com:8006/api2/json"
@@ -121,11 +126,13 @@ terragrunt show
 
 | File | Purpose |
 |------|---------|
-| `main.tf` | Core resource definitions |
-| `provider.tf` | Terraform provider configurations |
-| `variables.tf` | Input variable definitions |
-| `terragrunt.hcl` | Remote state management |
-| `container.tf` | Container resources |
+| `main.tf` | Core resource definitions and VM orchestration |
+| `variables.tf` | Input variable definitions with validation |
+| `locals.tf` | Local value computations and transformations |
+| `container.tf` | Container resources and configurations |
+| `outputs.tf` | Output value definitions |
+| `terragrunt.hcl` | Remote state management (generates provider.tf) |
+| `terraform.tfvars.example` | Variable values template |
 
 ## 🔧 Configuration
 
@@ -150,7 +157,8 @@ This follows Proxmox best practices to manage storage at the hypervisor level.
 Default datastores used:
 
 - `local`: For ISO images, snippets, backups
-- `local-lvm`: For VM disks
+- `local-zfs`: For VM disks (recommended for better performance)
+- `local-lvm`: Alternative storage option
 
 Additional datastores should be configured directly in Proxmox VE before running Terraform.
 
