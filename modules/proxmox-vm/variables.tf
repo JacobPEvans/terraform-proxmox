@@ -110,6 +110,7 @@ variable "proxmox_insecure" {
 variable "proxmox_ssh_username" {
   description = "The SSH username for connecting to the Proxmox node"
   type        = string
+  default     = "root@pam"
 }
 
 variable "proxmox_ssh_private_key" {
