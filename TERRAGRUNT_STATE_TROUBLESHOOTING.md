@@ -18,7 +18,7 @@ successful infrastructure state synchronization.
 1. **Persistent DynamoDB Lock Abandonment**: Import operations consistently
    timeout during VM refresh phase, leaving locks in DynamoDB table
 2. **State vs Infrastructure Mismatch**: Terraform state shows no managed VMs
-   while actual VMs exist in Proxmox (IDs: 100, 110, 120)
+   while actual VMs exist in Proxmox (IDs: 100, 110, 120, 130, 140)
 3. **Import Operation Failures**: VM imports hang indefinitely during refresh step
 4. **Backend Configuration Conflicts**: Changes to terragrunt.hcl generate block
    causing repeated backend initialization issues
@@ -29,7 +29,7 @@ successful infrastructure state synchronization.
 
 **Command**: `terragrunt state list`
 **Result**: Only shows `data.local_file.vm_ssh_public_key`
-**Expected**: Should show VMs: ansible (100), claude (110), splunk (120)
+**Expected**: Should show VMs: ansible (100), claude (110), syslog (120), splunk (130), containers (140)
 
 ```bash
 # Actual Terraform state
@@ -38,7 +38,9 @@ data.local_file.vm_ssh_public_key
 # Expected state should include
 module.vms.proxmox_virtual_environment_vm.vms["ansible"]
 module.vms.proxmox_virtual_environment_vm.vms["claude"]
+module.vms.proxmox_virtual_environment_vm.vms["syslog"]
 module.vms.proxmox_virtual_environment_vm.vms["splunk"]
+module.vms.proxmox_virtual_environment_vm.vms["containers"]
 ```
 
 ### Version Update Process
@@ -90,6 +92,7 @@ module.vms.proxmox_virtual_environment_vm.vms["ansible"]: Refreshing state... [i
 #### Lock Information from Multiple Failures
 
 **Lock ID 1**: `b71cd269-bd22-3ad0-bf1f-0157e1d622db`
+
 - Path: `terraform-proxmox-state-useast2-${get_aws_account_id()}/terraform-proxmox/terraform.tfstate`
 - Who: `jev@JarvisMobile`
 - Version: `1.12.2`
@@ -97,6 +100,7 @@ module.vms.proxmox_virtual_environment_vm.vms["ansible"]: Refreshing state... [i
 - Operation: `OperationTypeInvalid`
 
 **Lock ID 2**: `75fb13c9-8a29-2805-6a72-f5c6bbad26cc`
+
 - Path: `terraform-proxmox-state-useast2-${get_aws_account_id()}/terraform-proxmox/./terraform.tfstate`
 - Who: `jev@JarvisMobile`
 - Version: `1.12.2`
@@ -104,6 +108,7 @@ module.vms.proxmox_virtual_environment_vm.vms["ansible"]: Refreshing state... [i
 - Operation: `OperationTypeInvalid`
 
 **Lock ID 3**: `fab054a8-e083-7be8-2439-426513616819`
+
 - Path: `terraform-proxmox-state-useast2-${get_aws_account_id()}/terraform-proxmox/./terraform.tfstate`
 - Who: `jev@JarvisMobile`
 - Version: `1.12.2`
@@ -125,7 +130,8 @@ echo "yes" | terragrunt force-unlock fab054a8-e083-7be8-2439-426513616819
 ```
 
 **Output Pattern**:
-```
+
+```text
 Do you really want to force-unlock?
   Terraform will remove the lock on the remote state.
   This will allow local Terraform commands to modify this state, even though it
@@ -230,6 +236,7 @@ where it is failing to retrieve VMs to refresh the state.
 **Configuration**: Expects 3 VMs to be managed
 
 **Plan Output Verification**:
+
 ```bash
 terragrunt plan -lock=false
 # Shows: Will create all 3 VMs
@@ -239,9 +246,12 @@ terragrunt plan -lock=false
 #### Resource Identification
 
 From successful plan output, expected resources:
+
 - `module.vms.proxmox_virtual_environment_vm.vms["ansible"]` (vm_id = 100)
 - `module.vms.proxmox_virtual_environment_vm.vms["claude"]` (vm_id = 110)
-- `module.vms.proxmox_virtual_environment_vm.vms["splunk"]` (vm_id = 120)
+- `module.vms.proxmox_virtual_environment_vm.vms["syslog"]` (vm_id = 120)
+- `module.vms.proxmox_virtual_environment_vm.vms["splunk"]` (vm_id = 130)
+- `module.vms.proxmox_virtual_environment_vm.vms["containers"]` (vm_id = 140)
 - `null_resource.ansible_ssh_key_setup[0]`
 
 ## Comprehensive Resolution Strategies
@@ -257,7 +267,9 @@ ssh -i ~/.ssh/id_rsa root@proxmox.<example>
 # Check VM configurations for each problematic VM
 qm config 100  # ansible VM
 qm config 110  # claude VM
-qm config 120  # splunk VM
+qm config 120  # syslog VM
+qm config 130  # splunk VM
+qm config 140  # containers VM
 
 # Compare with Terraform configuration in modules/proxmox-vm/main.tf
 ```
@@ -265,6 +277,7 @@ qm config 120  # splunk VM
 #### Step 2: Targeted Configuration Alignment
 
 Based on audit results, either:
+
 1. **Modify VMs to match Terraform**: Update VM settings via Proxmox CLI/GUI
 2. **Modify Terraform to match VMs**: Update configuration to reflect actual state
 
@@ -458,7 +471,15 @@ terragrunt import 'module.vms.proxmox_virtual_environment_vm.vms["claude"]' pve/
 # Verify before continuing
 terragrunt state list | grep claude
 
-terragrunt import 'module.vms.proxmox_virtual_environment_vm.vms["splunk"]' pve/120
+terragrunt import 'module.vms.proxmox_virtual_environment_vm.vms["syslog"]' pve/120
+# Verify before continuing
+terragrunt state list | grep syslog
+
+terragrunt import 'module.vms.proxmox_virtual_environment_vm.vms["splunk"]' pve/130
+# Verify before continuing
+terragrunt state list | grep splunk
+
+terragrunt import 'module.vms.proxmox_virtual_environment_vm.vms["containers"]' pve/140
 # Final verification
 terragrunt state list
 ```
@@ -562,7 +583,7 @@ done
 echo "=== State Drift Detection ==="
 
 # Get expected resources from configuration
-EXPECTED_VMS=("ansible" "claude" "splunk")
+EXPECTED_VMS=("ansible" "claude" "syslog" "splunk" "containers")
 
 # Get actual state
 echo "Current Terraform state:"

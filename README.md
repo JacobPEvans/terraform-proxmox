@@ -10,6 +10,7 @@ This repository provides Terraform configurations to provision and manage:
 - Virtual machines and containers on Proxmox VE
 - Automation infrastructure to manage all VMs and containers
 - Logging infrastructure and centralized syslog
+- Container orchestration with Kubernetes k3s and Docker
 - Resource pools and networking
 - SSH keys and authentication
 
@@ -114,10 +115,13 @@ terragrunt show
 
    ```hcl
    vms = {
-     "example-vm" = {
-       vm_id = 100
-       name  = "example-vm"
-       # ... configuration
+     "ansible" = {
+       vm_id            = 100
+       name             = "ansible"
+       description      = "Ansible control node for VM management"
+       cpu_cores        = 2
+       memory_dedicated = 2048
+       # ... additional configuration
      }
    }
    ```
@@ -172,24 +176,28 @@ All VMs are configured with:
 - Cloud-init integration with static SSH keys
 - SSH key authentication from configured SSH key
 
-Example allocations:
+Example VM configurations:
 
-- **Service VM 1**: 4 cores, 6144MB RAM, 64GB disk
-- **Service VM 2**: 2 cores, 2048MB RAM, 32GB disk
-- **Service VM 3**: 2 cores, 4096MB RAM, 32GB disk
-- **Service VM 4**: 2 cores, 2048MB RAM, 32GB disk
+- **ansible** (100): 2 cores, 2048MB RAM, 64GB disk - Automation control node
+- **claude** (110): 2 cores, 2048MB RAM, 64GB disk - Development environment  
+- **syslog** (120): 2 cores, 2048MB RAM, 32GB disk - Centralized logging server
+- **splunk** (130): 4 cores, 4096MB RAM, 100GB disk - Log analysis platform
+- **containers** (140): 4 cores, 4096MB RAM, 100GB disk - Kubernetes k3s and Docker
 
 ## 📖 Documentation
 
 - **[CLAUDE.md](./CLAUDE.md)** - AI-specific instructions for this repository
 - **[PLANNING.md](./PLANNING.md)** - Current project status and remaining tasks
 - **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - General troubleshooting procedures and operational guidance
-- **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - ⚠️ **CRITICAL**: Comprehensive guide for current state synchronization issues
+- **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - ⚠️ **CRITICAL**: Comprehensive guide for current  
+  state synchronization issues
 - **[CHANGELOG.md](./CHANGELOG.md)** - History of completed changes and improvements
 
 ## ⚠️ Current Status
 
-**CRITICAL ISSUE**: Complete Terraform state synchronization failure. VM imports hang indefinitely during provider refresh phase, preventing proper infrastructure lifecycle management. See [TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md) for detailed analysis and resolution strategies.
+**CRITICAL ISSUE**: Complete Terraform state synchronization failure. VM imports hang indefinitely during provider refresh phase, preventing  
+proper infrastructure lifecycle management. See [TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md) for detailed  
+analysis and resolution strategies.
 
 ## 🛡️ Security
 
