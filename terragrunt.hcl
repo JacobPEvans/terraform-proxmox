@@ -13,7 +13,8 @@ remote_state {
   }
   config = {
     bucket         = "terraform-proxmox-state-useast2-${get_aws_account_id()}"
-    key            = "terraform-proxmox/${path_relative_to_include()}/terraform.tfstate"
+    key            = "terraform-proxmox/terraform.tfstate"
+    # key            = "terraform-proxmox/${path_relative_to_include()}/terraform.tfstate"
     region         = "us-east-2"
     encrypt        = true
     use_lockfile   = true
