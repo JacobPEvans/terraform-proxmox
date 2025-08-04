@@ -7,13 +7,38 @@ All notable changes to the terraform-proxmox infrastructure project will be docu
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## 2025-08-04
+
+### Added
+
+- **Containers VM**: Added new VM (ID: 140) for Kubernetes k3s and Docker container orchestration
+- **Comprehensive Documentation Review**: Fixed critical inconsistencies between documentation and actual terraform.tfvars configuration
+- **Enhanced VM Configuration Documentation**: Updated all documentation to reflect 5-VM infrastructure  
+  (ansible=100, claude=110, syslog=120, splunk=130, containers=140)
+
+### Changed
+
+- **Provider Version Documentation**: Updated all module READMEs from bpg/proxmox ~> 0.78 to ~> 0.79 to match actual code
+- **Architecture Documentation**: Corrected README.md file structure to show actual files (locals.tf, container.tf, security module)
+- **Infrastructure State References**: Updated all troubleshooting guides to reflect current 5-VM configuration
+- **Storage Configuration**: Updated default datastore documentation from local-lvm to local-zfs for accuracy
+- **Variable Documentation**: Fixed proxmox_ssh_username default value in proxmox-vm module to match documentation
+
+### Fixed
+
+- **Documentation-Code Mismatch**: Resolved critical discrepancies between terraform.tfvars and documentation
+- **IP Address Placeholders**: Verified all documentation uses proper 192.168.x.x placeholders while keeping real IPs in gitignored files
+- **Module Documentation Consistency**: Fixed provider version mismatches across all module documentation
+
 ## 2025-07-13
 
 ### Added
 
-- **Comprehensive State Troubleshooting**: Created TERRAGRUNT_STATE_TROUBLESHOOTING.md with 400+ lines of detailed analysis for DynamoDB lock abandonment and state drift issues
+- **Comprehensive State Troubleshooting**: Created TERRAGRUNT_STATE_TROUBLESHOOTING.md with 400+ lines of detailed analysis  
+  for DynamoDB lock abandonment and state drift issues
 - **Provider Version Updates**: Successfully updated hashicorp/tls provider from ~> 4.0 to ~> 4.1
-- **Enhanced Force Unlock Procedures**: Documented multiple successful DynamoDB lock cleanup operations with exact command patterns
+- **Enhanced Force Unlock Procedures**: Documented multiple successful DynamoDB lock cleanup operations  
+  with exact command patterns
 - **Import Operation Analysis**: Detailed technical analysis of why VM imports consistently hang during refresh phase
 
 ### Changed
@@ -31,7 +56,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Identified Issues (Unresolved)
 
 - **State Synchronization Failure**: VM imports consistently hang during Proxmox provider refresh phase
-- **Infrastructure State Mismatch**: Terraform state shows no managed VMs while 3 VMs exist in Proxmox (IDs: 100, 110, 120)
+- **Infrastructure State Mismatch**: Terraform state shows no managed VMs while 5 VMs exist in Proxmox (IDs: 100, 110, 120, 130, 140)
 - **Provider Communication**: bpg/proxmox provider appears unable to reconcile existing VM configurations with Terraform expectations
 
 ## 2025-06-29
@@ -69,7 +94,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 
 - **External Cloud-init Files**: Moved cloud-init configuration from inline strings to dedicated external files for better maintainability
-- **Enhanced Ansible Installation**: Improved cloud-init script with complete package updates, both ansible and ansible-core packages, and installation verification logging
+- **Enhanced Ansible Installation**: Improved cloud-init script with complete package updates, both ansible and ansible-core packages,  
+  and installation verification logging
 - **Cloud-init Directory Structure**: Added organized cloud-init/ directory with ansible-server.local.yml for comprehensive Ansible server setup
 - **Variable-based Cloud-init Management**: Added `ansible_cloud_init_file` variable with validation to allow flexible cloud-init file configuration
 

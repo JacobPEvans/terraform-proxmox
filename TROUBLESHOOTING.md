@@ -65,7 +65,7 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
 
 - Configuration loads successfully
 - SSH key data source works
-- VMs exist in state with specific IDs (e.g., 100, 110, 120)
+- VMs exist in state with specific IDs (e.g., 100, 110, 120, 130, 140)
 
 #### Solutions
 
@@ -190,7 +190,8 @@ This occurs when operations are interrupted, leaving orphaned resources in infra
 
 ### Problem: Full destroy/apply cycles take 30+ minutes
 
-When troubleshooting cloud-init configurations, VM provisioning issues, or testing specific VM changes, full infrastructure cycles are inefficient and time-consuming.
+When troubleshooting cloud-init configurations, VM provisioning issues, or testing specific VM changes, full infrastructure cycles are  
+inefficient and time-consuming.
 
 ### Solution: Targeted VM Operations
 

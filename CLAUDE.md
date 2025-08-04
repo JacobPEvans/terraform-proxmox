@@ -2,7 +2,8 @@
 
 ## Repository Context
 
-This repository manages infrastructure as code using Terraform and Terragrunt. All infrastructure-specific details and general usage instructions are documented in README.md. This file contains AI-specific instructions for working with this repository.
+This repository manages infrastructure as code using Terraform and Terragrunt. All infrastructure-specific details and general usage instructions  
+are documented in README.md. This file contains AI-specific instructions for working with this repository.
 
 ## Infrastructure Context
 
