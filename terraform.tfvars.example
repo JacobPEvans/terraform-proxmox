@@ -4,7 +4,7 @@
 # Proxmox API Configuration
 proxmox_api_endpoint = "https://your-proxmox-server.local:8006/api2/json"
 proxmox_api_token    = "terraform@pve!terraform=your-api-token-here"
-proxmox_insecure     = true
+proxmox_insecure     = false
 
 # Proxmox Node Configuration
 proxmox_node     = "pve"
@@ -12,7 +12,7 @@ proxmox_username = "proxmox"
 
 # SSH Configuration for Proxmox Host
 proxmox_ssh_username    = "root@pam"
-proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
+proxmox_ssh_private_key = "~/.ssh/id_rsa"
 
 # SSH Configuration for VMs
 # These paths should point to your VM SSH keys
@@ -36,7 +36,7 @@ vms = {
     tags             = ["terraform", "automation", "ansible"]
 
     boot_disk = {
-      datastore_id = "local-zfs"
+      datastore_id = "local-lvm"
       interface    = "virtio0"
       size         = 64
       file_format  = "raw"
