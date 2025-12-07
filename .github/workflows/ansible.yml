@@ -14,26 +14,19 @@ on:
 jobs:
   lint:
     name: Ansible Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install ansible-lint
-        run: pip install ansible-lint
-
       - name: Run ansible-lint
-        run: ansible-lint
-        working-directory: ansible/
+        uses: ansible/ansible-lint@main
+        with:
+          working_directory: ansible/
 
   molecule:
     name: Molecule Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: lint
     strategy:
       fail-fast: false
@@ -50,11 +43,10 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: |
-          pip install ansible molecule molecule-plugins[docker]
+        run: pip install ansible-dev-tools molecule-plugins[docker] docker
 
       - name: Install Ansible collections
-        run: ansible-galaxy collection install ansible.posix community.general
+        run: ansible-galaxy collection install ansible.posix community.general community.docker
 
       - name: Run Molecule tests
         run: molecule test
