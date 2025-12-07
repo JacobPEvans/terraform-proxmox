@@ -1,12 +1,18 @@
 ---
+# Ansible-lint configuration (2025)
+# https://ansible.readthedocs.io/projects/lint/configuring/
+
+profile: production
+
 exclude_paths:
   - .cache/
-  - .molecule/
   - "**/molecule/**"
 
 skip_list:
   - yaml[line-length]
-  - name[missing]
 
 warn_list:
   - experimental
+
+# Variable naming pattern (snake_case)
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"

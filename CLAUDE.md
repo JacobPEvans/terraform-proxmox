@@ -1,95 +1,99 @@
 # AI Instructions for Terraform Proxmox Repository
 
+## Critical: Version Management
+
+**NEVER hardcode dependency versions unless explicitly requested.**
+
+- Always use latest stable versions (no pinning)
+- Let package managers resolve compatible versions
+- If version conflicts occur, investigate current ecosystem state
+- When unsure about compatibility, ask the user or research current docs
+
+**If you find yourself suggesting old versions or deprecated features, STOP and research the current state first.**
+
+## Technology Stack
+
+This repo uses:
+- **Terraform/Terragrunt** - Infrastructure provisioning
+- **Ansible** - Configuration management (tested via Molecule)
+- **Python 3.12+** - Required for Ansible tooling
+- **GitHub Actions** - CI/CD
+
+Verify commands:
+```bash
+terraform version && terragrunt --version
+ansible --version && molecule --version
+python --version
+```
+
 ## Repository Context
 
-This repository manages infrastructure as code using Terraform and Terragrunt. All infrastructure-specific details and general usage instructions  
-are documented in README.md. This file contains AI-specific instructions for working with this repository.
+- Infrastructure-as-code for Proxmox VE homelab
+- Real infrastructure details in separate private repository
+- This repo contains placeholder/example values only
 
-## Infrastructure Context
+## Development Workflow
 
-Real infrastructure details are maintained in a separate private repository for security.
-
-This repository contains placeholder/example values for public repository safety. Reference the private context for actual infrastructure details:
-
-- Hostnames and IP addresses
-- API endpoints and credentials
-- Network configurations
-- Development environment paths
-
-## Repository-Specific AI Guidelines
-
-### Development Workflow
-
-- Always run `terragrunt plan` before commits
-- Validate terraform syntax with `terragrunt validate`
-- Test infrastructure changes in isolated environments
-- Follow conventional commit messages
-- Never commit sensitive information (API tokens, passwords)
+### Terraform/Terragrunt
+- Run `terragrunt validate` then `terragrunt plan` before commits
+- Test in isolated resource pools, never production-first
 - Use feature branches for all changes
+- Follow conventional commit messages
 
-### Terraform-Specific Best Practices
+### Ansible
+- Lint with `ansible-lint` before commits
+- Test roles with `molecule test`
+- Ensure idempotency (running twice produces no changes)
+- Use FQCN for modules (e.g., `ansible.builtin.apt`)
 
-- Keep resource definitions modular
-- Use consistent naming conventions
-- Document all variables with descriptions
-- Use `sensitive = true` for secrets
-- Always use remote state for production
-- Regular state backups via S3 versioning
-- Use consistent state key naming
-- Never update VM or container configurations directly. Always use Terragrunt or Ansible
+## Best Practices
 
-### Security Best Practices
+### Terraform
+- Modular resource definitions
+- Document variables with descriptions and validation
+- Mark secrets with `sensitive = true`
+- Remote state with encryption (S3 + DynamoDB)
+- Never update VMs directly; use Terragrunt or Ansible
 
-- Never commit API tokens or passwords
-- Use separate SSH keys for different environments
-- Enable encryption for state files
-- Implement least-privilege access
-- Reference private context for actual infrastructure details
+### Ansible
+- Roles in `ansible/roles/` with Molecule tests
+- Collections in `ansible/requirements.yml`
+- Config in `ansible/.ansible-lint` (profile: production)
+- Docker-based testing with geerlingguy images
 
-### Testing Strategy
+### Security
+- Never commit secrets, API tokens, or passwords
+- Reference private context for real infrastructure details
+- Separate SSH keys per environment
+- Enable state file encryption
 
-- Use separate environments (dev/staging/prod)
-- Test in isolated resource pools
-- Validate with `terragrunt validate`
-- Use `terragrunt plan` before all applies
+## File References
 
-### Documentation Standards
+| Need | Location |
+|------|----------|
+| General docs | README.md |
+| Troubleshooting | TROUBLESHOOTING.md |
+| Incomplete tasks | PLANNING.md |
+| Change history | CHANGELOG.md |
+| Ansible config | ansible/.ansible-lint |
+| Molecule tests | ansible/roles/*/molecule/ |
+| CI workflows | .github/workflows/ |
 
-- Keep infrastructure-specific details out of public documentation
-- Use generic examples and placeholders in public repositories
-- Reference README.md for general infrastructure documentation
-- Reference TROUBLESHOOTING.md for operational procedures
-- Update PLANNING.md for unfinished tasks only
-- Update CHANGELOG.md for completed tasks
+## When to Ask for Clarification
 
-### Pull Request Review Guidelines
+Ask the user before proceeding if:
+- Current tool versions are unclear
+- Multiple valid implementation approaches exist
+- Changes affect production infrastructure
+- Security implications are uncertain
+- Breaking changes may be introduced
 
-When reviewing pull requests, focus on:
+## PR Review Checklist
 
-#### Security Analysis
-
-- Check for exposed secrets, API keys, or sensitive data
-- Verify SSH key management follows best practices
-- Ensure no hardcoded credentials in committed files
-- Review variable sensitivity markings
-
-#### Infrastructure Best Practices
-
-- Validate Terraform syntax and structure
-- Check for proper resource naming conventions
-- Verify state management patterns
-- Ensure modular and reusable code
-
-#### Code Quality
-
-- Review variable documentation and validation
-- Check for proper error handling
-- Verify lifecycle management rules
-- Ensure consistent formatting
-
-#### Operational Readiness
-
-- Validate deployment procedures
-- Check for proper backup and recovery considerations
-- Review monitoring and alerting setup
-- Ensure documentation is updated
+- [ ] No exposed secrets or credentials
+- [ ] Variables documented with `sensitive = true` where needed
+- [ ] Terraform: `terragrunt validate` passes
+- [ ] Ansible: `ansible-lint` passes
+- [ ] Ansible roles: `molecule test` passes
+- [ ] Conventional commit message
+- [ ] Documentation updated if needed

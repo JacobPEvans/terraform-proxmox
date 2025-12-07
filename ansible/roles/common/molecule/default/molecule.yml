@@ -12,16 +12,14 @@ platforms:
     image: geerlingguy/docker-ubuntu2404-ansible:latest
     pre_build_image: true
     privileged: true
-    command: /usr/sbin/init
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
 
 provisioner:
   name: ansible
-  playbooks:
-    converge: converge.yml
-    verify: verify.yml
+  env:
+    ANSIBLE_VERBOSITY: "1"
 
 verifier:
   name: ansible
@@ -38,5 +36,4 @@ scenario:
     - converge
     - idempotence
     - verify
-    - cleanup
     - destroy
