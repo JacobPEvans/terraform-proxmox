@@ -10,6 +10,5 @@ galaxy_info:
         - jammy
         - noble
 
-dependencies:
-  - ansible.posix
-  - community.general
+# Role dependencies (not collections - those go in requirements.yml)
+dependencies: []
