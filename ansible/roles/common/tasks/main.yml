@@ -1,0 +1,36 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+    autoremove: true
+    autoclean: true
+  when: common_upgrade_packages | default(false)
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ common_timezone }}"
+
+- name: Ensure rsyslog is running
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: started
+    enabled: true
+  when: "'rsyslog' in common_packages"
+
+- name: Configure SSH authorized keys
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ common_ssh_authorized_keys }}"
+  when: common_ssh_authorized_keys | length > 0

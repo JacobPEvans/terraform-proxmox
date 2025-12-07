@@ -1,0 +1,21 @@
+---
+# Whether to upgrade all packages (can be slow)
+common_upgrade_packages: false
+
+# Packages to install on all hosts
+common_packages:
+  - htop
+  - vim
+  - curl
+  - wget
+  - git
+  - rsyslog
+  - net-tools
+  - jq
+  - tree
+
+# Timezone for all hosts
+common_timezone: "America/New_York"
+
+# SSH public keys to authorize (empty by default)
+common_ssh_authorized_keys: []

@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Jacob Evans
+  description: Common configuration for all homelab servers
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+
+dependencies:
+  - ansible.posix
+  - community.general
