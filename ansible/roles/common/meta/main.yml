@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  role_name: common
+  namespace: jacobpevans
   author: Jacob Evans
   description: Common configuration for all homelab servers
   license: MIT
@@ -10,5 +12,4 @@ galaxy_info:
         - jammy
         - noble
 
-# Role dependencies (not collections - those go in requirements.yml)
 dependencies: []
