@@ -231,4 +231,4 @@ with proper S3 + DynamoDB backend connectivity. Ready for controlled infrastruct
 
 ## 📄 License
 
-This project is for internal infrastructure management.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
