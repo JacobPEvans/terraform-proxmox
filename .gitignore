@@ -80,3 +80,10 @@ tmp/
 # Note: Real infrastructure context is maintained in private int_homelab repo
 *_LOCAL.md
 *.local.*
+
+# Ansible files
+.ansible/
+ansible/inventory/hosts.yml
+ansible/.molecule/
+ansible/roles/*/.molecule/
+*.retry
