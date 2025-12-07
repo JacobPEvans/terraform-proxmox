@@ -82,6 +82,7 @@ tmp/
 *.local.*
 
 # Ansible files
+.ansible/
 ansible/inventory/hosts.yml
 ansible/.molecule/
 ansible/roles/*/.molecule/
