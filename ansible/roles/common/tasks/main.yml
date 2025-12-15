@@ -28,6 +28,8 @@
     state: started
     enabled: true
   when: "'rsyslog' in common_packages"
+  tags:
+    - molecule-notest  # systemd not fully functional in Docker containers
 
 - name: Configure SSH authorized keys
   ansible.posix.authorized_key:
