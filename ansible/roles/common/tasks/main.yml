@@ -19,6 +19,8 @@
 - name: Set timezone
   community.general.timezone:
     name: "{{ common_timezone }}"
+  tags:
+    - molecule-notest  # hwclock not available in Docker containers
 
 - name: Ensure rsyslog is running
   ansible.builtin.systemd:
