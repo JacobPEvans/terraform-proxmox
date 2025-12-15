@@ -36,7 +36,7 @@ write_files:
       stdout_callback = yaml
       timeout = 30
       python_interpreter = /opt/ansible/venv/bin/python3
-      
+
       [ssh_connection]
       ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
       pipelining = True
@@ -79,19 +79,19 @@ write_files:
         hosts: all
         become: yes
         gather_facts: yes
-        
+
         tasks:
           - name: Update apt cache
             apt:
               update_cache: yes
               cache_valid_time: 3600
-            
+
           - name: Upgrade all packages
             apt:
               upgrade: dist
               autoremove: yes
               autoclean: yes
-            
+
           - name: Install common packages
             apt:
               name:
@@ -102,7 +102,7 @@ write_files:
                 - git
                 - rsyslog
               state: present
-            
+
           - name: Ensure rsyslog is running
             systemd:
               name: rsyslog
