@@ -122,7 +122,7 @@ This occurs when operations are interrupted, leaving orphaned resources in infra
    ```bash
    # Check Terraform state
    terragrunt state list
-   
+
    # Check actual infrastructure via API
    curl -k GET "<api-endpoint>/resources"
    ```
@@ -151,10 +151,10 @@ This occurs when operations are interrupted, leaving orphaned resources in infra
    ```bash
    # Check for active locks
    aws dynamodb scan --table-name <lock-table> --region <region>
-   
+
    # Verify current state
    terragrunt state list
-   
+
    # Check infrastructure reality
    curl -k GET "<api-endpoint>/resources"
    ```
@@ -171,10 +171,10 @@ This occurs when operations are interrupted, leaving orphaned resources in infra
    ```bash
    # Verify state is empty
    terragrunt state list
-   
+
    # Verify infrastructure is clean
    curl -k GET "<api-endpoint>/resources"
-   
+
    # Clean up any orphaned resources manually
    curl -k DELETE "<api-endpoint>/resource/<resource-id>"
    ```
@@ -190,7 +190,7 @@ This occurs when operations are interrupted, leaving orphaned resources in infra
 
 ### Problem: Full destroy/apply cycles take 30+ minutes
 
-When troubleshooting cloud-init configurations, VM provisioning issues, or testing specific VM changes, full infrastructure cycles are  
+When troubleshooting cloud-init configurations, VM provisioning issues, or testing specific VM changes, full infrastructure cycles are
 inefficient and time-consuming.
 
 ### Solution: Targeted VM Operations
@@ -241,7 +241,7 @@ terragrunt apply -target=module.vms.proxmox_virtual_environment_vm.vms[\"vm-name
 Common causes include:
 
 - Proxmox API timeouts during VM operations
-- DynamoDB locks from previous interrupted operations  
+- DynamoDB locks from previous interrupted operations
 - Network connectivity issues
 - Resource contention on Proxmox host
 

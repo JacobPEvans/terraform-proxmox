@@ -16,7 +16,7 @@ This module creates and manages resource pools in Proxmox VE for organizing and 
 ```hcl
 module "pools" {
   source = "./modules/proxmox-pool"
-  
+
   pools = {
     "web-tier" = {
       pool_id = "web-tier"
@@ -27,7 +27,7 @@ module "pools" {
       comment = "Database server resource pool"
     }
   }
-  
+
   environment = "production"
 }
 ```
@@ -37,7 +37,7 @@ module "pools" {
 ```hcl
 module "pools" {
   source = "./modules/proxmox-pool"
-  
+
   pools = {
     "dev-web" = {
       pool_id = "dev-web"
@@ -56,7 +56,7 @@ module "pools" {
       comment = "Production web servers"
     }
   }
-  
+
   environment = "mixed"
 }
 ```
@@ -66,20 +66,20 @@ module "pools" {
 ```hcl
 module "pools" {
   source = "./modules/proxmox-pool"
-  
+
   pools = {
     "application-tier" = {
       pool_id = "application-tier"
       comment = "Application servers pool"
     }
   }
-  
+
   environment = var.environment
 }
 
 module "vms" {
   source = "./modules/proxmox-vm"
-  
+
   vms = {
     "app-server-1" = {
       vm_id   = 201
@@ -88,7 +88,7 @@ module "vms" {
       # ... other VM configuration
     }
   }
-  
+
   depends_on = [module.pools]
 }
 ```
@@ -155,13 +155,13 @@ module "pools" {
 # Then create VMs referencing pools
 module "vms" {
   source = "./modules/proxmox-vm"
-  
+
   vms = {
     for k, v in var.vms : k => merge(v, {
       pool_id = v.pool_id # Pool must exist
     })
   }
-  
+
   depends_on = [module.pools]
 }
 ```
@@ -171,13 +171,13 @@ module "vms" {
 ```hcl
 module "containers" {
   source = "./modules/proxmox-container"
-  
+
   containers = {
     for k, v in var.containers : k => merge(v, {
       pool_id = v.pool_id
     })
   }
-  
+
   depends_on = [module.pools]
 }
 ```
@@ -231,7 +231,7 @@ module "containers" {
 ```hcl
 module "pools" {
   source = "./modules/proxmox-pool"
-  
+
   pools = {
     "web-tier" = {
       pool_id = "web-tier"
@@ -246,7 +246,7 @@ module "pools" {
       comment = "Database/Storage tier"
     }
   }
-  
+
   environment = "production"
 }
 ```
@@ -257,9 +257,9 @@ module "pools" {
 locals {
   environments = ["dev", "staging", "prod"]
   tiers        = ["web", "app", "db"]
-  
+
   pools = {
-    for combo in setproduct(local.environments, local.tiers) : 
+    for combo in setproduct(local.environments, local.tiers) :
     "${combo[0]}-${combo[1]}" => {
       pool_id = "${combo[0]}-${combo[1]}"
       comment = "${title(combo[0])} ${combo[1]} services"
@@ -269,7 +269,7 @@ locals {
 
 module "pools" {
   source = "./modules/proxmox-pool"
-  
+
   pools       = local.pools
   environment = "multi-env"
 }

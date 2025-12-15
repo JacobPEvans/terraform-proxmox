@@ -18,27 +18,27 @@ This module creates and manages virtual machines on Proxmox VE.
 ```hcl
 module "vms" {
   source = "./modules/proxmox-vm"
-  
+
   vms = {
     "web-server" = {
       vm_id       = 201
       name        = "web-server"
       description = "Web server VM"
       node_name   = "pve"
-      
+
       cpu_cores        = 2
       memory_dedicated = 2048
-      
+
       boot_disk = {
         size      = 20
         interface = "virtio0"  # Recommended for performance and compatibility
       }
-      
+
       ip_config = {
         ipv4_address = "192.168.1.100/24"
         ipv4_gateway = "192.168.1.1"
       }
-      
+
       user_account = {
         username = "ubuntu"
         password = "secure-password"
@@ -46,7 +46,7 @@ module "vms" {
       }
     }
   }
-  
+
   environment = "production"
 }
 ```
@@ -56,25 +56,25 @@ module "vms" {
 ```hcl
 module "vms" {
   source = "./modules/proxmox-vm"
-  
+
   vms = {
     "database-server" = {
       vm_id       = 301
       name        = "database-server"
       node_name   = "pve"
       pool_id     = "database-pool"
-      
+
       cpu_cores        = 4
       cpu_type         = "x86-64-v2-AES"
       memory_dedicated = 8192
       memory_floating  = 1024
-      
+
       boot_disk = {
         datastore_id = "ssd-storage"
         size         = 40
         ssd          = true
       }
-      
+
       additional_disks = [
         {
           datastore_id = "hdd-storage"
@@ -82,7 +82,7 @@ module "vms" {
           interface    = "virtio1"  # Use virtio for additional disks too
         }
       ]
-      
+
       network_interfaces = [
         {
           bridge   = "vmbr0"
@@ -120,16 +120,16 @@ module "vms" {
   description = optional(string) # VM description
   tags        = optional(list(string), ["terraform"])
   pool_id     = optional(string) # Resource pool ID
-  
+
   # Node configuration
   node_name = string             # Proxmox node name
-  
+
   # Resource configuration
   cpu_cores        = optional(number, 2)    # CPU cores (1-32)
   cpu_type         = optional(string, "x86-64-v2-AES")
   memory_dedicated = optional(number, 1024) # RAM in MB (256-65536)
   memory_floating  = optional(number)       # Floating memory
-  
+
   # Storage configuration
   boot_disk = optional(object({
     datastore_id = optional(string, "local-lvm")
@@ -140,7 +140,7 @@ module "vms" {
     ssd          = optional(bool, false)
     discard      = optional(string, "ignore")
   }), {})
-  
+
   # Network configuration
   network_interfaces = optional(list(object({
     bridge   = optional(string, "vmbr0")
@@ -148,19 +148,19 @@ module "vms" {
     vlan_id  = optional(number)
     firewall = optional(bool, false)
   })), [{ bridge = "vmbr0" }])
-  
+
   # Cloud-init configuration
   ip_config = optional(object({
     ipv4_address = optional(string)          # e.g., "192.168.1.100/24"
     ipv4_gateway = optional(string)          # e.g., "192.168.1.1"
   }), {})
-  
+
   user_account = {
     username = string                        # Username for cloud-init
     password = string                        # Password (use secure source)
     keys     = list(string)                  # SSH public keys
   }
-  
+
   # Features
   agent_enabled = optional(bool, true)       # Enable QEMU agent
   protection    = optional(bool, false)      # Protection from deletion
