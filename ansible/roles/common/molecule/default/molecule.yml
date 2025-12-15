@@ -22,7 +22,7 @@ provisioner:
     ANSIBLE_VERBOSITY: "1"
   config_options:
     defaults:
-      roles_path: "${MOLECULE_PROJECT_DIRECTORY}/../..:/usr/share/ansible/roles"
+      roles_path: "${MOLECULE_PROJECT_DIRECTORY}/..:/usr/share/ansible/roles"
 
 verifier:
   name: ansible
