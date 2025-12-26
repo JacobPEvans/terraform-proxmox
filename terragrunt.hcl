@@ -37,7 +37,7 @@ generate "provider" {
   if_exists = "overwrite"
   contents  = <<EOF
 terraform {
-  required_version = ">= 1.12.2"
+  required_version = ">= 1.10"
   required_providers {
     tls = {
       source  = "hashicorp/tls"
