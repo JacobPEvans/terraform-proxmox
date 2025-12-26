@@ -11,17 +11,17 @@
 
 | Group | Total | Completed | Pending |
 |-------|-------|-----------|---------|
-| 1. Bug Fixes | 5 | 0 | 5 |
+| 1. Bug Fixes | 5 | 5 | 0 |
 | 2. Terraform Modules | 4 | 0 | 4 |
 | 3. Terraform Configuration | 3 | 0 | 3 |
-| 4. Ansible Role Fixes | 3 | 0 | 3 |
+| 4. Ansible Role Fixes | 3 | 2 | 1 |
 | 5. Ansible Molecule Tests | 4 | 0 | 4 |
 | 6. Ansible Integration | 3 | 0 | 3 |
 | 7. CI/CD Updates | 2 | 0 | 2 |
 | 8. Scripts and Tooling | 2 | 0 | 2 |
 | 9. Documentation | 2 | 0 | 2 |
 | 10. Validation | 6 | 0 | 6 |
-| **Total** | **34** | **0** | **34** |
+| **Total** | **34** | **7** | **27** |
 
 ---
 
@@ -31,14 +31,14 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.1 Fix Splunk Version in Ansible Defaults
 
-- [ ] **Update Splunk version from 9.4.0 to 10.0.2**
+- [x] **Update Splunk version from 9.4.0 to 10.0.2**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/defaults/main.yml`
   - Change `splunk_version: "9.4.0"` to `splunk_version: "10.0.2"`
   - Change `splunk_build: "6b4ebe426ca6"` to `splunk_build: "e2d18b4767e9"`
 
 ### 1.2 Fix IP Subnet in terraform.tfvars.example
 
-- [ ] **Update IP format from /24 to /32 for Splunk nodes**
+- [x] **Update IP format from /24 to /32 for Splunk nodes**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
   - Line 104: Change `10.0.1.135/24` to `192.168.1.135/32`
   - Line 149: Change `10.0.1.136/24` to `192.168.1.136/32`
@@ -46,7 +46,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.3 Fix Example IPs (10.0.1.x to 192.168.1.x)
 
-- [ ] **Replace real network IPs with example IPs**
+- [x] **Replace real network IPs with example IPs**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
   - Replace all `10.0.1.x` with `192.168.1.x` for Splunk nodes
   - Update gateway from `10.0.1.1` to `192.168.1.1` for Splunk nodes
@@ -55,7 +55,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.4 Fix Pool Name
 
-- [ ] **Change pool from "splunk" to "logging"**
+- [x] **Change pool from "splunk" to "logging"**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
   - Line 85, 130, 179: Change `pool_id = "splunk"` to `pool_id = "logging"`
   - Lines 200-203: Change pool key from `"splunk"` to `"logging"`
@@ -63,7 +63,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.5 Fix Network Config in Ansible Defaults
 
-- [ ] **Update network references in Ansible defaults**
+- [x] **Update network references in Ansible defaults**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/defaults/main.yml`
   - Line 22: Update `splunk_cluster_master_uri` to use placeholder `https://{{ splunk_mgmt_ip | default('192.168.1.130') }}:8089`
   - Consider making network-specific values overridable via inventory vars
@@ -141,13 +141,13 @@ Fix configuration issues in the splunk role.
 
 ### 4.1 Update Package Name Variable
 
-- [ ] **Ensure package_name matches version 10.0.2**
+- [x] **Ensure package_name matches version 10.0.2**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/defaults/main.yml`
   - Verify `splunk_package_name` template is correct after version update
 
 ### 4.2 Tag iptables Tasks for Molecule Skip
 
-- [ ] **Add molecule-notest tag to firewall tasks**
+- [x] **Add molecule-notest tag to firewall tasks**
   - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/tasks/firewall.yml`
   - Add `tags: [molecule-notest]` to iptables tasks
   - Docker containers cannot manage iptables rules

@@ -82,7 +82,7 @@ vms = {
     cpu_cores        = 4
     memory_dedicated = 4096
     tags             = ["terraform", "splunk", "indexer"]
-    pool_id          = "splunk"
+    pool_id          = "logging"
 
     boot_disk = {
       datastore_id = "local-zfs"
@@ -101,8 +101,8 @@ vms = {
     }]
 
     ip_config = {
-      ipv4_address = "10.0.1.135/24"
-      ipv4_gateway = "10.0.1.1"
+      ipv4_address = "192.168.1.135/32"
+      ipv4_gateway = "192.168.1.1"
     }
 
     clone_template = {
@@ -127,7 +127,7 @@ vms = {
     cpu_cores        = 4
     memory_dedicated = 4096
     tags             = ["terraform", "splunk", "indexer"]
-    pool_id          = "splunk"
+    pool_id          = "logging"
 
     boot_disk = {
       datastore_id = "local-zfs"
@@ -146,8 +146,8 @@ vms = {
     }]
 
     ip_config = {
-      ipv4_address = "10.0.1.136/24"
-      ipv4_gateway = "10.0.1.1"
+      ipv4_address = "192.168.1.136/32"
+      ipv4_gateway = "192.168.1.1"
     }
 
     clone_template = {
@@ -176,7 +176,7 @@ containers = {
     memory_dedicated = 2048
     memory_swap      = 1024
     tags             = ["terraform", "splunk", "management", "container"]
-    pool_id          = "splunk"
+    pool_id          = "logging"
 
     root_disk = {
       datastore_id = "local-zfs"
@@ -190,22 +190,22 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "10.0.1.130/24"
-      ipv4_gateway = "10.0.1.1"
+      ipv4_address = "192.168.1.130/32"
+      ipv4_gateway = "192.168.1.1"
     }
   }
 }
 
 # Resource Pool Configuration
 pools = {
-  "splunk" = {
-    comment = "Splunk cluster infrastructure"
+  "logging" = {
+    comment = "Logging cluster infrastructure"
   }
 }
 
 # Firewall Configuration
-management_network = "10.0.1.0/24"
-splunk_network     = "10.0.1.130,10.0.1.135,10.0.1.136"
+management_network = "192.168.1.0/24"
+splunk_network     = "192.168.1.130,192.168.1.135,192.168.1.136"
 
 # Storage Configuration (optional)
 datastores = {}
