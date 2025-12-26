@@ -1,0 +1,63 @@
+---
+- name: Create splunk group
+  ansible.builtin.group:
+    name: "{{ splunk_group }}"
+    state: present
+
+- name: Create splunk user
+  ansible.builtin.user:
+    name: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    home: "{{ splunk_home }}"
+    shell: /bin/bash
+    system: true
+    create_home: false
+
+- name: Check if Splunk package exists locally
+  ansible.builtin.stat:
+    path: "{{ splunk_local_package_path }}/{{ splunk_package_name }}"
+  register: splunk_package_stat
+  delegate_to: localhost
+  become: false
+
+- name: Fail if Splunk package not found (air-gapped environment)
+  ansible.builtin.fail:
+    msg: >
+      Splunk package not found at {{ splunk_local_package_path }}/{{ splunk_package_name }}.
+      This is an air-gapped environment - please pre-stage the package.
+  when: not splunk_package_stat.stat.exists
+
+- name: Copy Splunk package to target
+  ansible.builtin.copy:
+    src: "{{ splunk_local_package_path }}/{{ splunk_package_name }}"
+    dest: "/tmp/{{ splunk_package_name }}"
+    mode: "0644"
+
+- name: Install Splunk package
+  ansible.builtin.apt:
+    deb: "/tmp/{{ splunk_package_name }}"
+    state: present
+  notify: Restart Splunk
+
+- name: Set ownership of Splunk home
+  ansible.builtin.file:
+    path: "{{ splunk_home }}"
+    owner: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    recurse: true
+
+- name: Accept Splunk license and set admin password
+  ansible.builtin.command:
+    cmd: >
+      {{ splunk_home }}/bin/splunk start --accept-license
+      --answer-yes --no-prompt
+      --seed-passwd '{{ splunk_admin_password }}'
+    creates: "{{ splunk_home }}/etc/system/local/server.conf"
+  become: true
+  become_user: "{{ splunk_user }}"
+  notify: Restart Splunk
+
+- name: Enable Splunk to start at boot
+  ansible.builtin.command:
+    cmd: "{{ splunk_home }}/bin/splunk enable boot-start -user {{ splunk_user }}"
+    creates: /etc/systemd/system/Splunkd.service

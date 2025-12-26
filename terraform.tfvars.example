@@ -74,13 +74,138 @@ vms = {
   }
 
   # Add other VMs here following the same pattern
+
+  "splunk-idx1" = {
+    vm_id            = 135
+    name             = "splunk-idx1"
+    description      = "Splunk Indexer 1 - Data indexing and storage"
+    cpu_cores        = 4
+    memory_dedicated = 4096
+    tags             = ["terraform", "splunk", "indexer"]
+    pool_id          = "splunk"
+
+    boot_disk = {
+      datastore_id = "local-zfs"
+      interface    = "virtio0"
+      size         = 200
+      file_format  = "raw"
+      iothread     = true
+      ssd          = false
+      discard      = "ignore"
+    }
+
+    network_interfaces = [{
+      bridge   = "vmbr0"
+      model    = "virtio"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "10.0.1.135/24"
+      ipv4_gateway = "10.0.1.1"
+    }
+
+    clone_template = {
+      template_id = 9000
+    }
+
+    agent_enabled = true
+    protection    = false
+    os_type       = "l26"
+
+    user_account = {
+      username = "ubuntu"
+      password = "ubuntu"
+      keys     = []
+    }
+  }
+
+  "splunk-idx2" = {
+    vm_id            = 136
+    name             = "splunk-idx2"
+    description      = "Splunk Indexer 2 - Data indexing and storage"
+    cpu_cores        = 4
+    memory_dedicated = 4096
+    tags             = ["terraform", "splunk", "indexer"]
+    pool_id          = "splunk"
+
+    boot_disk = {
+      datastore_id = "local-zfs"
+      interface    = "virtio0"
+      size         = 200
+      file_format  = "raw"
+      iothread     = true
+      ssd          = false
+      discard      = "ignore"
+    }
+
+    network_interfaces = [{
+      bridge   = "vmbr0"
+      model    = "virtio"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "10.0.1.136/24"
+      ipv4_gateway = "10.0.1.1"
+    }
+
+    clone_template = {
+      template_id = 9000
+    }
+
+    agent_enabled = true
+    protection    = false
+    os_type       = "l26"
+
+    user_account = {
+      username = "ubuntu"
+      password = "ubuntu"
+      keys     = []
+    }
+  }
 }
 
-# Container Configuration (optional)
-containers = {}
+# Container Configuration
+containers = {
+  "splunk-mgmt" = {
+    vm_id            = 130
+    hostname         = "splunk-mgmt"
+    description      = "Splunk Management - Search Head, Deployment Server, License Manager, MC, Cluster Manager"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 1024
+    tags             = ["terraform", "splunk", "management", "container"]
+    pool_id          = "splunk"
 
-# Resource Pool Configuration (optional)
-pools = {}
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 50
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "10.0.1.130/24"
+      ipv4_gateway = "10.0.1.1"
+    }
+  }
+}
+
+# Resource Pool Configuration
+pools = {
+  "splunk" = {
+    comment = "Splunk cluster infrastructure"
+  }
+}
+
+# Firewall Configuration
+management_network = "10.0.1.0/24"
+splunk_network     = "10.0.1.130,10.0.1.135,10.0.1.136"
 
 # Storage Configuration (optional)
 datastores = {}
