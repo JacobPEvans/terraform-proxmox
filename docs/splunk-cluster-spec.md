@@ -141,10 +141,10 @@ internal cluster communication.
 - DynamoDB Locking: `terraform-proxmox-locks-useast2`
 - Encryption: Enabled
 
-**Splunk Credentials** (to be configured manually):
-- Admin password: Set during first-time setup
-- Cluster secret key: Shared across all nodes
-- NOT managed by Terraform/Ansible in this iteration
+**Splunk Credentials** (managed by Ansible role):
+- Admin password: Set by Ansible during initial installation (must be provided via Ansible Vault or --extra-vars)
+- Cluster secret key: Set by Ansible for cluster communication (must be provided via Ansible Vault or --extra-vars)
+- **IMPORTANT**: No hardcoded defaults - credentials must be supplied securely for each deployment
 
 ---
 

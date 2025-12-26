@@ -135,9 +135,21 @@
   tags:
     - molecule-notest
 
+- name: Get active iptables rules
+  ansible.builtin.command:
+    cmd: iptables-save
+  register: active_rules
+  changed_when: false
+  check_mode: false
+  tags:
+    - molecule-notest
+
 - name: Save iptables rules
-  ansible.builtin.shell:
-    cmd: iptables-save > /etc/iptables/rules.v4
-  changed_when: true
+  ansible.builtin.copy:
+    content: "{{ active_rules.stdout }}"
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: '0644'
   tags:
     - molecule-notest
