@@ -3,7 +3,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.79"
+      version = "~> 0.89"
     }
     tls = {
       source  = "hashicorp/tls"
@@ -99,6 +99,28 @@ module "containers" {
   default_datastore = "local-zfs"
 
   depends_on = [module.pools, module.storage]
+}
+
+# Firewall module - manages Proxmox firewall rules for Splunk cluster
+module "firewall" {
+  source = "./modules/firewall"
+
+  node_name = var.proxmox_node
+
+  splunk_vm_ids = {
+    for k, v in var.vms : k => v.vm_id
+    if contains(try(v.tags, []), "splunk")
+  }
+
+  splunk_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(try(v.tags, []), "splunk")
+  }
+
+  management_network = var.management_network
+  splunk_network     = var.splunk_network
+
+  depends_on = [module.vms, module.containers]
 }
 
 # Secure SSH key provisioning for Ansible VM
