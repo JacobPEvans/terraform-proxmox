@@ -76,11 +76,28 @@ terraform-proxmox/
 
 ### Prerequisites
 
+**Option A: Using Nix Shell (Recommended)**
+
+All tools are provided via a pre-configured Nix development shell:
+
+```bash
+# Enter the Nix shell (provides all tools below)
+nix develop ~/git/nix-config/main/shells/terraform
+```
+
+See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
+
+**Option B: Manual Installation**
+
+Install the following tools manually:
+
 - Terraform >= 1.12.2
 - Terragrunt >= 0.81.10
 - AWS CLI configured
 - Proxmox API token
 - SSH key pair
+- Security scanners (tfsec, checkov, trivy)
+- Ansible and molecule (for configuration management)
 
 ### Essential Commands
 
@@ -186,12 +203,24 @@ Example VM configurations:
 
 ## 📖 Documentation
 
+### Setup & Configuration
+
+- **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** - Comprehensive guide to using Nix shells for development
+- **[Claude Nix Quick Reference](./docs/claude-nix-quick-reference.md)** - Quick reference for autonomous Nix shell workflows
+
+### Project Documentation
+
 - **[CLAUDE.md](./CLAUDE.md)** - AI-specific instructions for this repository
 - **[PLANNING.md](./PLANNING.md)** - Current project status and remaining tasks
 - **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - General troubleshooting procedures and operational guidance
 - **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - 📚 **HISTORICAL**: Comprehensive analysis of resolved
   state synchronization issues
 - **[CHANGELOG.md](./CHANGELOG.md)** - History of completed changes and improvements
+
+### Feature-Specific Documentation
+
+- **[Splunk Cluster Specification](./docs/splunk-cluster-spec.md)** - Detailed specification for Splunk infrastructure
+- **[Implementation Tasks](./docs/tasks.md)** - Task breakdown for Splunk cluster deployment
 
 ## ✅ Current Status
 
