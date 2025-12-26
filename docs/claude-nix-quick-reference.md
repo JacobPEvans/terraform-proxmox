@@ -1,0 +1,253 @@
+# Claude Code: Nix Shell Quick Reference
+
+**Quick reference for Claude Code to autonomously use Nix shells with this Terraform repository.**
+
+## One-Command Setup
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform
+```
+
+This provides: terraform, terragrunt, ansible, tfsec, checkov, trivy, aws-cli, docker, and all other required tools.
+
+## Essential Workflows
+
+### 1. Validate Configuration (Most Common)
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  terragrunt validate && \
+  tflint && \
+  echo 'Validation complete'
+"
+```
+
+### 2. Plan Infrastructure Changes
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  terragrunt init && \
+  terragrunt plan
+"
+```
+
+### 3. Security Scan
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  tfsec --concise-output . && \
+  checkov --directory . --quiet && \
+  trivy config --severity HIGH,CRITICAL .
+"
+```
+
+### 4. Full Pre-Commit Check
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  terragrunt validate && \
+  terraform fmt -check -recursive && \
+  tflint && \
+  tfsec . && \
+  echo 'All checks passed'
+"
+```
+
+### 5. Format Code
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  terraform fmt -recursive
+"
+```
+
+## Interactive Shell Sessions
+
+When you need to run multiple commands:
+
+```bash
+# Enter the shell
+nix develop ~/git/nix-config/main/shells/terraform
+
+# Now you're in the Nix environment with all tools available
+# Run commands as normal:
+terragrunt init
+terragrunt validate
+terragrunt plan
+```
+
+Exit with `exit` or Ctrl+D.
+
+## Common Command Patterns
+
+### Pattern: Init → Validate → Plan
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  terragrunt init && \
+  terragrunt validate && \
+  terragrunt plan -out=tfplan
+"
+```
+
+### Pattern: Security-First Workflow
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  tfsec . || exit 1
+  checkov --directory . || exit 1
+  terragrunt validate || exit 1
+  echo 'Security and validation passed'
+"
+```
+
+### Pattern: Generate Documentation
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  cd modules/proxmox-vm && \
+  terraform-docs markdown table --output-file README.md . && \
+  echo 'Documentation generated'
+"
+```
+
+## Parallel Execution (Claude's Strength)
+
+Run multiple independent checks in parallel using separate tool calls:
+
+**Tool Call 1:**
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command tfsec .
+```
+
+**Tool Call 2:**
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command checkov --directory .
+```
+
+**Tool Call 3:**
+```bash
+nix develop ~/git/nix-config/main/shells/terraform --command terragrunt validate
+```
+
+## Environment Setup (One-Time)
+
+### Option A: Auto-activate with direnv
+
+```bash
+echo "use flake ~/git/nix-config/main/shells/terraform" > .envrc
+direnv allow
+# Shell auto-activates when you cd into the directory
+```
+
+### Option B: Manual activation each time
+
+```bash
+nix develop ~/git/nix-config/main/shells/terraform
+# Run your commands
+exit
+```
+
+## Tools Available in Shell
+
+| Category | Tools |
+|----------|-------|
+| **IaC** | terraform, terragrunt, opentofu |
+| **Security** | tfsec, checkov, terrascan, trivy |
+| **Docs/Lint** | terraform-docs, tflint |
+| **Config Mgmt** | ansible, ansible-lint, molecule |
+| **Cloud** | aws-cli, docker |
+| **Utilities** | jq, yq, git, python3 |
+| **Cost** | infracost |
+
+## Error Handling
+
+### If Nix shell fails to load:
+```bash
+nix flake update ~/git/nix-config/main/shells/terraform
+nix develop ~/git/nix-config/main/shells/terraform --rebuild
+```
+
+### If providers fail to download:
+```bash
+rm -rf .terraform .terraform.lock.hcl
+nix develop ~/git/nix-config/main/shells/terraform --command terragrunt init
+```
+
+### If state lock errors occur:
+```bash
+# Wait 2 minutes for lock to expire, or
+nix develop ~/git/nix-config/main/shells/terraform --command terragrunt force-unlock <lock-id>
+```
+
+## Decision Matrix: When to Use Nix Shell
+
+| Task | Use Nix Shell? | Command |
+|------|----------------|---------|
+| Read files | ❌ No | Use Read tool directly |
+| Terraform validate | ✅ Yes | `nix develop ... --command terragrunt validate` |
+| Security scan | ✅ Yes | `nix develop ... --command tfsec .` |
+| Git operations | ❌ No | Git is allowed without Nix |
+| Format code | ✅ Yes | `nix develop ... --command terraform fmt -recursive` |
+| Generate docs | ✅ Yes | `nix develop ... --command terraform-docs ...` |
+| Plan changes | ✅ Yes | `nix develop ... --command terragrunt plan` |
+| Apply changes | ✅ Yes | `nix develop ... --command terragrunt apply` |
+
+## Best Practices for Claude
+
+1. **Always validate before planning**: Run `terragrunt validate` before `terragrunt plan`
+2. **Run security scans early**: Catch issues before they become problems
+3. **Use parallel commands**: Run independent checks simultaneously
+4. **Format before committing**: Run `terraform fmt -recursive` before git operations
+5. **Initialize when needed**: Run `terragrunt init` if you see provider errors
+
+## Example Autonomous Workflow
+
+```bash
+# 1. Enter directory
+cd ~/git/terraform-proxmox/feat/initial-splunk
+
+# 2. Run comprehensive check in one command
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  echo '=== Initializing ===' && \
+  terragrunt init && \
+  echo '=== Formatting ===' && \
+  terraform fmt -recursive && \
+  echo '=== Validating ===' && \
+  terragrunt validate && \
+  echo '=== Linting ===' && \
+  tflint && \
+  echo '=== Security Scan ===' && \
+  tfsec --concise-output . && \
+  echo '=== Planning ===' && \
+  terragrunt plan -out=tfplan && \
+  echo '=== Complete ==='
+"
+
+# 3. Review results and proceed
+```
+
+## Integration with Existing Commands
+
+This Nix shell is compatible with all commands in CLAUDE.md:
+
+```bash
+# Pre-commit hooks work inside Nix shell
+nix develop ~/git/nix-config/main/shells/terraform --command pre-commit run --all-files
+
+# Terragrunt operations
+nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+
+# Ansible testing
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+  cd ansible/roles/common && molecule test
+"
+```
+
+## Summary: Three Things Claude Needs to Know
+
+1. **Entry Command**: `nix develop ~/git/nix-config/main/shells/terraform`
+2. **All Tools Available**: terraform, terragrunt, ansible, tfsec, checkov, trivy, aws-cli, docker
+3. **Usage Pattern**: `nix develop <path> --command <your-command-here>`
+
+This provides a reproducible, isolated environment with all required tools, no version conflicts, and no manual installation.

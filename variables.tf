@@ -261,3 +261,16 @@ variable "containers" {
   }))
   default = {}
 }
+
+# Firewall configuration
+variable "management_network" {
+  description = "CIDR of management network for SSH/Web access"
+  type        = string
+  default     = "192.168.1.0/24"
+}
+
+variable "splunk_network" {
+  description = "Comma-separated list of Splunk node IPs for cluster communication"
+  type        = string
+  default     = "192.168.1.130,192.168.1.135,192.168.1.136"
+}
