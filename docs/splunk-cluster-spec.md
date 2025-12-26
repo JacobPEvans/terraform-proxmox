@@ -11,7 +11,10 @@
 
 ## Executive Summary
 
-This specification defines the implementation of a 3-node Splunk Enterprise cluster on Proxmox VE for local log aggregation and analysis. The cluster consists of two indexer VMs and one management LXC container, with complete network isolation to prevent outbound internet access while maintaining internal cluster communication.
+This specification defines the implementation of a 3-node Splunk Enterprise cluster on Proxmox VE
+for local log aggregation and analysis. The cluster consists of two indexer VMs and one management
+LXC container, with complete network isolation to prevent outbound internet access while maintaining
+internal cluster communication.
 
 ### Key Objectives
 
@@ -21,6 +24,8 @@ This specification defines the implementation of a 3-node Splunk Enterprise clus
 4. Provide centralized logging for homelab infrastructure
 5. Maintain DRY principles in infrastructure code
 
+
+
 ---
 
 ## Architecture
@@ -28,24 +33,27 @@ This specification defines the implementation of a 3-node Splunk Enterprise clus
 ### Infrastructure Summary
 
 | Component | ID | IP | Specs | Storage | Purpose |
-|-----------|----|----|-------|---------|---------|
-| splunk-mgmt (LXC) | 130 | 10.0.1.130/32 | 2 cores, 2GB RAM, 50GB | local-zfs | All-in-one management |
-| splunk-idx1 (VM) | 135 | 10.0.1.135/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 1 |
-| splunk-idx2 (VM) | 136 | 10.0.1.136/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 2 |
+| --- | --- | --- | --- | --- | --- |
+| splunk-mgmt (LXC) | 130 | 192.168.1.130/32 | 2 cores, 2GB RAM, 50GB | local-zfs | All-in-one management |
+| splunk-idx1 (VM) | 135 | 192.168.1.135/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 1 |
+| splunk-idx2 (VM) | 136 | 192.168.1.136/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 2 |
+
 
 **Total Resource Allocation**: 8 cores, 10GB RAM, 450GB storage
 
 ### Network Configuration
 
 **Real Environment** (from `terraform.tfvars`):
-- Domain: `pve.jacobpevans.com`
-- Network: 10.0.1.0/24
+
+- Domain: `pve.example.com`
+- Network: 192.168.1.0/24
 - IP Format: /32 per host
-- Gateway: 10.0.1.1
+- Gateway: 192.168.1.1
 - Bridge: vmbr0
-- Existing VMs: splunk (110), syslog (100)
+- Existing VMs: Example IDs (100, 110)
 
 **Example Environment** (from `terraform.tfvars.example`):
+
 - Network: 192.168.1.0/24 (placeholder values)
 - IP Format: /32 per host
 - Pool: "logging" (existing)
@@ -58,14 +66,17 @@ This specification defines the implementation of a 3-node Splunk Enterprise clus
 **Installation Method**: Pre-staged package (air-gapped)
 
 **Cluster Roles**:
+
 - **splunk-mgmt**: Search Head, Deployment Server, License Manager, Monitoring Console, Cluster Manager
 - **splunk-idx1**: Indexer peer
 - **splunk-idx2**: Indexer peer
 
 **Cluster Settings**:
+
 - Replication Factor: 2
 - Search Factor: 1
-- Cluster Master URI: https://10.0.1.130:8089
+- Cluster Master URI: [https://192.168.1.130:8089](https://192.168.1.130:8089)
+
 
 ---
 
@@ -74,35 +85,39 @@ This specification defines the implementation of a 3-node Splunk Enterprise clus
 ### Defense-in-Depth Firewall Strategy
 
 **Layer 1: Proxmox Firewall** (hardware-level)
+
 - Default policy: DROP all inbound and outbound
 - Inbound ALLOW:
-  - TCP 22 (SSH) from 10.0.1.0/24
-  - TCP 8000 (Splunk Web) from 10.0.1.0/24
+  - TCP 22 (SSH) from 192.168.1.0/24
+  - TCP 8000 (Splunk Web) from 192.168.1.0/24
   - TCP 8089 (Management) from Splunk cluster IPs only
   - TCP 9997 (Forwarding) from Splunk cluster IPs only
   - TCP 8080, 9887 (Replication/Clustering) from Splunk cluster IPs only
 - Outbound ALLOW:
-  - To Splunk cluster IPs only (10.0.1.130, 135, 136)
+  - To Splunk cluster IPs only (192.168.1.130, 135, 136)
 
 **Layer 2: VM iptables** (OS-level)
+
 - INPUT policy: DROP
 - OUTPUT policy: DROP
 - ALLOW established/related connections
 - ALLOW loopback
-- ALLOW SSH, Splunk ports from 10.0.1.0/24
-- ALLOW outbound only to 10.0.1.0/24
+- ALLOW SSH, Splunk ports from 192.168.1.0/24
+- ALLOW outbound only to 192.168.1.0/24
 - NO internet access
+
 
 **Port Matrix**:
 
 | Port | Protocol | Purpose | Allowed From |
-|------|----------|---------|--------------|
-| 22 | TCP | SSH | 10.0.1.0/24 |
-| 8000 | TCP | Splunk Web UI | 10.0.1.0/24 |
+| --- | --- | --- | --- |
+| 22 | TCP | SSH | 192.168.1.0/24 |
+| 8000 | TCP | Splunk Web UI | 192.168.1.0/24 |
 | 8089 | TCP | Splunk Management | Splunk cluster only |
 | 9997 | TCP | Splunk Forwarding | Splunk cluster only |
 | 8080 | TCP | Replication | Splunk cluster only |
 | 9887 | TCP | Clustering | Splunk cluster only |
+
 
 ---
 
@@ -306,9 +321,9 @@ Integrated in `main.tf` after containers module.
 ### Already Staged ✅
 
 - Splunk Package: `/opt/splunk-packages/splunk-10.0.2-e2d18b4767e9-linux-amd64.deb` on pve
-- Network: Real config in `terraform.tfvars` (10.0.1.x/32)
+- Network: Real config in `terraform.tfvars` (example: 192.168.1.x/32)
 - Pool: "logging" pool exists
-- Domain: `pve.jacobpevans.com`
+- Domain: `pve.example.com`
 
 ### User Must Provide
 
@@ -345,7 +360,7 @@ Integrated in `main.tf` after containers module.
 3. Verify container created
 4. Verify Proxmox firewall rules applied
 5. Test SSH access to VMs
-6. Test Splunk Web UI access (http://10.0.1.130:8000)
+6. Test Splunk Web UI access (http://192.168.1.130:8000)
 7. Verify network isolation (no outbound internet)
 8. Verify cluster communication (8089, 9997, 8080, 9887 ports)
 
@@ -385,7 +400,7 @@ Integrated in `main.tf` after containers module.
 - [ ] All Terraform resources created without errors
 - [ ] All Ansible tasks complete without failures
 - [ ] All VMs accessible via SSH
-- [ ] Splunk Web UI accessible from 10.0.1.0/24 network
+- [ ] Splunk Web UI accessible from 192.168.1.0/24 network
 - [ ] No outbound internet access (verified with curl/ping tests)
 - [ ] Splunk cluster status shows all nodes online
 - [ ] Log ingestion working (test with sample data)
