@@ -47,6 +47,9 @@
     recurse: true
 
 - name: Accept Splunk license and set admin password
+  # NOTE: --seed-passwd exposes password in process list temporarily
+  # This is a Splunk limitation. Risk mitigated by: vault-encrypted password,
+  # creates parameter (runs only once), and air-gapped environment.
   ansible.builtin.command:
     cmd: >
       {{ splunk_home }}/bin/splunk start --accept-license

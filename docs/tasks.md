@@ -1,6 +1,6 @@
 # Splunk Cluster Infrastructure - Implementation Tasks
 
-**Spec**: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/docs/splunk-cluster-spec.md`
+**Spec**: `docs/splunk-cluster-spec.md`
 **Branch**: `feat/initial-splunk`
 **Created**: 2025-12-25
 **Status**: In Progress
@@ -32,14 +32,14 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 ### 1.1 Fix Splunk Version in Ansible Defaults
 
 - [x] **Update Splunk version from 9.4.0 to 10.0.2**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/defaults/main.yml`
+  - File: `ansible/roles/splunk/defaults/main.yml`
   - Change `splunk_version: "9.4.0"` to `splunk_version: "10.0.2"`
   - Change `splunk_build: "6b4ebe426ca6"` to `splunk_build: "e2d18b4767e9"`
 
 ### 1.2 Fix IP Subnet in terraform.tfvars.example
 
 - [x] **Update IP format from /24 to /32 for Splunk nodes**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
+  - File: `terraform.tfvars.example`
   - Line 104: Change `10.0.1.135/24` to `192.168.1.135/32`
   - Line 149: Change `10.0.1.136/24` to `192.168.1.136/32`
   - Line 193: Change `10.0.1.130/24` to `192.168.1.130/32`
@@ -47,7 +47,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 ### 1.3 Fix Example IPs (10.0.1.x to 192.168.1.x)
 
 - [x] **Replace real network IPs with example IPs**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
+  - File: `terraform.tfvars.example`
   - Replace all `10.0.1.x` with `192.168.1.x` for Splunk nodes
   - Update gateway from `10.0.1.1` to `192.168.1.1` for Splunk nodes
   - Update `management_network` from `10.0.1.0/24` to `192.168.1.0/24`
@@ -56,7 +56,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 ### 1.4 Fix Pool Name
 
 - [x] **Change pool from "splunk" to "logging"**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
+  - File: `terraform.tfvars.example`
   - Line 85, 130, 179: Change `pool_id = "splunk"` to `pool_id = "logging"`
   - Lines 200-203: Change pool key from `"splunk"` to `"logging"`
   - Update pool comment to `"Logging cluster infrastructure"`
@@ -64,7 +64,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 ### 1.5 Fix Network Config in Ansible Defaults
 
 - [x] **Update network references in Ansible defaults**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/defaults/main.yml`
+  - File: `ansible/roles/splunk/defaults/main.yml`
   - Line 22: Update `splunk_cluster_master_uri` to use placeholder `https://{{ splunk_mgmt_ip | default('192.168.1.130') }}:8089`
   - Consider making network-specific values overridable via inventory vars
 
@@ -77,15 +77,15 @@ Create reusable module to eliminate DRY violation.
 ### 2.1 Create Splunk Indexer Module Structure
 
 - [ ] **Create module directory and files**
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/`
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/main.tf`
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/variables.tf`
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/outputs.tf`
+  - Create: `modules/splunk-indexer/`
+  - Create: `modules/splunk-indexer/main.tf`
+  - Create: `modules/splunk-indexer/variables.tf`
+  - Create: `modules/splunk-indexer/outputs.tf`
 
 ### 2.2 Implement Splunk Indexer Module
 
 - [ ] **Define module with shared indexer configuration**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/main.tf`
+  - File: `modules/splunk-indexer/main.tf`
   - Use `proxmox_virtual_environment_vm` resource
   - Hardcode shared config: 4 cores, 4096MB RAM, 200GB disk
   - Parameterize: vm_id, name, ip_address, node_name, pool_id
@@ -93,7 +93,7 @@ Create reusable module to eliminate DRY violation.
 ### 2.3 Define Module Variables
 
 - [ ] **Create variables.tf with required inputs**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/variables.tf`
+  - File: `modules/splunk-indexer/variables.tf`
   - Variables: `vm_id`, `name`, `ip_address`, `gateway`, `node_name`, `pool_id`
   - Variables: `template_id`, `datastore_id`, `bridge`, `ssh_public_key`
   - Add descriptions and validation where appropriate
@@ -101,7 +101,7 @@ Create reusable module to eliminate DRY violation.
 ### 2.4 Define Module Outputs
 
 - [ ] **Create outputs.tf for module consumers**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/splunk-indexer/outputs.tf`
+  - File: `modules/splunk-indexer/outputs.tf`
   - Outputs: `vm_id`, `name`, `ip_address`, `mac_address`
 
 ---
@@ -113,7 +113,7 @@ Integrate module and clean up configuration.
 ### 3.1 Update main.tf to Use Splunk Indexer Module
 
 - [ ] **Add module instantiations for splunk-idx1 and splunk-idx2**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/main.tf`
+  - File: `main.tf`
   - Add `module "splunk_idx1"` block
   - Add `module "splunk_idx2"` block
   - Pass variables from root module
@@ -121,14 +121,14 @@ Integrate module and clean up configuration.
 ### 3.2 Add Splunk Indexer Variables to Root Module
 
 - [ ] **Define variables for splunk indexer configuration**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/variables.tf`
+  - File: `variables.tf`
   - Add `splunk_indexers` variable (map of indexer configs)
   - Alternative: Use for_each with the module
 
 ### 3.3 Remove Duplicated VM Blocks from tfvars.example
 
 - [ ] **Replace verbose VM definitions with module reference example**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/terraform.tfvars.example`
+  - File: `terraform.tfvars.example`
   - Remove lines 78-166 (duplicated splunk-idx1 and splunk-idx2 blocks)
   - Add simplified configuration example using the new module
   - Document module usage in comments
@@ -142,20 +142,20 @@ Fix configuration issues in the splunk role.
 ### 4.1 Update Package Name Variable
 
 - [x] **Ensure package_name matches version 10.0.2**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/defaults/main.yml`
+  - File: `ansible/roles/splunk/defaults/main.yml`
   - Verify `splunk_package_name` template is correct after version update
 
 ### 4.2 Tag iptables Tasks for Molecule Skip
 
 - [x] **Add molecule-notest tag to firewall tasks**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/tasks/firewall.yml`
+  - File: `ansible/roles/splunk/tasks/firewall.yml`
   - Add `tags: [molecule-notest]` to iptables tasks
   - Docker containers cannot manage iptables rules
 
 ### 4.3 Review Task FQCN Compliance
 
 - [ ] **Verify all tasks use Fully Qualified Collection Names**
-  - Files: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/tasks/*.yml`
+  - Files: `ansible/roles/splunk/tasks/*.yml`
   - Ensure modules use `ansible.builtin.*` prefix
   - Check for any shorthand module names
 
@@ -168,7 +168,7 @@ Create comprehensive Molecule test configuration.
 ### 5.1 Create molecule.yml Configuration
 
 - [ ] **Create Molecule configuration for splunk role**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/molecule/default/molecule.yml`
+  - File: `ansible/roles/splunk/molecule/default/molecule.yml`
   - Use Docker driver with `geerlingguy/docker-ubuntu2404-ansible:latest`
   - Configure dependency to use `../../requirements.yml`
   - Set roles_path to find common role dependency
@@ -177,7 +177,7 @@ Create comprehensive Molecule test configuration.
 ### 5.2 Create converge.yml Playbook
 
 - [ ] **Create playbook to apply splunk role**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/molecule/default/converge.yml`
+  - File: `ansible/roles/splunk/molecule/default/converge.yml`
   - Apply splunk role to test instance
   - Include common role as dependency
   - Set appropriate test variables (use mock package path)
@@ -185,7 +185,7 @@ Create comprehensive Molecule test configuration.
 ### 5.3 Create verify.yml Playbook
 
 - [ ] **Create verification tests**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/molecule/default/verify.yml`
+  - File: `ansible/roles/splunk/molecule/default/verify.yml`
   - Verify splunk user exists
   - Verify splunk group exists
   - Verify /opt/splunk directory structure
@@ -194,7 +194,7 @@ Create comprehensive Molecule test configuration.
 ### 5.4 Create prepare.yml (Optional)
 
 - [ ] **Create pre-test preparation if needed**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk/molecule/default/prepare.yml`
+  - File: `ansible/roles/splunk/molecule/default/prepare.yml`
   - Create mock package directory if needed for testing
   - Install any test dependencies
 
@@ -207,14 +207,14 @@ Integrate splunk role into project playbooks and inventory.
 ### 6.1 Update site.yml with Splunk Plays
 
 - [ ] **Add Splunk indexer and management plays**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/playbooks/site.yml`
+  - File: `ansible/playbooks/site.yml`
   - Add play for `splunk_indexers` group with `splunk_role: indexer`
   - Add play for `splunk_management` group with `splunk_role: all_in_one`
 
 ### 6.2 Update hosts.yml.example
 
 - [ ] **Add Splunk cluster host groups**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/inventory/hosts.yml.example`
+  - File: `ansible/inventory/hosts.yml.example`
   - Add `splunk_indexers` group with `splunk-idx1` and `splunk-idx2`
   - Add `splunk_management` group with `splunk-mgmt`
   - Use example IPs (192.168.1.x)
@@ -222,8 +222,8 @@ Integrate splunk role into project playbooks and inventory.
 ### 6.3 Create Splunk Group Variables
 
 - [ ] **Create group_vars files for Splunk hosts**
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/inventory/group_vars/splunk_indexers.yml`
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/inventory/group_vars/splunk_management.yml`
+  - Create: `ansible/inventory/group_vars/splunk_indexers.yml`
+  - Create: `ansible/inventory/group_vars/splunk_management.yml`
   - Set role-specific variables per group
 
 ---
@@ -235,14 +235,14 @@ Update GitHub Actions workflows for splunk role testing.
 ### 7.1 Add Splunk Role to Molecule Matrix
 
 - [ ] **Update ansible.yml workflow**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/.github/workflows/ansible.yml`
+  - File: `.github/workflows/ansible.yml`
   - Add `splunk` to the `role` matrix (line 35)
   - Result: `role: [common, splunk]`
 
 ### 7.2 Verify Workflow Dependencies
 
 - [ ] **Ensure workflow installs required collections**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/.github/workflows/ansible.yml`
+  - File: `.github/workflows/ansible.yml`
   - Verify ansible.posix and community.general are installed
   - Add any additional collections needed by splunk role
 
@@ -255,16 +255,16 @@ Create supporting scripts for testing and measurement.
 ### 8.1 Create Timing Script
 
 - [ ] **Create terragrunt timing measurement script**
-  - Create directory: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/scripts/`
-  - Create: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/scripts/timing.sh`
+  - Create directory: `scripts/`
+  - Create: `scripts/timing.sh`
   - Measure `terragrunt plan` and `terragrunt apply` execution times
-  - Output results to `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/scripts/timing-results.txt`
+  - Output results to `scripts/timing-results.txt`
   - Make script executable
 
 ### 8.2 Add timing-results.txt to .gitignore
 
 - [ ] **Exclude timing results from version control**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/.gitignore`
+  - File: `.gitignore`
   - Add `scripts/timing-results.txt` entry
 
 ---
@@ -287,7 +287,7 @@ Create supporting documentation and future work tracking.
 ### 9.2 Update CHANGELOG.md
 
 - [ ] **Document changes in this feature branch**
-  - File: `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/CHANGELOG.md`
+  - File: `CHANGELOG.md`
   - Add entry for Splunk cluster infrastructure
   - Document new modules, roles, and configurations
 
@@ -318,12 +318,12 @@ Final validation before PR creation.
 
 - [ ] **Run ansible-lint**
   ```bash
-  cd /Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible && ansible-lint
+  cd ansible && ansible-lint
   ```
 
 - [ ] **Run molecule test for splunk role**
   ```bash
-  cd /Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/splunk && molecule test
+  cd ansible/roles/splunk && molecule test
   ```
 
 ### 10.3 Pre-commit Hooks
@@ -374,12 +374,12 @@ Group 8 (Scripts) -------------> Group 9 (Docs)
 
 | Component | Path |
 |-----------|------|
-| Terraform root | `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/` |
-| Terraform modules | `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/modules/` |
-| Ansible roles | `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/roles/` |
-| Ansible playbooks | `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/ansible/playbooks/` |
-| GitHub workflows | `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/.github/workflows/` |
-| Spec document | `/Users/jevans/git/terraform-proxmox/feat/initial-splunk/docs/splunk-cluster-spec.md` |
+| Terraform root | `` |
+| Terraform modules | `modules/` |
+| Ansible roles | `ansible/roles/` |
+| Ansible playbooks | `ansible/playbooks/` |
+| GitHub workflows | `.github/workflows/` |
+| Spec document | `docs/splunk-cluster-spec.md` |
 
 ### Key Configuration Values
 
