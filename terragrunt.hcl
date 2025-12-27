@@ -24,9 +24,19 @@ remote_state {
 
 # Define common variables that can be used across modules
 inputs = {
-  # Default Proxmox configuration
-  # These can be overridden via terraform.tfvars or environment variables
-  # IMPORTANT: Terragrunt inputs can read from environment variables using get_env()
+  # IMPORTANT: Variables are sourced from TF_VAR_* environment variables
+  #
+  # Flow: Secret manager → --name-transformer tf-var → TF_VAR_* → Terragrunt inputs → Terraform
+  #
+  # Why get_env() instead of .tfvars files?
+  # - Terraform variable precedence: .tfvars files > TF_VAR_* env vars > defaults
+  # - Generating .tfvars files would override environment variables from secret manager
+  # - Using get_env() directly reads from environment without precedence conflicts
+  #
+  # Usage with secret manager:
+  #   doppler run --name-transformer tf-var -- aws-vault exec terraform -- \
+  #     nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+  #
   proxmox_api_endpoint = get_env("TF_VAR_proxmox_api_endpoint", "")
   proxmox_api_token    = get_env("TF_VAR_proxmox_api_token", "")
   proxmox_node         = get_env("TF_VAR_proxmox_node", "pve")
