@@ -50,6 +50,10 @@ aws-credentials
 .env.*
 !.env.example
 
+# Environment-specific documentation (contains sensitive setup info)
+docs/DOPPLER.md
+docs/secrets-management.md
+
 # IDE files
 .vscode/
 .idea/
