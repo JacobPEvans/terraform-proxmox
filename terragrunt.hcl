@@ -26,9 +26,12 @@ remote_state {
 inputs = {
   # Default Proxmox configuration
   # These can be overridden via terraform.tfvars or environment variables
-  proxmox_node     = "pve"
-  proxmox_username = "proxmox"
-  proxmox_insecure = false
+  # IMPORTANT: Terragrunt inputs can read from environment variables using get_env()
+  proxmox_api_endpoint = get_env("TF_VAR_proxmox_api_endpoint", "")
+  proxmox_api_token    = get_env("TF_VAR_proxmox_api_token", "")
+  proxmox_node         = get_env("TF_VAR_proxmox_node", "pve")
+  proxmox_username     = get_env("TF_VAR_proxmox_username", "proxmox")
+  proxmox_insecure     = get_env("TF_VAR_proxmox_insecure", "false")
 }
 
 # Terragrunt will generate provider.tf with these settings
@@ -63,34 +66,5 @@ provider "proxmox" {
   api_token = var.proxmox_api_token
   insecure  = var.proxmox_insecure
 }
-EOF
-}
-
-# Generate a terraform.tfvars file with required variables
-generate "terraform_vars" {
-  path      = "terraform.tfvars"
-  if_exists = "skip"
-  contents  = <<EOF
-# Proxmox API Configuration
-# You need to set these values for your environment
-
-# Example: "https://pve.<example>:8006/api2/json"
-proxmox_api_endpoint = ""
-
-# Example: "root@pam!terraform=your-secret-token-here"
-proxmox_api_token = ""
-
-# SSH Configuration
-proxmox_ssh_username = "root@pam"
-proxmox_ssh_private_key = "~/.ssh/id_rsa"
-
-# VM Configuration
-proxmox_node = "pve"
-proxmox_username = "proxmox"
-proxmox_insecure = false
-
-# ISO and Template Configuration
-proxmox_iso_ubuntu = "ubuntu-24.04.2-live-server-amd64.iso"
-proxmox_ct_template_ubuntu = "ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 EOF
 }

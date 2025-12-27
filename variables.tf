@@ -7,6 +7,12 @@ variable "environment" {
 }
 
 # Proxmox connection variables
+# SECURITY: These are provided via environment variables (TF_VAR_*) from secret manager
+# Provider credentials are always stored in Terraform state, but our state file is:
+#   - Encrypted at rest in S3 (AES-256 server-side encryption)
+#   - Encrypted in transit (TLS)
+#   - Access-controlled via IAM policies
+#   - Locked via DynamoDB to prevent concurrent modifications
 variable "proxmox_api_endpoint" {
   description = "The URL of the Proxmox API (e.g. https://proxmox.example.com:8006/api2/json)"
   type        = string
@@ -57,7 +63,7 @@ variable "proxmox_username" {
 variable "proxmox_ct_template_ubuntu" {
   description = "The name of the Ubuntu container template to use for containers"
   type        = string
-  default     = "ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+  default     = "ubuntu-25.04-standard_25.04-1.1_amd64.tar.zst"
 }
 
 variable "proxmox_iso_ubuntu" {
