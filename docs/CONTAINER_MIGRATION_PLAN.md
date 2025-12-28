@@ -23,7 +23,7 @@ Old VM-based infrastructure under Terraform state management:
 | 136    | splunk-idx2   | VM   | Splunk indexer 2           | → VM 101 (renumber) |
 | 140    | containers    | VM   | k3s/Docker (deprecated)    | REMOVE            |
 
-## Target Architecture (v2.0)
+## Target Architecture
 
 ### VMs - Splunk Indexers Only (100-101)
 

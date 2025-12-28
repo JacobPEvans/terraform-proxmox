@@ -1,4 +1,4 @@
-# Infrastructure Renumbering v2.0 - COMPLETE ✅
+# Infrastructure Renumbering - COMPLETE ✅
 
 **Date Completed**: 2025-12-27
 **Branch**: feat/deploy-containers
@@ -8,7 +8,7 @@
 
 ## Summary
 
-Successfully renumbered entire infrastructure from v1.0 to v2.0 scheme:
+Successfully renumbered entire infrastructure to current scheme:
 - **VMs**: Splunk indexers now at 100-101 (was 135-136)
 - **Containers**: Native LXC containers at 200-229 range
 - **Splunk Management**: Container at 205 (was VM at 130)
@@ -26,7 +26,7 @@ Successfully renumbered entire infrastructure from v1.0 to v2.0 scheme:
 - [x] `README.md` - Updated VM/container configurations
 - [x] `TROUBLESHOOTING.md` - Updated example references
 - [x] `docs/INFRASTRUCTURE_NUMBERING.md` - Created comprehensive reference
-- [x] `docs/CONTAINER_MIGRATION_PLAN.md` - Complete rewrite for v2.0
+- [x] `docs/CONTAINER_MIGRATION_PLAN.md` - Complete rewrite for renumbered infrastructure
 - [x] `docs/RENUMBERING_STATUS.md` - Created tracking document
 - [x] `docs/splunk-cluster-spec.md` - Updated all IDs and specs
 - [x] `docs/tasks.md` - Updated all IP and ID references
@@ -36,7 +36,7 @@ Successfully renumbered entire infrastructure from v1.0 to v2.0 scheme:
 - [x] `../../docs/CONTAINER_MIGRATION_PLAN.md` - Copied updated version
 - [x] `../../docs/splunk-cluster-spec.md` - Copied updated version
 - [x] `../../docs/tasks.md` - Copied updated version
-- [x] `../../docs/TERRAFORM_STATE_INIT_SESSION.md` - Added v2.0 notice
+- [x] `../../docs/TERRAFORM_STATE_INIT_SESSION.md` - Added renumbering notice
 
 ---
 
@@ -108,7 +108,7 @@ grep -r "192\.168\.1\.130\|192\.168\.1\.135\|192\.168\.1\.136" \
 ### ID References
 Old VM IDs (100, 110, 120, 130, 135, 136, 140) only appear in:
 - Migration documentation (intentional, showing old→new mapping)
-- Historical session notes (intentional, with v2.0 notice added)
+- Historical session notes (intentional, with renumbering notice added)
 
 ---
 
@@ -144,7 +144,7 @@ Old VM IDs (100, 110, 120, 130, 135, 136, 140) only appear in:
 3. **Commit Updates**
    ```bash
    git add .
-   git commit -m "feat: complete infrastructure renumbering to v2.0 scheme"
+   git commit -m "feat: complete infrastructure renumbering"
    ```
 
 4. **Container Migration**

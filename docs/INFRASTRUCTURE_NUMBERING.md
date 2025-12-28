@@ -153,7 +153,7 @@ All AI development and control plane containers are created manually via Proxmox
 
 ## Change History
 
-### v2.0 (2025-12-27)
+### Current Scheme (2025-12-27)
 - Complete renumbering: VMs to 100-series, containers to 200-series
 - Splunk indexers upgraded: 4→6 cores, 4→6GB RAM, storage remains 200GB
 - Initial deployment: claude1 (220) as primary AI development container

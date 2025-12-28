@@ -10,7 +10,7 @@
 
 ### Documentation
 - [x] `docs/INFRASTRUCTURE_NUMBERING.md` - Created complete reference
-- [x] `docs/CONTAINER_MIGRATION_PLAN.md` - Fully updated with v2.0 numbering
+- [x] `docs/CONTAINER_MIGRATION_PLAN.md` - Fully updated with renumbered infrastructure
 - [x] `README.md` - Updated VM/container configurations
 
 ### Specs Adjusted
@@ -42,9 +42,9 @@
 
 ## 📋 Parent Docs Directory (../../docs/)
 
-These files are in `/Users/jevans/git/terraform-proxmox/docs/`:
+These files are in the parent `docs/` directory:
 
-- [ ] `CONTAINER_MIGRATION_PLAN.md` - Full rewrite with v2.0 numbering
+- [ ] `CONTAINER_MIGRATION_PLAN.md` - Full rewrite with renumbered infrastructure
 - [ ] `splunk-cluster-spec.md` - Major update (same as worktree version)
 - [ ] `tasks.md` - Update all ID references
 - [ ] `TERRAFORM_STATE_INIT_SESSION.md` - Update infrastructure references

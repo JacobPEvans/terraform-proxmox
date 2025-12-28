@@ -25,56 +25,9 @@ environment = "homelab"
 # Cloud-init configuration (use .local.yml for real deployment)
 ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
 
-# VM Configuration - Example with cloud-init
+# VM Configuration - Splunk Indexers Only
+# Note: ansible, claude1, cribl-edge, etc. are manually-managed LXC containers (see docs/INFRASTRUCTURE_NUMBERING.md)
 vms = {
-  "ansible" = {
-    vm_id            = 100
-    name             = "ansible"
-    description      = "Ansible control node for VM management"
-    cpu_cores        = 2
-    memory_dedicated = 4096
-    tags             = ["terraform", "automation", "ansible"]
-
-    boot_disk = {
-      datastore_id = "local-zfs"
-      interface    = "virtio0"
-      size         = 64
-      file_format  = "raw"
-      iothread     = true
-      ssd          = false
-      discard      = "ignore"
-    }
-
-    network_interfaces = [{
-      bridge   = "vmbr0"
-      model    = "virtio"
-      firewall = false
-    }]
-
-    ip_config = {
-      ipv4_address = "192.168.1.100/24"
-      ipv4_gateway = "192.168.1.1"
-    }
-
-    clone_template = {
-      template_id = 9000
-    }
-
-    agent_enabled = true
-    protection    = false
-    os_type       = "l26"
-
-    user_account = {
-      username = "ubuntu"
-      password = "ubuntu"
-      keys     = []  # populated by cloud-init from SSH key file
-    }
-
-    # cloud_init_user_data is handled by external file in main.tf
-  }
-
-  # Add other VMs here following the same pattern
-
   "splunk-idx1" = {
     vm_id            = 100
     name             = "splunk-idx1"
@@ -169,18 +122,18 @@ vms = {
 # Container Configuration
 containers = {
   "splunk-mgmt" = {
-    vm_id            = 130
+    vm_id            = 205
     hostname         = "splunk-mgmt"
     description      = "Splunk Management - Search Head, Deployment Server, License Manager, MC, Cluster Manager"
-    cpu_cores        = 2
-    memory_dedicated = 2048
+    cpu_cores        = 3
+    memory_dedicated = 3072
     memory_swap      = 1024
     tags             = ["terraform", "splunk", "management", "container"]
     pool_id          = "logging"
 
     root_disk = {
       datastore_id = "local-zfs"
-      size         = 50
+      size         = 100
     }
 
     network_interfaces = [{
@@ -190,7 +143,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.130/32"
+      ipv4_address = "192.168.1.205/32"
       ipv4_gateway = "192.168.1.1"
     }
   }
