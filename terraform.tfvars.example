@@ -68,7 +68,7 @@ vms = {
 
     user_account = {
       username = "debian"
-      password = "debian"
+      password = "your-secure-password-here"
       keys     = []
     }
   }
@@ -113,7 +113,7 @@ vms = {
 
     user_account = {
       username = "debian"
-      password = "debian"
+      password = "your-secure-password-here"
       keys     = []
     }
   }

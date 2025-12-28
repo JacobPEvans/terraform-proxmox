@@ -171,7 +171,7 @@ variable "vms" {
       keys     = list(string)
       }), {
       username = "debian"
-      password = "temp123"
+      password = "" # Must be set in terraform.tfvars - do not use default passwords
       keys     = []
     })
 
@@ -273,6 +273,13 @@ variable "containers" {
       ipv4_address = optional(string)
       ipv4_gateway = optional(string)
     }), {})
+
+    # User account configuration
+    user_account = optional(object({
+      username = string
+      password = string
+      keys     = list(string)
+    }))
 
     protection = optional(bool, false)
     os_type    = optional(string, "debian")
