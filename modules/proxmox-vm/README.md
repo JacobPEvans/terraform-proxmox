@@ -40,7 +40,7 @@ module "vms" {
       }
 
       user_account = {
-        username = "ubuntu"
+        username = "debian"
         password = "secure-password"
         keys     = ["ssh-rsa AAAAB3..."]
       }

@@ -2,12 +2,12 @@
 #   vm_id       = 100
 #   node_name   = var.proxmox_node
 #   description = "TF CT container"
-#   tags        = ["terraform", "ubuntu", "container"]
+#   tags        = ["terraform", "debian", "container"]
 
 #   protection = false
 
 #   initialization {
-#     hostname = "tf-pve-ubuntu-ct-container"
+#     hostname = "tf-pve-debian-ct-container"
 
 #     ip_config {
 #       ipv4 {
@@ -17,9 +17,9 @@
 
 #     user_account {
 #       keys = [
-#         trimspace(tls_private_key.ubuntu_vm_key.public_key_openssh)
+#         trimspace(tls_private_key.debian_vm_key.public_key_openssh)
 #       ]
-#       password = random_password.ubuntu_vm_password.result
+#       password = random_password.debian_vm_password.result
 #     }
 #   }
 
@@ -50,7 +50,7 @@
 #   }
 
 #   operating_system {
-#     template_file_id = "local:vztmpl/${var.proxmox_ct_template_ubuntu}"
-#     type             = "ubuntu"
+#     template_file_id = "local:vztmpl/${var.proxmox_ct_template_debian}"
+#     type             = "debian"
 #   }
 # }

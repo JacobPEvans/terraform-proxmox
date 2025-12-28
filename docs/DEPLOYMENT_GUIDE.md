@@ -32,7 +32,7 @@ These are created via Proxmox UI and **not** managed by Terraform:
 ## Prerequisites
 
 1. **Proxmox VE** with:
-   - Cloud-init template at VM ID 9000 (Ubuntu 24.04 LTS)
+   - Cloud-init template at VM ID 9000 (Debian 13)
    - Datastores: `local-zfs`, `local`
    - Network bridge: `vmbr0`
 
@@ -85,17 +85,17 @@ This creates:
 Via Proxmox UI, create the following containers:
 
 **ansible (200)**:
-- Template: Ubuntu 24.04 LTS
+- Template: Debian 13
 - Cores: 2, RAM: 2GB, Storage: 64GB
 - IP: Your network address (see `terraform.tfvars`)
 
 **cribl-edge-1 (210) & cribl-edge-2 (211)**:
-- Template: Ubuntu 24.04 LTS
+- Template: Debian 13
 - Cores: 2, RAM: 2GB, Storage: 32GB each
 - IPs: Your network addresses
 
 **claude1 (220)**:
-- Template: Ubuntu 24.04 LTS
+- Template: Debian 13
 - Cores: 2, RAM: 2GB, Storage: 64GB
 - IP: Your network address
 
@@ -123,7 +123,7 @@ ssh root@pve.your-domain 'qm list'
 ssh root@pve.your-domain 'pct list'
 
 # Test SSH access to VMs
-ssh -i ~/.ssh/id_rsa_vm ubuntu@10.0.1.100  # splunk-idx1
+ssh -i ~/.ssh/id_rsa_vm debian@10.0.1.100  # splunk-idx1
 
 # Check container access
 ssh root@10.0.1.200  # ansible (if configured)

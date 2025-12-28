@@ -1,8 +1,8 @@
-# Creating Ubuntu Cloud-Init Template for Proxmox
+# Creating Debian Cloud-Init Template for Proxmox
 
 ## Overview
 
-This guide creates a reusable Ubuntu 24.04.2 LTS template (VM ID 9001) optimized for Terraform deployment with cloud-init.
+This guide creates a reusable Debian 13 (Trixie) template (VM ID 9001) optimized for Terraform deployment with cloud-init.
 
 ## Quick Start
 
@@ -10,18 +10,18 @@ This guide creates a reusable Ubuntu 24.04.2 LTS template (VM ID 9001) optimized
 # SSH to Proxmox host
 ssh root@pve.your-domain
 
-# Download Ubuntu cloud image
-wget https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img
+# Download Debian cloud image
+wget https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2
 
 # Create VM
 qm create 9001 \
-  --name ubuntu-24.04-cloudimg \
+  --name debian-13-cloudimg \
   --memory 2048 \
   --cores 2 \
   --net0 virtio,bridge=vmbr0
 
 # Import disk
-qm importdisk 9001 ubuntu-24.04-server-cloudimg-amd64.img local-zfs
+qm importdisk 9001 debian-13-generic-amd64.qcow2 local-zfs
 
 # Attach disk
 qm set 9001 --scsihw virtio-scsi-pci --scsi0 local-zfs:vm-9001-disk-0
@@ -44,28 +44,28 @@ qm template 9001
 
 ## Detailed Steps
 
-### 1. Download Ubuntu Cloud Image
+### 1. Download Debian Cloud Image
 
-Ubuntu provides pre-built cloud images optimized for cloud-init:
+Debian provides pre-built cloud images optimized for cloud-init:
 
 ```bash
 cd /var/lib/vz/template/iso
-wget https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img
+wget https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2
 ```
 
 **Why cloud images?**
 - Pre-installed cloud-init and qemu-guest-agent
 - Optimized for virtual environments
-- Small size (~600MB)
-- Official Ubuntu builds
+- Small size (~350MB)
+- Official Debian builds
 
 ### 2. Create Template VM
 
 ```bash
 # Create VM with basic config
 qm create 9001 \
-  --name ubuntu-24.04-cloudimg \
-  --description "Ubuntu 24.04.2 LTS Cloud-Init Template" \
+  --name debian-13-cloudimg \
+  --description "Debian 13 (Trixie) Cloud-Init Template" \
   --memory 2048 \
   --cores 2 \
   --cpu x86-64-v2-AES \
@@ -76,7 +76,7 @@ qm create 9001 \
 
 ```bash
 # Import cloud image as disk
-qm importdisk 9001 ubuntu-24.04-server-cloudimg-amd64.img local-zfs
+qm importdisk 9001 debian-13-generic-amd64.qcow2 local-zfs
 
 # Attach as scsi0 with virtio controller
 qm set 9001 --scsihw virtio-scsi-pci --scsi0 local-zfs:vm-9001-disk-0
@@ -132,12 +132,12 @@ vms = {
 
 ```bash
 # Clone template to regular VM
-qm clone 9001 9999 --name ubuntu-update-temp
+qm clone 9001 9999 --name debian-update-temp
 
 # Start and update
 qm start 9999
 # SSH in and run updates
-ssh ubuntu@vm-ip
+ssh debian@vm-ip
 sudo apt update && sudo apt upgrade -y
 sudo apt autoremove -y
 sudo cloud-init clean
@@ -149,21 +149,21 @@ qm template 9999
 # Update Terraform to use 9999, test deployment
 # After validation, delete old template and rename
 qm destroy 9001
-qm set 9999 --name ubuntu-24.04-cloudimg
+qm set 9999 --name debian-13-cloudimg
 # Update VM ID if needed
 ```
 
 ### Create New Version Template
 
-When Ubuntu 24.04.3 releases:
+When Debian 13.3 releases:
 
 ```bash
 # Download new cloud image
-wget https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img \
-  -O ubuntu-24.04.3-cloudimg.img
+wget https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2 \
+  -O debian-13.3-cloudimg.qcow2
 
 # Create template 9002
-qm create 9002 --name ubuntu-24.04.3-cloudimg ...
+qm create 9002 --name debian-13.3-cloudimg ...
 # Follow steps above
 
 # Update Terraform to template_id = 9002
@@ -180,12 +180,12 @@ Test the template works:
 qm clone 9001 999 --name test-clone
 
 # Configure cloud-init
-qm set 999 --ciuser ubuntu --cipassword test123 --sshkeys ~/.ssh/authorized_keys
+qm set 999 --ciuser debian --cipassword test123 --sshkeys ~/.ssh/authorized_keys
 qm set 999 --ipconfig0 ip=10.0.1.99/32,gw=10.0.1.1
 
 # Start and verify
 qm start 999
-ssh ubuntu@10.0.1.99
+ssh debian@10.0.1.99
 
 # Cleanup
 qm stop 999
@@ -207,7 +207,7 @@ ip_config = {
 }
 
 user_account = {
-  username = "ubuntu"
+  username = "debian"
   password = "your-secure-password"
   keys     = [file("~/.ssh/id_rsa_vm.pub")]
 }
@@ -231,10 +231,10 @@ Cloud-init applies:
 
 **Network not configured:**
 - Verify DHCP available on vmbr0 during first boot
-- Check cloud-init network config: `cat /etc/netplan/50-cloud-init.yaml`
+- Check cloud-init network config: `cat /etc/network/interfaces.d/50-cloud-init`
 
 ## References
 
-- [Ubuntu Cloud Images](https://cloud-images.ubuntu.com/)
+- [Debian Cloud Images](https://cloud.debian.org/images/cloud/)
 - [Proxmox Cloud-Init Support](https://pve.proxmox.com/wiki/Cloud-Init_Support)
 - [Cloud-Init Documentation](https://cloudinit.readthedocs.io/)

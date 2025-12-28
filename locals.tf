@@ -29,15 +29,15 @@ locals {
     cpu_cores = 1
     memory    = 1024
     disk_size = 8
-    os_type   = "ubuntu"
+    os_type   = "debian"
     features = {
       nesting = true
     }
   }
 
   # ISO and template configurations
-  default_iso         = var.proxmox_iso_ubuntu
-  default_ct_template = var.proxmox_ct_template_ubuntu
+  default_iso         = var.proxmox_iso_debian
+  default_ct_template = var.proxmox_ct_template_debian
 
   # Validation helpers
   valid_vm_ids = {

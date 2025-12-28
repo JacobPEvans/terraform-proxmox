@@ -79,16 +79,16 @@ variable "datastore_backup" {
 }
 
 # Template and ISO configuration
-variable "proxmox_ct_template_ubuntu" {
-  description = "The name of the Ubuntu container template to use for containers"
+variable "proxmox_ct_template_debian" {
+  description = "The name of the Debian container template to use for containers"
   type        = string
-  default     = "ubuntu-25.04-standard_25.04-1.1_amd64.tar.zst"
+  default     = "debian-13-standard_13.2-1_amd64.tar.zst"
 }
 
-variable "proxmox_iso_ubuntu" {
-  description = "The name of the Ubuntu ISO file to use for VMs"
+variable "proxmox_iso_debian" {
+  description = "The name of the Debian ISO file to use for VMs"
   type        = string
-  default     = "ubuntu-24.04.2-live-server-amd64.iso"
+  default     = "debian-13.2.0-amd64-netinst.iso"
 }
 
 # Resource pools configuration
@@ -170,7 +170,7 @@ variable "vms" {
       password = string
       keys     = list(string)
       }), {
-      username = "ubuntu"
+      username = "debian"
       password = "temp123"
       keys     = []
     })
@@ -275,7 +275,7 @@ variable "containers" {
     }), {})
 
     protection = optional(bool, false)
-    os_type    = optional(string, "ubuntu")
+    os_type    = optional(string, "debian")
   }))
   default = {}
 }

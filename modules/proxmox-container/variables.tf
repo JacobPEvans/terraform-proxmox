@@ -10,7 +10,7 @@ variable "containers" {
     # Container specific
     hostname         = string
     template_file_id = string
-    os_type          = optional(string, "ubuntu")
+    os_type          = optional(string, "debian")
 
     # Resource configuration
     cpu_cores        = optional(number, 1)

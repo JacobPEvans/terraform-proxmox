@@ -183,7 +183,7 @@ module "splunk_idx1" {
 - Memory: 4096 MB
 - Disk: 200 GB (local-zfs, virtio, iothread=true)
 - Network: vmbr0 bridge, virtio model, firewall=true
-- Clone: template_id = 9000 (Ubuntu cloud-init)
+- Clone: template_id = 9000 (Debian cloud-init)
 - OS: l26 (Linux 2.6+ kernel)
 
 ### Phase 3: Firewall Module ✅ COMPLETED
@@ -327,7 +327,7 @@ Integrated in `main.tf` after containers module.
 
 ### User Must Provide
 
-1. **Cloud-init Template**: VM 9000 must exist on Proxmox with Ubuntu LTS
+1. **Cloud-init Template**: VM 9000 must exist on Proxmox with Debian 13
 2. **SSH Keys**: `~/.ssh/id_rsa_vm`, `~/.ssh/id_rsa_pve` configured
 3. **AWS Credentials**: For Terragrunt S3 backend
 4. **Doppler**: Configured locally for Proxmox API credentials

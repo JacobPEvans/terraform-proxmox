@@ -191,7 +191,7 @@ All VMs are configured with:
 
 - Hardware-constrained resource allocation
 - Virtio disk interfaces for optimal performance
-- Ubuntu 24.04.2 LTS
+- Debian 13.2.0 (Trixie)
 - Cloud-init integration with static SSH keys
 - SSH key authentication from configured SSH key
 

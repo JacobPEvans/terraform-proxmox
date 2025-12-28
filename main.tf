@@ -58,7 +58,7 @@ module "vms" {
   vms = {
     for k, v in var.vms : k => merge(v, {
       node_name      = var.proxmox_node
-      cdrom_file_id  = v.cdrom_file_id != null ? "${var.datastore_iso}:iso/${var.proxmox_iso_ubuntu}" : null
+      cdrom_file_id  = v.cdrom_file_id != null ? "${var.datastore_iso}:iso/${var.proxmox_iso_debian}" : null
       clone_template = v.clone_template
       user_account = {
         username = v.user_account.username
@@ -89,9 +89,9 @@ module "containers" {
   containers = {
     for k, v in var.containers : k => merge(v, {
       node_name        = var.proxmox_node
-      template_file_id = "${var.datastore_iso}:vztmpl/${var.proxmox_ct_template_ubuntu}"
+      template_file_id = "${var.datastore_iso}:vztmpl/${var.proxmox_ct_template_debian}"
       user_account = {
-        password = "ubuntu" # default password
+        password = "debian" # default password
         keys     = [trimspace(data.local_file.vm_ssh_public_key.content)]
       }
     })
