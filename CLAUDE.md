@@ -19,14 +19,60 @@ This repo uses:
 - **Ansible** - Configuration management (tested via Molecule)
 - **Python 3.12+** - Required for Ansible tooling
 - **GitHub Actions** - CI/CD
+- **Nix Shell** - Provides Terraform/Terragrunt/Ansible tooling
+- **aws-vault** - Securely manages AWS credentials for S3 backend
+- **Doppler** - Manages Proxmox API secrets as environment variables
 
-Verify commands:
+## Running Terraform Commands
+
+**CRITICAL**: All Terraform/Terragrunt commands require the complete toolchain wrapper.
+
+### The Complete Command Pattern
 
 ```bash
-terraform version && terragrunt --version
-ansible --version && molecule --version
-python --version
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt <COMMAND>"
 ```
+
+### Command Breakdown
+
+1. **`nix develop ~/git/nix-config/terraform/shells/terraform`** - Enters Nix shell with Terraform/Terragrunt/Ansible
+2. **`aws-vault exec terraform`** - Provides AWS credentials for S3 backend (profile: `terraform`)
+3. **`doppler run --name-transformer tf-var`** - Injects Proxmox secrets as `TF_VAR_*` environment variables
+4. **`terragrunt <COMMAND>`** - The actual Terraform command to run
+
+### Common Commands
+
+```bash
+# Validate configuration
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt validate"
+
+# Plan changes
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt plan"
+
+# Apply changes
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt apply"
+
+# Show state
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt show"
+```
+
+### Doppler Configuration
+
+Each worktree needs Doppler configured:
+
+```bash
+doppler setup --project <YOUR_PROJECT> --config <YOUR_CONFIG>
+```
+
+This creates a local `.doppler.yaml` (gitignored) with project/config settings.
+
+**Note**: Actual project/config names are in your local `SECRETS_SETUP.md` (gitignored).
+
+### Why All Three Tools?
+
+- **Nix**: Provides consistent tool versions (Terraform 1.14.0, Terragrunt 0.93.11, Ansible 2.19.4)
+- **aws-vault**: Secures AWS credentials for S3 backend (never stored in files)
+- **Doppler**: Manages Proxmox API credentials (never stored in tfvars or git)
 
 ## Repository Context
 
@@ -38,10 +84,21 @@ python --version
 
 ### Terraform/Terragrunt
 
-- Run `terragrunt validate` then `terragrunt plan` before commits
+**Before ANY commits**, run validation and planning:
+
+```bash
+# 1. Validate syntax
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt validate"
+
+# 2. Plan changes to review what will be modified
+nix develop ~/git/nix-config/terraform/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt plan"
+```
+
+**Best Practices**:
 - Test in isolated resource pools, never production-first
 - Use feature branches for all changes
 - Follow conventional commit messages
+- Never commit without running validate + plan first
 
 ### Ansible
 
