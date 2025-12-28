@@ -1,8 +1,6 @@
 # Infrastructure Numbering Scheme
 
-**Version**: 2.0
-**Date**: 2025-12-27
-**Status**: Active
+**Status**: Active Production Infrastructure
 
 ---
 
@@ -86,20 +84,6 @@ All resources use /32 host addresses in 192.168.1.0/24 network:
 
 ---
 
-## Migration from Old Numbering
-
-| Old ID | Old Name      | New ID | New Name      | Type Change |
-|--------|---------------|--------|---------------|-------------|
-| 100    | ansible       | 200    | ansible       | VM → LXC    |
-| 110    | claude        | 220    | claude1       | VM → LXC    |
-| 120    | syslog        | 210/211| cribl-edge-*  | VM → 2xLXC  |
-| 130    | splunk        | 205    | splunk-mgmt   | VM → LXC    |
-| 135    | splunk-idx1   | 100    | splunk-idx1   | VM (renumbered) |
-| 136    | splunk-idx2   | 101    | splunk-idx2   | VM (renumbered) |
-| 140    | containers    | -      | REMOVED       | Deprecated  |
-
----
-
 ## Splunk Cluster Configuration
 
 ### Cluster Architecture
@@ -148,17 +132,3 @@ All AI development and control plane containers are created manually via Proxmox
 - **210-219**: Log forwarding containers
 - **220-229**: AI development containers
 - **230-299**: Reserved for future containers
-
----
-
-## Change History
-
-### Current Scheme (2025-12-27)
-- Complete renumbering: VMs to 100-series, containers to 200-series
-- Splunk indexers upgraded: 4→6 cores, 4→6GB RAM, storage remains 200GB
-- Initial deployment: claude1 (220) as primary AI development container
-- Reserved IDs 221-225 for future AI containers (claude2, gemini1/2, copilot, llm)
-- Removed containers VM (140) - replaced with native containers approach
-
-### v1.0 (2025-08-04)
-- Initial numbering: ansible=100, claude=110, syslog=120, splunk=130, splunk-idx1=135, splunk-idx2=136, containers=140
