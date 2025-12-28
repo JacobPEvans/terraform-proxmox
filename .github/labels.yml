@@ -33,7 +33,7 @@
   description: "Breaking changes (semver: MAJOR)"
 
 - name: "type:docs"
-  color: "0075ca"
+  color: "56B4E9"
   description: "Documentation only changes"
 
 - name: "type:chore"
@@ -45,7 +45,7 @@
   description: "CI/CD pipeline changes"
 
 - name: "type:test"
-  color: "00ff00"
+  color: "28a745"
   description: "Adding or correcting tests"
 
 - name: "type:refactor"
@@ -121,7 +121,7 @@
   description: "This doesn't seem right"
 
 - name: "wontfix"
-  color: "ffffff"
+  color: "ededed"
   description: "This will not be worked on"
 
 - name: "question"
