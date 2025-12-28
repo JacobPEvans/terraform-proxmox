@@ -77,6 +77,8 @@ module "vms" {
   proxmox_api_endpoint    = var.proxmox_api_endpoint
   proxmox_ssh_username    = var.proxmox_ssh_username
   proxmox_ssh_private_key = var.proxmox_ssh_private_key
+
+  depends_on = [module.pools]
 }
 
 # Container module - creates and manages containers (optional)
