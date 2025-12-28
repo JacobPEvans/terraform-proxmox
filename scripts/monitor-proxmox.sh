@@ -4,14 +4,18 @@
 
 set -euo pipefail
 
-VM_IDS="${@:-100 101 205}"
+VM_IDS="${@}"
+if [ -z "$VM_IDS" ]; then
+    echo "No VM IDs provided. Using default pool 'logging'."
+    VM_IDS=$(ssh pve "pvesh get /pools/logging --output-format json" | jq -r '.members[]? | .vmid' | tr '\n' ' ')
+fi
 
 echo "=== Proxmox Status Monitor ==="
 echo "Checking VMs: $VM_IDS"
 echo
 
-# Check VMs
-echo "--- Virtual Machines ---"
+# Check VMs and Containers
+echo "--- Virtual Machines & Containers ---"
 for id in $VM_IDS; do
     if [[ $id -lt 200 ]]; then
         status=$(ssh pve "qm status $id 2>/dev/null" || echo "not found")
@@ -19,13 +23,7 @@ for id in $VM_IDS; do
         echo "VM $id: $status"
         echo "$config" | sed 's/^/  /'
         echo
-    fi
-done
-
-# Check Containers
-echo "--- Containers ---"
-for id in $VM_IDS; do
-    if [[ $id -ge 200 ]]; then
+    else
         status=$(ssh pve "pct status $id 2>/dev/null" || echo "not found")
         config=$(ssh pve "pct config $id 2>/dev/null | grep -E '^(hostname|cores|memory):' || echo 'N/A'")
         echo "CT $id: $status"
@@ -36,5 +34,6 @@ done
 
 # Summary
 echo "--- Summary ---"
-ssh pve "qm list | grep -E '($(echo $VM_IDS | tr ' ' '|'))' || echo 'No matching VMs'"
-ssh pve "pct list | grep -E '($(echo $VM_IDS | tr ' ' '|'))' || echo 'No matching containers'"
+VM_ID_PATTERN="^($(echo "$VM_IDS" | tr ' ' '|'))[[:space:]]"
+ssh pve "qm list | grep -E \"$VM_ID_PATTERN\" || echo 'No matching VMs'"
+ssh pve "pct list | grep -E \"$VM_ID_PATTERN\" || echo 'No matching containers'"

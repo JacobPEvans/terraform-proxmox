@@ -10,8 +10,9 @@ echo "=== Checking pool '$POOL' for orphaned resources ==="
 
 # Get VMs in pool from Proxmox
 echo "Fetching VMs from Proxmox pool..."
-POOL_VMS=$(ssh pve "pvesh get /pools/$POOL --output-format json" | jq -r '.members[]? | select(.type=="qemu") | .vmid' | sort)
-POOL_CTS=$(ssh pve "pvesh get /pools/$POOL --output-format json" | jq -r '.members[]? | select(.type=="lxc") | .vmid' | sort)
+POOL_MEMBERS_JSON=$(ssh pve "pvesh get /pools/$POOL --output-format json")
+POOL_VMS=$(echo "$POOL_MEMBERS_JSON" | jq -r '.members[]? | select(.type=="qemu") | .vmid' | sort)
+POOL_CTS=$(echo "$POOL_MEMBERS_JSON" | jq -r '.members[]? | select(.type=="lxc") | .vmid' | sort)
 
 echo "VMs in pool: ${POOL_VMS:-none}"
 echo "Containers in pool: ${POOL_CTS:-none}"
@@ -21,11 +22,14 @@ echo
 echo "Fetching VMs from Terraform state..."
 cd "$(dirname "$0")/.."
 
-TF_CMD="nix develop ~/git/nix-config/main/shells/terraform --command bash -c \"aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt\""
+run_terragrunt() {
+    nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+        "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt $*"
+}
 
 # Get VM IDs from state
-STATE_VMS=$(eval "$TF_CMD state list 2>/dev/null | grep 'module.vms.proxmox_virtual_environment_vm.vms' | sed 's/.*\\[\"\\(.*\\)\"\\]/\\1/' || true")
-STATE_CTS=$(eval "$TF_CMD state list 2>/dev/null | grep 'module.containers.proxmox_virtual_environment_container.containers' | sed 's/.*\\[\"\\(.*\\)\"\\]/\\1/' || true")
+STATE_VMS=$(run_terragrunt state list 2>/dev/null | grep 'module.vms.proxmox_virtual_environment_vm.vms' | sed -E 's/.*\["([^"]+)"\].*/\1/' || true)
+STATE_CTS=$(run_terragrunt state list 2>/dev/null | grep 'module.containers.proxmox_virtual_environment_container.containers' | sed -E 's/.*\["([^"]+)"\].*/\1/' || true)
 
 echo "VMs in Terraform state: ${STATE_VMS:-none}"
 echo "Containers in Terraform state: ${STATE_CTS:-none}"
@@ -34,39 +38,34 @@ echo
 # Find orphans (in pool but not in state)
 echo "=== Orphaned Resources ==="
 
-for vm in $POOL_VMS; do
-    vm_name=$(ssh pve "qm config $vm | grep '^name:' | cut -d' ' -f2")
-    if echo "$STATE_VMS" | grep -q "$vm_name"; then
-        echo "✓ VM $vm ($vm_name) is managed by Terraform"
-    else
-        echo "⚠ VM $vm ($vm_name) is ORPHANED - not in Terraform state"
-        read -p "Destroy VM $vm? [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Destroying VM $vm..."
-            ssh pve "qm stop $vm --skiplock || true"
-            ssh pve "qm destroy $vm --purge"
-            echo "✓ Destroyed VM $vm"
-        fi
-    fi
-done
+cleanup_resources() {
+    local type="$1"
+    local pve_cmd="$2"
+    local name_grep="$3"
+    local ids_in_pool="$4"
+    local names_in_state="$5"
 
-for ct in $POOL_CTS; do
-    ct_name=$(ssh pve "pct config $ct | grep '^hostname:' | cut -d' ' -f2")
-    if echo "$STATE_CTS" | grep -q "$ct_name"; then
-        echo "✓ Container $ct ($ct_name) is managed by Terraform"
-    else
-        echo "⚠ Container $ct ($ct_name) is ORPHANED - not in Terraform state"
-        read -p "Destroy container $ct? [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Destroying container $ct..."
-            ssh pve "pct stop $ct || true"
-            ssh pve "pct destroy $ct --purge"
-            echo "✓ Destroyed container $ct"
+    for id in $ids_in_pool; do
+        local name
+        name=$(ssh pve "$pve_cmd config $id" | grep "$name_grep" | cut -d' ' -f2)
+        if echo "$names_in_state" | grep -q -w "$name"; then
+            echo "✓ $type $id ($name) is managed by Terraform"
+        else
+            echo "⚠ $type $id ($name) is ORPHANED - not in Terraform state"
+            read -p "Destroy $type $id? [y/N] " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                echo "Destroying $type $id..."
+                ssh pve "$pve_cmd stop $id --skiplock" || true
+                ssh pve "$pve_cmd destroy $id --purge"
+                echo "✓ Destroyed $type $id"
+            fi
         fi
-    fi
-done
+    done
+}
+
+cleanup_resources "VM" "qm" "^name:" "$POOL_VMS" "$STATE_VMS"
+cleanup_resources "Container" "pct" "^hostname:" "$POOL_CTS" "$STATE_CTS"
 
 echo
 echo "=== Cleanup complete ==="
