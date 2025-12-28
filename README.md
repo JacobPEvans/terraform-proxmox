@@ -120,28 +120,30 @@ terragrunt show
 
 ### Configuration
 
-1. Copy `terraform.tfvars.example` to `terraform.tfvars` and update with your infrastructure configuration:
+**⚠️ Security Notice**: This repository uses placeholder values (192.168.1.x) in all committed files. Never commit your real infrastructure values.
 
-   ```hcl
-   proxmox_api_endpoint = "https://infrastructure.example.com:8006/api2/json"
-   proxmox_api_token    = "user@pam!token=example-token-here"
-   # ... other variables
+1. **Copy the example file** and replace with your real values:
+
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
+   # Edit terraform.tfvars with your REAL IPs, hostnames, etc.
+   # This file is gitignored - your real values never touch git
    ```
 
-2. Configure your VMs in the `vms` variable:
+2. **Verify protection** before making changes:
 
-   ```hcl
-   vms = {
-     "ansible" = {
-       vm_id            = 100
-       name             = "ansible"
-       description      = "Ansible control node for VM management"
-       cpu_cores        = 2
-       memory_dedicated = 2048
-       # ... additional configuration
-     }
-   }
+   ```bash
+   # Ensure terraform.tfvars is gitignored
+   git status | grep terraform.tfvars  # Should show nothing
    ```
+
+3. **See the complete guide**: [Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)
+
+   This document explains:
+   - How to safely maintain real vs. example values
+   - Pre-commit safety checks
+   - Multi-environment configurations
+   - Doppler integration for secrets
 
 ## 📁 Repository Structure
 
@@ -215,6 +217,7 @@ Example VM/Container configurations:
 
 ### Setup & Configuration
 
+- **[Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)** - **CRITICAL**: How to safely maintain real IPs/hostnames separate from committed code
 - **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** - Comprehensive guide to using Nix shells for development
 - **[Claude Nix Quick Reference](./docs/claude-nix-quick-reference.md)** - Quick reference for autonomous Nix shell workflows
 
