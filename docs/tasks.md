@@ -42,9 +42,9 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 - [x] **Update IP format from /24 to /32 for Splunk nodes**
   - File: `terraform.tfvars.example`
-  - Line 104: Change `10.0.1.135/24` to `192.168.1.135/32`
-  - Line 149: Change `10.0.1.136/24` to `192.168.1.136/32`
-  - Line 193: Change `10.0.1.130/24` to `192.168.1.130/32`
+  - Line 104: Change `10.0.1.100/24` to `192.168.1.100/32`
+  - Line 149: Change `10.0.1.101/24` to `192.168.1.101/32`
+  - Line 193: Change `10.0.1.205/24` to `192.168.1.205/32`
 
 ### 1.3 Fix Example IPs (10.0.1.x to 192.168.1.x)
 
@@ -53,7 +53,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
   - Replace all `10.0.1.x` with `192.168.1.x` for Splunk nodes
   - Update gateway from `10.0.1.1` to `192.168.1.1` for Splunk nodes
   - Update `management_network` from `10.0.1.0/24` to `192.168.1.0/24`
-  - Update `splunk_network` to `192.168.1.130,192.168.1.135,192.168.1.136`
+  - Update `splunk_network` to `192.168.1.100,192.168.1.101,192.168.1.205`
 
 ### 1.4 Fix Pool Name
 
@@ -67,7 +67,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 - [x] **Update network references in Ansible defaults**
   - File: `ansible/roles/splunk/defaults/main.yml`
-  - Line 22: Update `splunk_cluster_master_uri` to use placeholder `https://{{ splunk_mgmt_ip | default('192.168.1.130') }}:8089`
+  - Line 22: Update `splunk_cluster_master_uri` to use placeholder `https://{{ splunk_mgmt_ip | default('192.168.1.205') }}:8089`
   - Consider making network-specific values overridable via inventory vars
 
 ---
@@ -158,20 +158,7 @@ Create supporting scripts for testing and measurement.
 
 ---
 
-## Group 5: Documentation (Priority: Low)
-
-Create supporting documentation and future work tracking.
-
-### 5.1 Update CHANGELOG.md
-
-- [ ] **Document changes in this feature branch**
-  - File: `CHANGELOG.md`
-  - Add entry for Splunk cluster infrastructure
-  - Document new Terraform modules and configurations
-
----
-
-## Group 6: Terraform Validation (Priority: Critical)
+## Group 5: Terraform Validation (Priority: Critical)
 
 Final validation before PR creation.
 
@@ -246,9 +233,9 @@ Group 4 (Scripts) ----> Group 5 (Documentation)
 | Example Network | 192.168.1.0/24 |
 | IP Format | /32 per host |
 | Pool Name | logging |
-| Management IP | 192.168.1.130 |
-| Indexer 1 IP | 192.168.1.135 |
-| Indexer 2 IP | 192.168.1.136 |
+| Management IP | 192.168.1.205 |
+| Indexer 1 IP | 192.168.1.100 |
+| Indexer 2 IP | 192.168.1.101 |
 
 ### Constraints
 

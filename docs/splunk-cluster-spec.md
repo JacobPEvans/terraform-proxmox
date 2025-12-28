@@ -34,12 +34,12 @@ internal cluster communication.
 
 | Component | ID | IP | Specs | Storage | Purpose |
 | --- | --- | --- | --- | --- | --- |
-| splunk-mgmt (LXC) | 130 | 192.168.1.130/32 | 2 cores, 2GB RAM, 50GB | local-zfs | All-in-one management |
-| splunk-idx1 (VM) | 135 | 192.168.1.135/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 1 |
-| splunk-idx2 (VM) | 136 | 192.168.1.136/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 2 |
+| splunk-mgmt (LXC) | 205 | 192.168.1.205/32 | 3 cores, 3GB RAM, 100GB | local-zfs | All-in-one management |
+| splunk-idx1 (VM) | 100 | 192.168.1.100/32 | 6 cores, 6GB RAM, 200GB | local-zfs | Indexer 1 |
+| splunk-idx2 (VM) | 101 | 192.168.1.101/32 | 6 cores, 6GB RAM, 200GB | local-zfs | Indexer 2 |
 
 
-**Total Resource Allocation**: 8 cores, 10GB RAM, 450GB storage
+**Total Resource Allocation**: 15 cores, 15GB RAM, 500GB storage
 
 ### Network Configuration
 
@@ -75,7 +75,7 @@ internal cluster communication.
 
 - Replication Factor: 2
 - Search Factor: 1
-- Cluster Master URI: [https://192.168.1.130:8089](https://192.168.1.130:8089)
+- Cluster Master URI: [https://192.168.1.205:8089](https://192.168.1.205:8089)
 
 
 ---
@@ -94,7 +94,7 @@ internal cluster communication.
   - TCP 9997 (Forwarding) from Splunk cluster IPs only
   - TCP 8080, 9887 (Replication/Clustering) from Splunk cluster IPs only
 - Outbound ALLOW:
-  - To Splunk cluster IPs only (192.168.1.130, 135, 136)
+  - To Splunk cluster IPs only (192.168.1.100, 101, 205)
 
 **Layer 2: VM iptables** (OS-level)
 
@@ -170,9 +170,9 @@ internal cluster communication.
 ```hcl
 module "splunk_idx1" {
   source      = "./modules/splunk-indexer"
-  vm_id       = 135
+  vm_id       = 100
   name        = "splunk-idx1"
-  ip_address  = "192.168.1.135/32"  # Example IP
+  ip_address  = "192.168.1.100/32"  # Example IP
   node_name   = var.proxmox_node
   pool_id     = "logging"
 }
@@ -360,7 +360,7 @@ Integrated in `main.tf` after containers module.
 3. Verify container created
 4. Verify Proxmox firewall rules applied
 5. Test SSH access to VMs
-6. Test Splunk Web UI access (http://192.168.1.130:8000)
+6. Test Splunk Web UI access (http://192.168.1.205:8000)
 7. Verify network isolation (no outbound internet)
 8. Verify cluster communication (8089, 9997, 8080, 9887 ports)
 

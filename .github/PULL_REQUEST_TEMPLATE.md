@@ -36,8 +36,6 @@ body:
           required: true
         - label: "My commit message follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification."
           required: true
-        - label: "I have updated the [**CHANGELOG.md**](CHANGELOG.md) with a description of my changes."
-          required: true
         - label: "I have performed a self-review of my own code."
           required: true
         - label: "I have added or updated tests to cover my changes."

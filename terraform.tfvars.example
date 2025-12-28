@@ -76,11 +76,11 @@ vms = {
   # Add other VMs here following the same pattern
 
   "splunk-idx1" = {
-    vm_id            = 135
+    vm_id            = 100
     name             = "splunk-idx1"
     description      = "Splunk Indexer 1 - Data indexing and storage"
-    cpu_cores        = 4
-    memory_dedicated = 4096
+    cpu_cores        = 6
+    memory_dedicated = 6144
     tags             = ["terraform", "splunk", "indexer"]
     pool_id          = "logging"
 
@@ -101,7 +101,7 @@ vms = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.135/32"
+      ipv4_address = "192.168.1.100/32"
       ipv4_gateway = "192.168.1.1"
     }
 
@@ -121,11 +121,11 @@ vms = {
   }
 
   "splunk-idx2" = {
-    vm_id            = 136
+    vm_id            = 101
     name             = "splunk-idx2"
     description      = "Splunk Indexer 2 - Data indexing and storage"
-    cpu_cores        = 4
-    memory_dedicated = 4096
+    cpu_cores        = 6
+    memory_dedicated = 6144
     tags             = ["terraform", "splunk", "indexer"]
     pool_id          = "logging"
 
@@ -146,7 +146,7 @@ vms = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.136/32"
+      ipv4_address = "192.168.1.101/32"
       ipv4_gateway = "192.168.1.1"
     }
 
@@ -205,7 +205,7 @@ pools = {
 
 # Firewall Configuration
 management_network = "192.168.1.0/24"
-splunk_network     = "192.168.1.130,192.168.1.135,192.168.1.136"
+splunk_network     = "192.168.1.100,192.168.1.101,192.168.1.205"
 
 # Storage Configuration (optional)
 datastores = {}

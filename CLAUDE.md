@@ -80,8 +80,8 @@ python --version
 | ---- | -------- |
 | General docs | README.md |
 | Troubleshooting | TROUBLESHOOTING.md |
-| Incomplete tasks | PLANNING.md |
-| Change history | CHANGELOG.md |
+| Planning | GitHub Issues |
+| Change history | PR descriptions and commits |
 | Ansible config | ansible/.ansible-lint |
 | Molecule tests | ansible/roles/*/molecule/ |
 | CI workflows | .github/workflows/ |

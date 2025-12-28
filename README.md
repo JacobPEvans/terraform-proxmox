@@ -193,13 +193,23 @@ All VMs are configured with:
 - Cloud-init integration with static SSH keys
 - SSH key authentication from configured SSH key
 
-Example VM configurations:
+Example VM/Container configurations:
 
-- **ansible** (100): 2 cores, 2048MB RAM, 64GB disk - Automation control node
-- **claude** (110): 2 cores, 2048MB RAM, 64GB disk - Development environment
-- **syslog** (120): 2 cores, 2048MB RAM, 32GB disk - Centralized logging server
-- **splunk** (130): 4 cores, 4096MB RAM, 100GB disk - Log analysis platform
-- **containers** (140): 4 cores, 4096MB RAM, 100GB disk - Kubernetes k3s and Docker
+**VMs - Splunk Indexers**:
+- **splunk-idx1** (100): 6 cores, 6GB RAM, 200GB VM - Splunk indexer peer 1
+- **splunk-idx2** (101): 6 cores, 6GB RAM, 200GB VM - Splunk indexer peer 2
+
+**LXC Containers - Control Plane**:
+- **ansible** (200): 2 cores, 2GB RAM, 64GB LXC - Ansible control node
+- **splunk-mgmt** (205): 3 cores, 3GB RAM, 100GB LXC - Splunk management (Search Head, License Manager, Cluster Manager)
+
+**LXC Containers - Log Forwarding**:
+- **cribl-edge-1** (210): 2 cores, 2GB RAM, 32GB LXC - Cribl Edge log forwarder 1
+- **cribl-edge-2** (211): 2 cores, 2GB RAM, 32GB LXC - Cribl Edge log forwarder 2
+
+**LXC Containers - AI Development**:
+- **claude1** (220): 2 cores, 2GB RAM, 64GB LXC - Claude Code primary environment
+- **Reserved**: IDs 221-225 for future AI containers (claude2, gemini1/2, copilot, llm)
 
 ## 📖 Documentation
 
@@ -211,11 +221,9 @@ Example VM configurations:
 ### Project Documentation
 
 - **[CLAUDE.md](./CLAUDE.md)** - AI-specific instructions for this repository
-- **[PLANNING.md](./PLANNING.md)** - Current project status and remaining tasks
 - **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - General troubleshooting procedures and operational guidance
 - **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - 📚 **HISTORICAL**: Comprehensive analysis of resolved
   state synchronization issues
-- **[CHANGELOG.md](./CHANGELOG.md)** - History of completed changes and improvements
 
 ### Feature-Specific Documentation
 
