@@ -14,12 +14,14 @@
 ## Technology Stack
 
 This repo uses:
+
 - **Terraform/Terragrunt** - Infrastructure provisioning
 - **Ansible** - Configuration management (tested via Molecule)
 - **Python 3.12+** - Required for Ansible tooling
 - **GitHub Actions** - CI/CD
 
 Verify commands:
+
 ```bash
 terraform version && terragrunt --version
 ansible --version && molecule --version
@@ -35,12 +37,14 @@ python --version
 ## Development Workflow
 
 ### Terraform/Terragrunt
+
 - Run `terragrunt validate` then `terragrunt plan` before commits
 - Test in isolated resource pools, never production-first
 - Use feature branches for all changes
 - Follow conventional commit messages
 
 ### Ansible
+
 - Lint with `ansible-lint` before commits
 - Test roles with `molecule test`
 - Ensure idempotency (running twice produces no changes)
@@ -49,6 +53,7 @@ python --version
 ## Best Practices
 
 ### Terraform
+
 - Modular resource definitions
 - Document variables with descriptions and validation
 - Mark secrets with `sensitive = true`
@@ -56,12 +61,14 @@ python --version
 - Never update VMs directly; use Terragrunt or Ansible
 
 ### Ansible
+
 - Roles in `ansible/roles/` with Molecule tests
 - Collections in `ansible/requirements.yml`
 - Config in `ansible/.ansible-lint` (profile: production)
 - Docker-based testing with geerlingguy images
 
 ### Security
+
 - Never commit secrets, API tokens, or passwords
 - Reference private context for real infrastructure details
 - Separate SSH keys per environment
@@ -70,7 +77,7 @@ python --version
 ## File References
 
 | Need | Location |
-|------|----------|
+| ---- | -------- |
 | General docs | README.md |
 | Troubleshooting | TROUBLESHOOTING.md |
 | Incomplete tasks | PLANNING.md |
@@ -82,6 +89,7 @@ python --version
 ## When to Ask for Clarification
 
 Ask the user before proceeding if:
+
 - Current tool versions are unclear
 - Multiple valid implementation approaches exist
 - Changes affect production infrastructure

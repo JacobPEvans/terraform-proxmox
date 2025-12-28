@@ -76,7 +76,7 @@ terraform-proxmox/
 
 ### Prerequisites
 
-**Option A: Using Nix Shell (Recommended)**
+#### Option A: Using Nix Shell (Recommended)
 
 All tools are provided via a pre-configured Nix development shell:
 
@@ -87,7 +87,7 @@ nix develop ~/git/nix-config/main/shells/terraform
 
 See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
 
-**Option B: Manual Installation**
+#### Option B: Manual Installation
 
 Install the following tools manually:
 
@@ -146,7 +146,7 @@ terragrunt show
 ## 📁 Repository Structure
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `main.tf` | Core resource definitions and VM orchestration |
 | `variables.tf` | Input variable definitions with validation |
 | `locals.tf` | Local value computations and transformations |

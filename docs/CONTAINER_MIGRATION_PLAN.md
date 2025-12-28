@@ -99,8 +99,11 @@ These containers will be created manually/out-of-band, NOT via Terraform (no sta
 ### Phase 4: Verify Alignment
 
 1. Run `terragrunt plan` - should show no changes
-2. Run `terragrunt state list` - should show only splunk VM + pools
+2. Run `terragrunt state list` - should show only splunk VM (pools are created on-demand via tfvars if needed)
 3. Verify Proxmox shows: 1 Terraform-managed VM (splunk) + 4 unmanaged containers
+
+**Note**: Resource pools have no default configuration in variables.tf. They can be defined via `.tfvars` files if needed for organizing VMs,
+but this migration plan assumes no pools are required for the minimal infrastructure (single splunk VM).
 
 ## Rationale
 
@@ -126,7 +129,7 @@ These containers will be created manually/out-of-band, NOT via Terraform (no sta
 - [ ] All 4 containers created and accessible
 - [ ] Ansible container can connect to splunk VM
 - [ ] Cribl containers configured for log forwarding
-- [ ] Terraform state reflects: splunk VM + 2 pools only
+- [ ] Terraform state reflects: splunk VM only (no pools defined by default)
 - [ ] `terragrunt plan` shows no changes
 - [ ] `terragrunt state list` shows correct resources
 - [ ] Production splunk VM unchanged and functioning

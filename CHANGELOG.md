@@ -11,7 +11,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ### Fixed
 
-- **🎉 CRITICAL RESOLUTION: Terraform State Synchronization**: Completely resolved the long-standing DynamoDB lock abandonment and state drift issues that prevented proper infrastructure management
+- **🎉 CRITICAL RESOLUTION: Terraform State Synchronization**: Completely resolved the long-standing DynamoDB lock abandonment and state drift issues
+  that prevented proper infrastructure management
 - **State Refresh Operations**: All `terragrunt plan -refresh-only` and `terragrunt apply -refresh-only` operations now complete in seconds without hanging
 - **Backend Initialization**: Clean `terragrunt init -reconfigure` operations work reliably with proper S3 + DynamoDB backend connectivity
 - **State Lock Management**: DynamoDB state locks now acquire and release properly without abandonment issues
