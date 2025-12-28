@@ -15,11 +15,10 @@ output "container_details" {
 }
 
 output "container_network_interfaces" {
-  description = "Container network interface information"
+  description = "Container network interface configuration (computed attributes not available in bpg/proxmox v0.90+)"
   value = { for k, v in proxmox_virtual_environment_container.containers : k => {
-    ipv4_addresses          = v.ipv4_addresses
-    ipv6_addresses          = v.ipv6_addresses
-    mac_addresses           = v.mac_addresses
-    network_interface_names = v.network_interface_names
+    # Note: In bpg/proxmox v0.90+, network attributes (ipv4_addresses, mac_addresses, etc.)
+    # are not exposed as computed attributes. Use 'terragrunt show' to view runtime network details.
+    configured_interfaces = length(v.network_interface)
   } }
 }
