@@ -58,7 +58,9 @@ vms = {
       ipv4_gateway = "192.168.1.1"
     }
 
-    cdrom_file_id = "local:iso/ubuntu-24.04.2-live-server-amd64.iso"
+    clone_template = {
+      template_id = 9001
+    }
 
     agent_enabled = true
     protection    = false
@@ -101,7 +103,9 @@ vms = {
       ipv4_gateway = "192.168.1.1"
     }
 
-    cdrom_file_id = "local:iso/ubuntu-24.04.2-live-server-amd64.iso"
+    clone_template = {
+      template_id = 9001
+    }
 
     agent_enabled = true
     protection    = false
