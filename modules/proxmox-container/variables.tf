@@ -62,7 +62,7 @@ variable "environment" {
 }
 
 variable "default_datastore" {
-  description = "Default datastore for container storage"
+  description = "Default datastore for container storage (passed from root module)"
   type        = string
-  default     = "local-lvm"
+  default     = "local-zfs"
 }

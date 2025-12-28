@@ -59,6 +59,25 @@ variable "proxmox_username" {
   default     = "proxmox"
 }
 
+# Storage configuration
+variable "datastore_default" {
+  description = "Default datastore for VM disks and container volumes"
+  type        = string
+  default     = "local-zfs"
+}
+
+variable "datastore_iso" {
+  description = "Datastore for ISO images and container templates"
+  type        = string
+  default     = "local"
+}
+
+variable "datastore_backup" {
+  description = "Datastore for backups"
+  type        = string
+  default     = "local"
+}
+
 # Template and ISO configuration
 variable "proxmox_ct_template_ubuntu" {
   description = "The name of the Ubuntu container template to use for containers"
@@ -78,14 +97,7 @@ variable "pools" {
   type = map(object({
     comment = optional(string)
   }))
-  default = {
-    logging = {
-      comment = "Logging infrastructure pool"
-    }
-    compute = {
-      comment = "General compute resources pool"
-    }
-  }
+  default = {}
 }
 
 # Storage datastores configuration
