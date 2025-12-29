@@ -207,6 +207,7 @@ All VMs are configured with:
 - **[DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)** - **START HERE**: Complete deployment walkthrough
 - **[Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)** - **CRITICAL**: How to safely maintain real IPs/hostnames separate from committed code
 - **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** - Comprehensive guide to using Nix shells for development
+- **[OpenCode Integration](./docs/opencode-integration.md)** - Guide for integrating OpenCode AI coding agent with Nix, OrbStack, Terraform, and Kubernetes
 
 ### Infrastructure Reference
 
