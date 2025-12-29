@@ -288,6 +288,17 @@ spec:
           claimName: openhands-pvc
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openhands-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: openhands
@@ -311,6 +322,12 @@ OpenHands provides native GitHub Actions for automated issue resolution.
    - `issues` (read/write)
    - `pull_requests` (read/write)
    - `workflows` (read/write)
+
+   > **Security Note**: The `workflows: write` permission is required for OpenHands to create and update
+   > GitHub Actions workflows as part of its automated fix process. This is a powerful permission that allows
+   > modification of CI/CD pipelines. Only grant this permission if you trust the OpenHands agent and have
+   > reviewed its source code. For maximum security, consider using a dedicated GitHub App with fine-grained
+   > permissions instead of a PAT, or restrict the PAT to a dedicated "bot" account with limited repository access.
 
 2. Add secrets to your repository:
    - `OPENHANDS_PAT`: Your GitHub PAT
@@ -468,21 +485,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Notify Slack - Started
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          curl -X POST $SLACK_WEBHOOK_URL \
-            -H 'Content-type: application/json' \
-            -d '{"text": "🤖 OpenHands starting work on issue #${{ github.event.issue.number }}"}'
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install OpenHands Resolver
-        run: pip install openhands-resolver
+      - name: Install dependencies
+        run: pip install openhands-resolver requests
+
+      - name: Notify Slack - Started
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python scripts/openhands-slack-notify.py session_start '{
+            "repo": "${{ github.repository }}",
+            "issue": ${{ github.event.issue.number }}
+          }'
 
       - name: Resolve Issue
         id: resolve
@@ -500,18 +518,20 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          curl -X POST $SLACK_WEBHOOK_URL \
-            -H 'Content-type: application/json' \
-            -d '{"text": "✅ OpenHands completed work on issue #${{ github.event.issue.number }}"}'
+          python scripts/openhands-slack-notify.py task_complete '{
+            "repo": "${{ github.repository }}",
+            "issue": ${{ github.event.issue.number }}
+          }'
 
       - name: Notify Slack - Failed
         if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          curl -X POST $SLACK_WEBHOOK_URL \
-            -H 'Content-type: application/json' \
-            -d '{"text": "❌ OpenHands failed on issue #${{ github.event.issue.number }}"}'
+          python scripts/openhands-slack-notify.py task_failed '{
+            "repo": "${{ github.repository }}",
+            "issue": ${{ github.event.issue.number }}
+          }'
 ```
 
 ## Recommended Architecture
