@@ -65,7 +65,7 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
 
 - Configuration loads successfully
 - SSH key data source works
-- VMs exist in state with specific IDs (e.g., 100, 110, 120, 130, 140)
+- VMs exist in state with specific IDs (see INFRASTRUCTURE_NUMBERING.md for current scheme)
 
 #### Solutions
 

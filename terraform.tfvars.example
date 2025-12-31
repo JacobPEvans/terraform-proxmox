@@ -1,0 +1,168 @@
+# Proxmox Configuration Example
+# Copy this file to terraform.tfvars and customize for your environment
+
+# Proxmox API Configuration
+proxmox_api_endpoint = "https://your-proxmox-server.local:8006/api2/json"
+proxmox_api_token    = "terraform@pve!terraform=your-api-token-here"
+proxmox_insecure     = true
+
+# Proxmox Node Configuration
+proxmox_node     = "pve"
+proxmox_username = "proxmox"
+
+# SSH Configuration for Proxmox Host
+proxmox_ssh_username    = "root@pam"
+proxmox_ssh_private_key = "~/.ssh/id_rsa_pve"
+
+# SSH Configuration for VMs
+# These paths should point to your VM SSH keys
+vm_ssh_public_key_path  = "~/.ssh/id_rsa_vm.pub"
+vm_ssh_private_key_path = "~/.ssh/id_rsa_vm"
+
+# Environment
+environment = "homelab"
+
+# Cloud-init configuration (use .local.yml for real deployment)
+ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
+
+# VM Configuration - Splunk Indexers Only
+# Note: ansible, claude1, cribl-edge, etc. are manually-managed LXC containers (see docs/INFRASTRUCTURE_NUMBERING.md)
+vms = {
+  "splunk-idx1" = {
+    vm_id            = 100
+    name             = "splunk-idx1"
+    description      = "Splunk Indexer 1 - Data indexing and storage"
+    cpu_cores        = 6
+    memory_dedicated = 6144
+    tags             = ["terraform", "splunk", "indexer"]
+    pool_id          = "logging"
+
+    boot_disk = {
+      datastore_id = "local-zfs"
+      interface    = "virtio0"
+      size         = 200
+      file_format  = "raw"
+      iothread     = true
+      ssd          = false
+      discard      = "ignore"
+    }
+
+    network_interfaces = [{
+      bridge   = "vmbr0"
+      model    = "virtio"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.100/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+
+    clone_template = {
+      template_id = 9001
+    }
+
+    agent_enabled = true
+    protection    = false
+    os_type       = "l26"
+
+    user_account = {
+      username = "debian"
+      password = "your-secure-password-here"
+      keys     = []
+    }
+  }
+
+  "splunk-idx2" = {
+    vm_id            = 101
+    name             = "splunk-idx2"
+    description      = "Splunk Indexer 2 - Data indexing and storage"
+    cpu_cores        = 6
+    memory_dedicated = 6144
+    tags             = ["terraform", "splunk", "indexer"]
+    pool_id          = "logging"
+
+    boot_disk = {
+      datastore_id = "local-zfs"
+      interface    = "virtio0"
+      size         = 200
+      file_format  = "raw"
+      iothread     = true
+      ssd          = false
+      discard      = "ignore"
+    }
+
+    network_interfaces = [{
+      bridge   = "vmbr0"
+      model    = "virtio"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.101/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+
+    clone_template = {
+      template_id = 9001
+    }
+
+    agent_enabled = true
+    protection    = false
+    os_type       = "l26"
+
+    user_account = {
+      username = "debian"
+      password = "your-secure-password-here"
+      keys     = []
+    }
+  }
+}
+
+# Container Configuration
+containers = {
+  "splunk-mgmt" = {
+    vm_id            = 205
+    hostname         = "splunk-mgmt"
+    description      = "Splunk Management - Search Head, Deployment Server, License Manager, MC, Cluster Manager"
+    cpu_cores        = 3
+    memory_dedicated = 3072
+    memory_swap      = 1024
+    tags             = ["terraform", "splunk", "management", "container"]
+    pool_id          = "logging"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 100
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.205/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+}
+
+# Resource Pool Configuration
+pools = {
+  "logging" = {
+    comment = "Logging cluster infrastructure"
+  }
+}
+
+# Firewall Configuration
+management_network = "192.168.1.0/24"
+splunk_network     = "192.168.1.100,192.168.1.101,192.168.1.205"
+
+# Storage Configuration (optional)
+datastores = {}
+
+# ISO Configuration
+proxmox_iso_debian         = "debian-13.2.0-amd64-netinst.iso"
+proxmox_ct_template_debian = "debian-13-standard_13.2-1_amd64.tar.zst"

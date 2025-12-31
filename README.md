@@ -76,11 +76,28 @@ terraform-proxmox/
 
 ### Prerequisites
 
+#### Option A: Using Nix Shell (Recommended)
+
+All tools are provided via a pre-configured Nix development shell:
+
+```bash
+# Enter the Nix shell (provides all tools below)
+nix develop ~/git/nix-config/main/shells/terraform
+```
+
+See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
+
+#### Option B: Manual Installation
+
+Install the following tools manually:
+
 - Terraform >= 1.12.2
 - Terragrunt >= 0.81.10
 - AWS CLI configured
 - Proxmox API token
 - SSH key pair
+- Security scanners (tfsec, checkov, trivy)
+- Ansible and molecule (for configuration management)
 
 ### Essential Commands
 
@@ -103,33 +120,35 @@ terragrunt show
 
 ### Configuration
 
-1. Copy `terraform.tfvars.example` to `terraform.tfvars` and update with your infrastructure configuration:
+**⚠️ Security Notice**: This repository uses placeholder values (192.168.1.x) in all committed files. Never commit your real infrastructure values.
 
-   ```hcl
-   proxmox_api_endpoint = "https://infrastructure.example.com:8006/api2/json"
-   proxmox_api_token    = "user@pam!token=example-token-here"
-   # ... other variables
+1. **Copy the example file** and replace with your real values:
+
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
+   # Edit terraform.tfvars with your REAL IPs, hostnames, etc.
+   # This file is gitignored - your real values never touch git
    ```
 
-2. Configure your VMs in the `vms` variable:
+2. **Verify protection** before making changes:
 
-   ```hcl
-   vms = {
-     "ansible" = {
-       vm_id            = 100
-       name             = "ansible"
-       description      = "Ansible control node for VM management"
-       cpu_cores        = 2
-       memory_dedicated = 2048
-       # ... additional configuration
-     }
-   }
+   ```bash
+   # Ensure terraform.tfvars is gitignored
+   git status | grep terraform.tfvars  # Should show nothing
    ```
+
+3. **See the complete guide**: [Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)
+
+   This document explains:
+   - How to safely maintain real vs. example values
+   - Pre-commit safety checks
+   - Multi-environment configurations
+   - Doppler integration for secrets
 
 ## 📁 Repository Structure
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `main.tf` | Core resource definitions and VM orchestration |
 | `variables.tf` | Input variable definitions with validation |
 | `locals.tf` | Local value computations and transformations |
@@ -172,26 +191,33 @@ All VMs are configured with:
 
 - Hardware-constrained resource allocation
 - Virtio disk interfaces for optimal performance
-- Ubuntu 24.04.2 LTS
+- Debian 13.2.0 (Trixie)
 - Cloud-init integration with static SSH keys
 - SSH key authentication from configured SSH key
 
-Example VM configurations:
-
-- **ansible** (100): 2 cores, 2048MB RAM, 64GB disk - Automation control node
-- **claude** (110): 2 cores, 2048MB RAM, 64GB disk - Development environment
-- **syslog** (120): 2 cores, 2048MB RAM, 32GB disk - Centralized logging server
-- **splunk** (130): 4 cores, 4096MB RAM, 100GB disk - Log analysis platform
-- **containers** (140): 4 cores, 4096MB RAM, 100GB disk - Kubernetes k3s and Docker
+**Infrastructure Summary**:
+- 2 VMs (Splunk indexers): IDs 100-101
+- 5 LXC Containers: IDs 200, 205, 210-211, 220
+- See [INFRASTRUCTURE_NUMBERING.md](./docs/INFRASTRUCTURE_NUMBERING.md) for complete details
 
 ## 📖 Documentation
 
-- **[CLAUDE.md](./CLAUDE.md)** - AI-specific instructions for this repository
-- **[PLANNING.md](./PLANNING.md)** - Current project status and remaining tasks
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - General troubleshooting procedures and operational guidance
-- **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - 📚 **HISTORICAL**: Comprehensive analysis of resolved
-  state synchronization issues
-- **[CHANGELOG.md](./CHANGELOG.md)** - History of completed changes and improvements
+### Setup & Configuration
+
+- **[DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)** - **START HERE**: Complete deployment walkthrough
+- **[Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)** - **CRITICAL**: How to safely maintain real IPs/hostnames separate from committed code
+- **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** - Comprehensive guide to using Nix shells for development
+- **[OpenHands Integration](./docs/openhands-integration.md)** - Guide for integrating OpenHands autonomous AI software engineer with Nix, OrbStack, Terraform, and Kubernetes
+
+### Infrastructure Reference
+
+- **[INFRASTRUCTURE_NUMBERING.md](./docs/INFRASTRUCTURE_NUMBERING.md)** - Complete infrastructure map and numbering scheme
+- **[Splunk Cluster Specification](./docs/splunk-cluster-spec.md)** - Detailed Splunk configuration
+
+### Troubleshooting
+
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Operational guidance and common issues
+- **[TERRAGRUNT_STATE_TROUBLESHOOTING.md](./TERRAGRUNT_STATE_TROUBLESHOOTING.md)** - Historical state management issues (resolved)
 
 ## ✅ Current Status
 

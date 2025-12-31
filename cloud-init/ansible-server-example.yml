@@ -17,10 +17,10 @@ packages:
 
 runcmd:
   - mkdir -p /opt/ansible/{inventory,playbooks,roles,files}
-  - chown -R ubuntu:ubuntu /opt/ansible
-  - sudo -H -u ubuntu bash -c 'python3 -m venv /opt/ansible/venv'
-  - sudo -H -u ubuntu bash -c 'source /opt/ansible/venv/bin/activate && pip install ansible==9.5.1 ansible-lint'
-  - sudo -H -u ubuntu bash -c 'git clone https://your-tfs-git-repo/ansible-playbooks.git /opt/ansible/playbooks' # Placeholder for TFS repo
+  - chown -R debian:debian /opt/ansible
+  - sudo -H -u debian bash -c 'python3 -m venv /opt/ansible/venv'
+  - sudo -H -u debian bash -c 'source /opt/ansible/venv/bin/activate && pip install ansible==9.5.1 ansible-lint'
+  - sudo -H -u debian bash -c 'git clone https://your-tfs-git-repo/ansible-playbooks.git /opt/ansible/playbooks' # Placeholder for TFS repo
   - apt-get autoremove -y
   - apt-get autoclean
 
@@ -40,7 +40,7 @@ write_files:
       [ssh_connection]
       ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
       pipelining = True
-    owner: ubuntu:ubuntu
+    owner: debian:debian
     permissions: '0644'
 
   - path: /opt/ansible/inventory/hosts.yml
@@ -48,7 +48,7 @@ write_files:
       ---
       all:
         vars:
-          ansible_user: ubuntu
+          ansible_user: debian
           ansible_ssh_private_key_file: ~/.ssh/id_rsa_vm
           ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         children:
@@ -59,7 +59,7 @@ write_files:
                   syslog:
                     ansible_host: 192.168.1.120
                   splunk:
-                    ansible_host: 192.168.1.130
+                    ansible_host: 192.168.1.205
               development:
                 hosts:
                   claude:
@@ -69,7 +69,7 @@ write_files:
                   ansible:
                     ansible_host: 192.168.1.100
                     ansible_connection: local
-    owner: ubuntu:ubuntu
+    owner: debian:debian
     permissions: '0644'
 
   - path: /opt/ansible/playbooks/site.yml
@@ -108,7 +108,7 @@ write_files:
               name: rsyslog
               state: started
               enabled: yes
-    owner: ubuntu:ubuntu
+    owner: debian:debian
     permissions: '0644'
 
 final_message: "Ansible control node is ready! SSH key setup and initial configuration complete."
