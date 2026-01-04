@@ -9,7 +9,7 @@ variable "vm_id" {
 }
 
 variable "name" {
-  description = "Name of the Splunk VM VM"
+  description = "Name of the Splunk VM"
   type        = string
 
   validation {
@@ -29,14 +29,9 @@ variable "node_name" {
 }
 
 variable "pool_id" {
-  description = "Resource pool ID for the Splunk VM"
+  description = "Resource pool ID for the Splunk VM (optional, empty string means no pool)"
   type        = string
   default     = ""
-
-  validation {
-    condition     = length(var.pool_id) >= 0
-    error_message = "Pool ID must be a valid string."
-  }
 }
 
 variable "ip_address" {
@@ -44,8 +39,8 @@ variable "ip_address" {
   type        = string
 
   validation {
-    condition     = can(regex("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$", var.ip_address))
-    error_message = "IP address must be in CIDR notation (e.g., 192.168.1.100/32)."
+    condition     = can(cidrhost(var.ip_address, 0))
+    error_message = "IP address must be a valid IPv4 address in CIDR notation (e.g., 192.168.1.100/32)."
   }
 }
 
@@ -54,8 +49,8 @@ variable "gateway" {
   type        = string
 
   validation {
-    condition     = can(regex("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$", var.gateway))
-    error_message = "Gateway must be a valid IPv4 address."
+    condition     = can(regex("^([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", var.gateway))
+    error_message = "Gateway must be a valid IPv4 address (e.g., 192.168.1.1)."
   }
 }
 

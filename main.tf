@@ -109,12 +109,12 @@ module "containers" {
 module "splunk_vm" {
   source = "./modules/splunk-vm"
 
-  vm_id          = 100
-  name           = "splunk-vm"
-  ip_address     = "192.168.1.100/32"
+  vm_id          = var.splunk_vm_id
+  name           = var.splunk_vm_name
+  ip_address     = var.splunk_vm_ip_address
   gateway        = local.splunk_network_gateway
   node_name      = var.proxmox_node
-  pool_id        = "logging"
+  pool_id        = var.splunk_vm_pool_id
   template_id    = var.template_id
   datastore_id   = var.datastore_id
   bridge         = var.bridge
@@ -145,7 +145,7 @@ module "firewall" {
   }
 
   management_network = var.management_network
-  splunk_network     = var.splunk_network
+  splunk_network     = join(",", var.splunk_network)
 
   depends_on = [module.vms, module.containers, module.splunk_vm]
 }

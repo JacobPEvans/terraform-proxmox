@@ -36,3 +36,27 @@ variable "splunk_admin_password" {
   sensitive   = true
   default     = env("SPLUNK_ADMIN_PASSWORD")
 }
+
+variable "proxmox_insecure_skip_tls_verify" {
+  type        = bool
+  description = "Skip TLS verification for Proxmox API. Set to true only for development/testing with self-signed certificates."
+  default     = false
+}
+
+variable "splunk_version" {
+  type        = string
+  description = "Splunk Enterprise version to download and install"
+  default     = "10.0.2"
+}
+
+variable "splunk_build" {
+  type        = string
+  description = "Splunk Enterprise build number"
+  default     = "e2d18b4767e9"
+}
+
+variable "splunk_download_sha256" {
+  type        = string
+  description = "SHA256 checksum for the Splunk Enterprise .deb package"
+  default     = env("SPLUNK_DOWNLOAD_SHA256")
+}
