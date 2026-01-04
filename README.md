@@ -27,6 +27,9 @@ terraform-proxmox/
 ├── container.tf               # Container resource definitions
 ├── terraform.tfvars.example   # Variable values template
 ├── terragrunt.hcl            # Terragrunt configuration (generates provider.tf)
+├── packer/                    # Packer templates for VM images
+│   ├── splunk.pkr.hcl        # Splunk Enterprise template build
+│   └── variables.pkr.hcl     # Packer variables (Doppler integration)
 └── modules/
     ├── proxmox-pool/          # Resource pool management
     │   ├── main.tf
@@ -40,7 +43,15 @@ terraform-proxmox/
     │   ├── main.tf
     │   ├── variables.tf
     │   └── outputs.tf
+    ├── splunk-vm/             # Splunk Enterprise all-in-one VM
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
     ├── security/              # Security resources (SSH keys, passwords)
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
+    ├── firewall/              # Proxmox firewall rules for clusters
     │   ├── main.tf
     │   ├── variables.tf
     │   └── outputs.tf
@@ -60,8 +71,10 @@ terraform-proxmox/
 - **Virtual Machines**: Configurable VM deployments with virtio disk interface
 - **Containers**: LXC container support (configurable)
 - **Storage**: Cloud-init configuration management
+- **Splunk Infrastructure**: Packer-built Splunk Enterprise template with dedicated splunk-vm module
+- **Firewall Management**: Integrated Proxmox firewall module for network isolation and security
 - **Terragrunt Integration**: Backend configuration and state management
-- **Latest Versions**: Terraform 1.12.2, bpg/proxmox 0.79.0, hashicorp/tls ~> 4.1 (updated 2025-07-13)
+- **Latest Versions**: Terraform 1.12.2, bpg/proxmox 0.90.0, hashicorp/tls ~> 4.1 (updated 2026-01-01)
 
 ### Benefits of the Modular Structure
 
@@ -196,7 +209,7 @@ All VMs are configured with:
 - SSH key authentication from configured SSH key
 
 **Infrastructure Summary**:
-- 2 VMs (Splunk indexers): IDs 100-101
+- 1 VM (Splunk Enterprise all-in-one): ID 100
 - 5 LXC Containers: IDs 200, 205, 210-211, 220
 - See [INFRASTRUCTURE_NUMBERING.md](./docs/INFRASTRUCTURE_NUMBERING.md) for complete details
 

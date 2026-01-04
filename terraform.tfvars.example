@@ -25,99 +25,12 @@ environment = "homelab"
 # Cloud-init configuration (use .local.yml for real deployment)
 ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
 
-# VM Configuration - Splunk Indexers Only
+# VM Configuration - General VMs (Splunk managed via splunk-vm module, see main.tf)
 # Note: ansible, claude1, cribl-edge, etc. are manually-managed LXC containers (see docs/INFRASTRUCTURE_NUMBERING.md)
-vms = {
-  "splunk-idx1" = {
-    vm_id            = 100
-    name             = "splunk-idx1"
-    description      = "Splunk Indexer 1 - Data indexing and storage"
-    cpu_cores        = 6
-    memory_dedicated = 6144
-    tags             = ["terraform", "splunk", "indexer"]
-    pool_id          = "logging"
-
-    boot_disk = {
-      datastore_id = "local-zfs"
-      interface    = "virtio0"
-      size         = 200
-      file_format  = "raw"
-      iothread     = true
-      ssd          = false
-      discard      = "ignore"
-    }
-
-    network_interfaces = [{
-      bridge   = "vmbr0"
-      model    = "virtio"
-      firewall = true
-    }]
-
-    ip_config = {
-      ipv4_address = "192.168.1.100/32"
-      ipv4_gateway = "192.168.1.1"
-    }
-
-    clone_template = {
-      template_id = 9001
-    }
-
-    agent_enabled = true
-    protection    = false
-    os_type       = "l26"
-
-    user_account = {
-      username = "debian"
-      password = "your-secure-password-here"
-      keys     = []
-    }
-  }
-
-  "splunk-idx2" = {
-    vm_id            = 101
-    name             = "splunk-idx2"
-    description      = "Splunk Indexer 2 - Data indexing and storage"
-    cpu_cores        = 6
-    memory_dedicated = 6144
-    tags             = ["terraform", "splunk", "indexer"]
-    pool_id          = "logging"
-
-    boot_disk = {
-      datastore_id = "local-zfs"
-      interface    = "virtio0"
-      size         = 200
-      file_format  = "raw"
-      iothread     = true
-      ssd          = false
-      discard      = "ignore"
-    }
-
-    network_interfaces = [{
-      bridge   = "vmbr0"
-      model    = "virtio"
-      firewall = true
-    }]
-
-    ip_config = {
-      ipv4_address = "192.168.1.101/32"
-      ipv4_gateway = "192.168.1.1"
-    }
-
-    clone_template = {
-      template_id = 9001
-    }
-
-    agent_enabled = true
-    protection    = false
-    os_type       = "l26"
-
-    user_account = {
-      username = "debian"
-      password = "your-secure-password-here"
-      keys     = []
-    }
-  }
-}
+# Splunk Enterprise all-in-one VM is created via the splunk-vm module in main.tf
+# VM ID: splunk-vm (100), IP: 192.168.1.100/32
+# Template built by Packer (see packer/splunk.pkr.hcl)
+vms = {}
 
 # Container Configuration
 containers = {

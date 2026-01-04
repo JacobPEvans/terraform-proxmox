@@ -95,3 +95,6 @@ ansible/inventory/hosts.yml
 ansible/.molecule/
 ansible/roles/*/.molecule/
 *.retry
+
+# Timing script results (don't commit execution measurements)
+scripts/timing-results.txt

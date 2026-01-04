@@ -69,4 +69,7 @@ locals {
     ssd          = false
     discard      = "ignore"
   }
+
+  # Splunk network gateway
+  splunk_network_gateway = "192.168.1.1"
 }

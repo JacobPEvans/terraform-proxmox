@@ -105,16 +105,39 @@ module "containers" {
   depends_on = [module.pools, module.storage]
 }
 
-# Firewall module - manages Proxmox firewall rules for Splunk cluster
+# Splunk VM module - All-in-One Splunk Enterprise
+module "splunk_vm" {
+  source = "./modules/splunk-vm"
+
+  vm_id          = 100
+  name           = "splunk-vm"
+  ip_address     = "192.168.1.100/32"
+  gateway        = local.splunk_network_gateway
+  node_name      = var.proxmox_node
+  pool_id        = "logging"
+  template_id    = var.template_id
+  datastore_id   = var.datastore_id
+  bridge         = var.bridge
+  ssh_public_key = var.ssh_public_key != "" ? var.ssh_public_key : trimspace(data.local_file.vm_ssh_public_key.content)
+
+  depends_on = [module.pools]
+}
+
+# Firewall module - manages Proxmox firewall rules for Splunk
 module "firewall" {
   source = "./modules/firewall"
 
   node_name = var.proxmox_node
 
-  splunk_vm_ids = {
-    for k, v in var.vms : k => v.vm_id
-    if contains(try(v.tags, []), "splunk")
-  }
+  splunk_vm_ids = merge(
+    {
+      for k, v in var.vms : k => v.vm_id
+      if contains(try(v.tags, []), "splunk")
+    },
+    {
+      "splunk-vm" = module.splunk_vm.vm_id
+    }
+  )
 
   splunk_container_ids = {
     for k, v in var.containers : k => v.vm_id
@@ -124,7 +147,7 @@ module "firewall" {
   management_network = var.management_network
   splunk_network     = var.splunk_network
 
-  depends_on = [module.vms, module.containers]
+  depends_on = [module.vms, module.containers, module.splunk_vm]
 }
 
 # Secure SSH key provisioning for Ansible VM

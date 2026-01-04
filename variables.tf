@@ -36,6 +36,47 @@ variable "proxmox_node" {
   default     = "pve"
 }
 
+variable "template_id" {
+  description = "VM ID of the Packer-built Splunk template to clone from"
+  type        = number
+  default     = 9001
+  validation {
+    condition     = var.template_id > 0 && var.template_id < 10000
+    error_message = "Template ID must be between 1 and 9999."
+  }
+}
+
+variable "datastore_id" {
+  description = "Datastore ID for Splunk VM disk storage"
+  type        = string
+  default     = "local-zfs"
+  validation {
+    condition     = length(var.datastore_id) > 0
+    error_message = "Datastore ID cannot be empty."
+  }
+}
+
+variable "bridge" {
+  description = "Network bridge for Splunk VM network interface"
+  type        = string
+  default     = "vmbr0"
+  validation {
+    condition     = length(var.bridge) > 0
+    error_message = "Bridge name cannot be empty."
+  }
+}
+
+variable "ssh_public_key" {
+  description = "SSH public key content for Splunk VM access (optional)"
+  type        = string
+  default     = ""
+  sensitive   = true
+  validation {
+    condition     = can(regex("^(ssh-rsa |ssh-ed25519 |ecdsa-sha2-|$)", var.ssh_public_key))
+    error_message = "SSH public key must be empty or start with a valid SSH key type prefix."
+  }
+}
+
 variable "proxmox_ssh_username" {
   description = "The SSH username for connecting to the Proxmox node (for cloud-init, etc.)"
   type        = string
@@ -295,7 +336,7 @@ variable "management_network" {
 }
 
 variable "splunk_network" {
-  description = "Comma-separated list of Splunk node IPs for cluster communication"
+  description = "Comma-separated list of Splunk VM IPs for firewall rules"
   type        = string
-  default     = "192.168.1.100,192.168.1.101,192.168.1.205"
+  default     = "192.168.1.100"
 }

@@ -24,10 +24,10 @@ resource "proxmox_virtual_environment_firewall_options" "splunk_vm" {
 resource "proxmox_virtual_environment_firewall_options" "splunk_container" {
   for_each = var.splunk_container_ids
 
-  node_name    = var.node_name
-  container_id = each.value
-  enabled      = true
-  input_policy = "DROP"
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = true
+  input_policy  = "DROP"
   output_policy = "DROP"
   log_level_in  = "warning"
   log_level_out = "warning"

@@ -122,13 +122,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
   }
 
   # Timeout configurations - 30 minutes for clone/create, 15 minutes for others
-  timeout_clone           = 1800
-  timeout_create          = 1800
-  timeout_migrate         = 900
-  timeout_reboot          = 300
-  timeout_shutdown_vm     = 300
-  timeout_start_vm        = 600
-  timeout_stop_vm         = 300
+  timeout_clone       = 1800
+  timeout_create      = 1800
+  timeout_migrate     = 900
+  timeout_reboot      = 300
+  timeout_shutdown_vm = 300
+  timeout_start_vm    = 600
+  timeout_stop_vm     = 300
 
   lifecycle {
     create_before_destroy = false
