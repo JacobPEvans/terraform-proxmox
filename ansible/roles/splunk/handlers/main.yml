@@ -1,0 +1,8 @@
+---
+- name: Restart Splunk
+  ansible.builtin.systemd:
+    name: Splunkd
+    state: restarted
+    enabled: true
+  tags:
+    - molecule-notest

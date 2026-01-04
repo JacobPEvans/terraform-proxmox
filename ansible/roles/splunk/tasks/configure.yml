@@ -1,0 +1,55 @@
+---
+- name: Ensure Splunk local config directory exists
+  ansible.builtin.file:
+    path: "{{ splunk_home }}/etc/system/local"
+    state: directory
+    owner: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    mode: "0750"
+
+- name: Configure indexer clustering
+  ansible.builtin.blockinfile:
+    path: "{{ splunk_home }}/etc/system/local/server.conf"
+    block: |
+      [clustering]
+      mode = peer
+      master_uri = {{ splunk_cluster_master_uri }}
+      pass4SymmKey = {{ splunk_cluster_pass4symmkey }}
+    marker: "# {mark} ANSIBLE MANAGED - CLUSTERING"
+    create: true
+    owner: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    mode: "0600"
+  when: splunk_role == "indexer" and splunk_cluster_enabled
+  notify: Restart Splunk
+
+- name: Configure cluster manager
+  ansible.builtin.blockinfile:
+    path: "{{ splunk_home }}/etc/system/local/server.conf"
+    block: |
+      [clustering]
+      mode = manager
+      pass4SymmKey = {{ splunk_cluster_pass4symmkey }}
+      replication_factor = {{ splunk_cluster_replication_factor }}
+      search_factor = {{ splunk_cluster_search_factor }}
+    marker: "# {mark} ANSIBLE MANAGED - CLUSTER MANAGER"
+    create: true
+    owner: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    mode: "0600"
+  when: splunk_role in ["cluster_manager", "all_in_one"] and splunk_cluster_enabled
+  notify: Restart Splunk
+
+- name: Configure license (dev mode)
+  ansible.builtin.blockinfile:
+    path: "{{ splunk_home }}/etc/system/local/server.conf"
+    block: |
+      [license]
+      active_group = Free
+    marker: "# {mark} ANSIBLE MANAGED - LICENSE"
+    create: true
+    owner: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    mode: "0600"
+  when: splunk_license_type == "dev"
+  notify: Restart Splunk
