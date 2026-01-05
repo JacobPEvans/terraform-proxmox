@@ -7,27 +7,19 @@ variable "environment" {
 }
 
 # Proxmox connection variables
-# SECURITY: These are provided via environment variables (TF_VAR_*) from secret manager
-# Provider credentials are always stored in Terraform state, but our state file is:
-#   - Encrypted at rest in S3 (AES-256 server-side encryption)
-#   - Encrypted in transit (TLS)
-#   - Access-controlled via IAM policies
-#   - Locked via DynamoDB to prevent concurrent modifications
-variable "proxmox_api_endpoint" {
-  description = "The URL of the Proxmox API (e.g. https://proxmox.example.com:8006/api2/json)"
-  type        = string
-}
-
-variable "proxmox_api_token" {
-  description = "The API token for Proxmox authentication (format: 'user@realm!tokenid=secret')"
-  type        = string
-  sensitive   = true
-}
+# The BPG provider reads authentication directly from PROXMOX_VE_* environment variables:
+#   - PROXMOX_VE_ENDPOINT   → API URL (without /api2/json)
+#   - PROXMOX_VE_API_TOKEN  → API token (user@realm!tokenid=secret)
+#   - PROXMOX_VE_USERNAME   → Username for token
+#   - PROXMOX_VE_INSECURE   → Skip TLS verification
+#
+# These variables are kept for backward compatibility and module usage,
+# but the provider itself reads from environment variables.
 
 variable "proxmox_insecure" {
-  description = "Allow insecure HTTPS connections to the Proxmox API (true/false)"
+  description = "Allow insecure HTTPS connections to the Proxmox API (read from PROXMOX_VE_INSECURE)"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "proxmox_node" {
@@ -39,7 +31,7 @@ variable "proxmox_node" {
 variable "template_id" {
   description = "VM ID of the Packer-built Splunk template to clone from"
   type        = number
-  default     = 9001
+  default     = 9200
   validation {
     condition     = var.template_id > 0 && var.template_id < 10000
     error_message = "Template ID must be between 1 and 9999."

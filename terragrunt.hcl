@@ -24,24 +24,29 @@ remote_state {
 
 # Define common variables that can be used across modules
 inputs = {
-  # IMPORTANT: Variables are sourced from TF_VAR_* environment variables
+  # BPG Provider Authentication
+  # The BPG provider reads directly from PROXMOX_VE_* environment variables:
+  #   - PROXMOX_VE_ENDPOINT   → API URL (without /api2/json)
+  #   - PROXMOX_VE_API_TOKEN  → API token (user@realm!tokenid=secret)
+  #   - PROXMOX_VE_USERNAME   → Username for token
+  #   - PROXMOX_VE_INSECURE   → Skip TLS verification
   #
-  # Flow: Secret manager → --name-transformer tf-var → TF_VAR_* → Terragrunt inputs → Terraform
+  # These are set by Doppler and passed through WITHOUT --name-transformer
   #
-  # Why get_env() instead of .tfvars files?
-  # - Terraform variable precedence: .tfvars files > TF_VAR_* env vars > defaults
-  # - Generating .tfvars files would override environment variables from secret manager
-  # - Using get_env() directly reads from environment without precedence conflicts
-  #
-  # Usage with secret manager:
-  #   doppler run --name-transformer tf-var -- aws-vault exec terraform -- \
+  # Usage:
+  #   doppler run -- aws-vault exec terraform -- \
   #     nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
   #
-  proxmox_api_endpoint = get_env("TF_VAR_proxmox_api_endpoint", "")
-  proxmox_api_token    = get_env("TF_VAR_proxmox_api_token", "")
-  proxmox_node         = get_env("TF_VAR_proxmox_node", "pve")
-  proxmox_username     = get_env("TF_VAR_proxmox_username", "proxmox")
-  proxmox_insecure     = get_env("TF_VAR_proxmox_insecure", "false")
+  # Note: No --name-transformer needed! BPG reads PROXMOX_VE_* directly.
+
+  # Non-provider variables still passed as inputs
+  proxmox_node     = get_env("PROXMOX_VE_NODE", "pve")
+  proxmox_username = get_env("PROXMOX_VE_USERNAME", "terraform@pve")
+  proxmox_insecure = get_env("PROXMOX_VE_INSECURE", "true")
+
+  # SSH credentials for provisioners (not BPG provider vars)
+  proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
+  proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "~/.ssh/id_rsa")
 }
 
 # Terragrunt will generate provider.tf with these settings
@@ -71,10 +76,13 @@ terraform {
   }
 }
 
+# BPG provider reads authentication from PROXMOX_VE_* environment variables:
+#   - PROXMOX_VE_ENDPOINT   (required)
+#   - PROXMOX_VE_API_TOKEN  (required, or use USERNAME+PASSWORD)
+#   - PROXMOX_VE_INSECURE   (optional, default false)
+# See: https://registry.terraform.io/providers/bpg/proxmox/latest/docs
 provider "proxmox" {
-  endpoint  = var.proxmox_api_endpoint
-  api_token = var.proxmox_api_token
-  insecure  = var.proxmox_insecure
+  # Authentication is read from environment variables - no config needed here
 }
 EOF
 }

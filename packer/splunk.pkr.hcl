@@ -8,16 +8,16 @@ packer {
 }
 
 source "proxmox-clone" "splunk" {
-  # Connection - uses Doppler env vars
+  # Connection - uses Doppler env vars (token auth preferred)
   proxmox_url              = var.proxmox_url
   username                 = var.proxmox_username
-  password                 = var.proxmox_password
+  token                    = var.proxmox_token
   node                     = var.proxmox_node
   insecure_skip_tls_verify = var.proxmox_insecure_skip_tls_verify
 
   # Clone from base template
   clone_vm             = "debian-12-base"
-  vm_id                = 9001
+  vm_id                = 9200
   template_name        = "splunk-enterprise-10"
   template_description = "Splunk ${var.splunk_version} on Debian 12 (Packer)"
   full_clone           = true
@@ -40,7 +40,7 @@ build {
       "sudo apt-get update",
       "sudo apt-get install -y wget",
       "wget -O splunk.deb 'https://download.splunk.com/products/splunk/releases/${var.splunk_version}/linux/splunk-${var.splunk_version}-${var.splunk_build}-linux-amd64.deb'",
-      "echo \"${var.splunk_download_sha256}  splunk.deb\" | sha256sum -c -",
+      "echo \"${var.splunk_download_sha512}  splunk.deb\" | sha512sum -c -",
       "sudo dpkg -i splunk.deb",
       "rm splunk.deb",
       "sudo tee /opt/splunk/etc/system/local/user-seed.conf > /dev/null <<EOF\n[user_info]\nUSERNAME = admin\nPASSWORD = ${var.splunk_admin_password}\nEOF",

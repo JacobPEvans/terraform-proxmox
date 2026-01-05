@@ -73,8 +73,7 @@ module "vms" {
   environment       = var.environment
   default_datastore = var.datastore_default
 
-  proxmox_api_token       = var.proxmox_api_token
-  proxmox_api_endpoint    = var.proxmox_api_endpoint
+  # SSH credentials for provisioners (BPG provider reads auth from PROXMOX_VE_* env vars)
   proxmox_ssh_username    = var.proxmox_ssh_username
   proxmox_ssh_private_key = var.proxmox_ssh_private_key
 

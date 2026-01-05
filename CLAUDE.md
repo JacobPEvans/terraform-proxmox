@@ -30,30 +30,33 @@ This repo uses:
 ### The Complete Command Pattern
 
 ```bash
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt <COMMAND>"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>"
 ```
 
 ### Command Breakdown
 
 1. **`nix develop ~/git/nix-config/main/shells/terraform`** - Enters Nix shell with Terraform/Terragrunt/Ansible
 2. **`aws-vault exec terraform`** - Provides AWS credentials for S3 backend (profile: `terraform`)
-3. **`doppler run --name-transformer tf-var`** - Injects Proxmox secrets as `TF_VAR_*` environment variables
+3. **`doppler run --`** - Injects Proxmox secrets as `PROXMOX_VE_*` environment variables
 4. **`terragrunt <COMMAND>`** - The actual Terraform command to run
+
+**Note**: The BPG Proxmox provider reads directly from `PROXMOX_VE_*` environment variables.
+No `--name-transformer` is needed. See [BPG provider docs](https://registry.terraform.io/providers/bpg/proxmox/latest/docs).
 
 ### Common Commands
 
 ```bash
 # Validate configuration
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt validate"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"
 
 # Plan changes
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt plan"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt plan"
 
 # Apply changes
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt apply"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt apply"
 
 # Show state
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt show"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt show"
 ```
 
 ### Doppler Configuration
@@ -70,11 +73,23 @@ This scopes the project/config to `~/git/terraform-proxmox` in `~/.doppler/.dopp
 
 **Note**: Actual project/config names are in your local `SECRETS_SETUP.md` (gitignored).
 
+### Doppler Secret Naming (BPG Standard)
+
+Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
+
+| Secret | Purpose |
+|--------|---------|
+| `PROXMOX_VE_ENDPOINT` | API URL (without /api2/json) |
+| `PROXMOX_VE_API_TOKEN` | API token (user@realm!tokenid=secret) |
+| `PROXMOX_VE_USERNAME` | Username for token |
+| `PROXMOX_VE_INSECURE` | Skip TLS verification |
+| `PROXMOX_VE_NODE` | Proxmox node name |
+
 ### Why All Three Tools?
 
 - **Nix**: Provides consistent tool versions (Terraform 1.14.0, Terragrunt 0.93.11, Ansible 2.19.4)
 - **aws-vault**: Secures AWS credentials for S3 backend (never stored in files)
-- **Doppler**: Manages Proxmox API credentials (never stored in tfvars or git)
+- **Doppler**: Manages Proxmox API credentials using `PROXMOX_VE_*` naming (never stored in tfvars or git)
 
 ## Repository Context
 
@@ -90,10 +105,10 @@ This scopes the project/config to `~/git/terraform-proxmox` in `~/.doppler/.dopp
 
 ```bash
 # 1. Validate syntax
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt validate"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"
 
 # 2. Plan changes to review what will be modified
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt plan"
+nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt plan"
 ```
 
 **Best Practices**:
