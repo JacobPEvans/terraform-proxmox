@@ -44,10 +44,10 @@ variable "containers" {
       ipv4_gateway = optional(string)
     }), {})
 
-    user_account = object({
-      password = string
-      keys     = list(string)
-    })
+    user_account = optional(object({
+      password = optional(string, "")
+      keys     = optional(list(string), [])
+    }), {})
 
     # Features
     protection = optional(bool, false)

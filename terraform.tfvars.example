@@ -25,17 +25,350 @@ environment = "homelab"
 # Cloud-init configuration (use .local.yml for real deployment)
 ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
 
-# VM Configuration - General VMs (Splunk managed via splunk-vm module, see main.tf)
-# Note: ansible, claude1, cribl-edge, etc. are manually-managed LXC containers (see docs/INFRASTRUCTURE_NUMBERING.md)
-# Splunk Enterprise all-in-one VM is created via the splunk-vm module in main.tf
-# VM ID: splunk-vm (100), IP: 192.168.1.100/32
-# Template built by Packer (see packer/splunk.pkr.hcl)
+# ISO Configuration
+proxmox_iso_debian         = "debian-13.2.0-amd64-netinst.iso"
+proxmox_ct_template_debian = "debian-13-standard_13.2-1_amd64.tar.zst"
+
+# Firewall Configuration
+management_network     = "192.168.1.0/24"
+splunk_network         = ["192.168.1.199", "192.168.1.200"]
+splunk_network_gateway = "192.168.1.1"
+
+# Resource Pools
+pools = {
+  "logging" = {
+    comment = "Logging and observability infrastructure"
+  }
+  "ai" = {
+    comment = "AI development environments"
+  }
+  "infrastructure" = {
+    comment = "Core infrastructure services"
+  }
+}
+
+# Splunk VM Module Configuration - Single All-in-One (200+)
+splunk_vm_id         = 200
+splunk_vm_name       = "splunk-vm"
+splunk_vm_ip_address = "192.168.1.200/32"
+splunk_vm_pool_id    = "logging"
+template_id          = 9001  # Packer-built Splunk template
+
+# VM Definitions - Generic VMs (empty, Splunk uses dedicated module above)
 vms = {}
 
-# Container Configuration
+# Container Definitions
+# ID Scheme:
+#   100-110: Infrastructure (Ansible, PVE scripts)
+#   150-169: AI development
+#   171-179: Cribl Stream
+#   181-189: Cribl Edge
+#   190-199: Splunk management
 containers = {
+  # Infrastructure (100-110)
+  "ansible" = {
+    vm_id            = 100
+    hostname         = "ansible"
+    description      = "Ansible control node - primary"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "ansible", "control-plane", "container"]
+    pool_id          = "infrastructure"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 64
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.100/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "ansible-2" = {
+    vm_id            = 101
+    hostname         = "ansible-2"
+    description      = "Ansible control node - secondary"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "ansible", "control-plane", "container"]
+    pool_id          = "infrastructure"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 64
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.101/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "pve-scripts-local" = {
+    vm_id            = 102
+    hostname         = "pve-scripts-local"
+    description      = "Proxmox VE Helper Scripts (community-scripts/ProxmoxVE)"
+    cpu_cores        = 1
+    memory_dedicated = 512
+    memory_swap      = 512
+    tags             = ["terraform", "proxmox", "helper-scripts", "container"]
+    pool_id          = "infrastructure"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 8
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = false
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.102/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  # AI Development (150-169)
+  "claude-code-01" = {
+    vm_id            = 150
+    hostname         = "claude-code-01"
+    description      = "Claude Code development environment 1"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "ai", "claude", "development", "container"]
+    pool_id          = "ai"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 64
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.150/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "claude-code-02" = {
+    vm_id            = 151
+    hostname         = "claude-code-02"
+    description      = "Claude Code development environment 2"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "ai", "claude", "development", "container"]
+    pool_id          = "ai"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 64
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.151/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "gemini-01" = {
+    vm_id            = 161
+    hostname         = "gemini-01"
+    description      = "Gemini development environment 1"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "ai", "gemini", "development", "container"]
+    pool_id          = "ai"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 64
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.161/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "gemini-02" = {
+    vm_id            = 162
+    hostname         = "gemini-02"
+    description      = "Gemini development environment 2"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "ai", "gemini", "development", "container"]
+    pool_id          = "ai"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 64
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.162/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  # Cribl Stream (171-179)
+  "cribl-stream-1" = {
+    vm_id            = 171
+    hostname         = "cribl-stream-1"
+    description      = "Cribl Stream processing node 1"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "cribl", "stream", "log-processing", "container"]
+    pool_id          = "logging"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 32
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.171/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "cribl-stream-2" = {
+    vm_id            = 172
+    hostname         = "cribl-stream-2"
+    description      = "Cribl Stream processing node 2"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "cribl", "stream", "log-processing", "container"]
+    pool_id          = "logging"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 32
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.172/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  # Cribl Edge (181-189)
+  "cribl-edge-01" = {
+    vm_id            = 181
+    hostname         = "cribl-edge-01"
+    description      = "Cribl Edge log forwarder 1"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "cribl", "edge", "log-forwarding", "container"]
+    pool_id          = "logging"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 32
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.181/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "cribl-edge-02" = {
+    vm_id            = 182
+    hostname         = "cribl-edge-02"
+    description      = "Cribl Edge log forwarder 2"
+    cpu_cores        = 2
+    memory_dedicated = 2048
+    memory_swap      = 512
+    tags             = ["terraform", "cribl", "edge", "log-forwarding", "container"]
+    pool_id          = "logging"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 32
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.182/32"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  # Splunk Management (190-199)
   "splunk-mgmt" = {
-    vm_id            = 205
+    vm_id            = 199
     hostname         = "splunk-mgmt"
     description      = "Splunk Management - Search Head, Deployment Server, License Manager, MC, Cluster Manager"
     cpu_cores        = 3
@@ -56,26 +389,11 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.205/32"
+      ipv4_address = "192.168.1.199/32"
       ipv4_gateway = "192.168.1.1"
     }
   }
 }
 
-# Resource Pool Configuration
-pools = {
-  "logging" = {
-    comment = "Logging cluster infrastructure"
-  }
-}
-
-# Firewall Configuration
-management_network = "192.168.1.0/24"
-splunk_network     = "192.168.1.100,192.168.1.101,192.168.1.205"
-
-# Storage Configuration (optional)
+# Storage Configuration (optional - uses defaults)
 datastores = {}
-
-# ISO Configuration
-proxmox_iso_debian         = "debian-13.2.0-amd64-netinst.iso"
-proxmox_ct_template_debian = "debian-13-standard_13.2-1_amd64.tar.zst"

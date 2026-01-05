@@ -70,6 +70,6 @@ locals {
     discard      = "ignore"
   }
 
-  # Splunk network gateway
-  splunk_network_gateway = "192.168.1.1"
+  # Splunk network gateway (from variable)
+  splunk_network_gateway = var.splunk_network_gateway
 }

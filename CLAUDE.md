@@ -58,13 +58,15 @@ nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault 
 
 ### Doppler Configuration
 
-Each worktree needs Doppler configured:
+Doppler is configured at the **bare repository root** (`~/git/terraform-proxmox`), so all worktrees automatically inherit the configuration. No per-worktree setup is required.
 
 ```bash
+# One-time setup at bare repo root (already done)
+cd ~/git/terraform-proxmox
 doppler setup --project <YOUR_PROJECT> --config <YOUR_CONFIG>
 ```
 
-This creates a local `.doppler.yaml` (gitignored) with project/config settings.
+This scopes the project/config to `~/git/terraform-proxmox` in `~/.doppler/.doppler.yaml`, and all subdirectories (worktrees) inherit it automatically.
 
 **Note**: Actual project/config names are in your local `SECRETS_SETUP.md` (gitignored).
 

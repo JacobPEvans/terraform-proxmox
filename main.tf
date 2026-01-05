@@ -90,12 +90,17 @@ module "containers" {
     for k, v in var.containers : k => merge(v, {
       node_name        = var.proxmox_node
       template_file_id = "${var.datastore_iso}:vztmpl/${var.proxmox_ct_template_debian}"
-      user_account = merge(
-        lookup(v, "user_account", {}),
+      # Only set user_account if explicitly provided or if we have SSH keys to add
+      # For imported containers, this allows keeping their existing config
+      user_account = lookup(v, "user_account", null) != null ? merge(
+        v.user_account,
         {
-          keys = [trimspace(data.local_file.vm_ssh_public_key.content)]
+          keys = concat(
+            lookup(v.user_account, "keys", []),
+            [trimspace(data.local_file.vm_ssh_public_key.content)]
+          )
         }
-      )
+      ) : {}
     })
   }
 

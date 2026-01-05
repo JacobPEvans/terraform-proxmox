@@ -41,10 +41,13 @@ resource "proxmox_virtual_environment_container" "containers" {
       }
     }
 
-    # User account configuration
-    user_account {
-      password = each.value.user_account.password
-      keys     = each.value.user_account.keys
+    # User account configuration (only if keys are provided)
+    dynamic "user_account" {
+      for_each = length(lookup(each.value.user_account, "keys", [])) > 0 || lookup(each.value.user_account, "password", "") != "" ? [1] : []
+      content {
+        password = lookup(each.value.user_account, "password", "")
+        keys     = lookup(each.value.user_account, "keys", [])
+      }
     }
   }
 
@@ -95,8 +98,12 @@ resource "proxmox_virtual_environment_container" "containers" {
   lifecycle {
     create_before_destroy = false
     ignore_changes = [
-      # Ignore changes to password after first boot
+      # Ignore changes to immutable attributes after import
+      # These can only be changed by replacing the container
       initialization[0].user_account[0].password,
+      initialization[0].user_account[0].keys,
+      operating_system[0].template_file_id,
+      pool_id,
     ]
   }
 }

@@ -376,3 +376,13 @@ variable "splunk_vm_pool_id" {
   type        = string
   default     = ""
 }
+
+variable "splunk_network_gateway" {
+  description = "Gateway IP address for the Splunk network"
+  type        = string
+  default     = "192.168.1.1"
+  validation {
+    condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}$", var.splunk_network_gateway))
+    error_message = "Gateway must be a valid IPv4 address."
+  }
+}
