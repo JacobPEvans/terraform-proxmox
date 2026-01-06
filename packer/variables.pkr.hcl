@@ -1,66 +1,66 @@
-# Packer variables for Splunk template build
-# Uses PROXMOX_VE_* environment variables (same as BPG Terraform provider)
-
-variable "proxmox_url" {
-  type        = string
-  description = "Proxmox API URL (without /api2/json)"
-  default     = env("PROXMOX_VE_ENDPOINT")
+# Proxmox connection (from Doppler PROXMOX_VE_* env vars)
+variable "proxmox_endpoint" {
+  type    = string
+  default = env("PROXMOX_VE_ENDPOINT")
 }
 
-variable "proxmox_username" {
-  type        = string
-  description = "Proxmox API username (e.g., terraform@pve)"
-  default     = env("PROXMOX_VE_USERNAME")
-}
-
-variable "proxmox_token" {
-  type        = string
-  description = "Proxmox API token (format: user@realm!tokenid=secret)"
-  sensitive   = true
-  default     = env("PROXMOX_VE_API_TOKEN")
+variable "proxmox_api_token_raw" {
+  type      = string
+  sensitive = true
+  default   = env("PROXMOX_VE_API_TOKEN")
 }
 
 variable "proxmox_node" {
-  type        = string
-  description = "Proxmox node name"
-  default     = env("PROXMOX_VE_NODE")
+  type    = string
+  default = env("PROXMOX_VE_NODE")
 }
 
-variable "proxmox_insecure_skip_tls_verify" {
-  type        = bool
-  description = "Skip TLS verification for Proxmox API"
-  default     = true # Most homelab setups use self-signed certs
+# Parse BPG token format (user@realm!tokenid=secret) for Packer
+locals {
+  proxmox_url      = "${var.proxmox_endpoint}/api2/json"
+  token_parts      = split("=", var.proxmox_api_token_raw)
+  proxmox_username = local.token_parts[0]
+  proxmox_token    = local.token_parts[1]
 }
 
-# Packer-specific secrets (add to Doppler)
-variable "packer_ssh_password" {
-  type        = string
-  description = "SSH password for Packer provisioning (matches base template cloud-init)"
-  sensitive   = true
-  default     = env("PACKER_SSH_PASSWORD")
-}
-
+# Splunk install (from Doppler)
 variable "splunk_admin_password" {
-  type        = string
-  description = "Splunk admin user password"
-  sensitive   = true
-  default     = env("SPLUNK_ADMIN_PASSWORD")
+  type      = string
+  sensitive = true
+  default   = env("SPLUNK_ADMIN_PASSWORD")
 }
 
 variable "splunk_version" {
-  type        = string
-  description = "Splunk Enterprise version to download and install"
-  default     = "10.0.2"
+  type    = string
+  default = "10.0.2"
 }
 
 variable "splunk_build" {
-  type        = string
-  description = "Splunk Enterprise build number"
-  default     = "e2d18b4767e9"
+  type    = string
+  default = "e2d18b4767e9"
 }
 
 variable "splunk_download_sha512" {
+  type    = string
+  default = env("SPLUNK_DOWNLOAD_SHA512")
+}
+
+# Network configuration for Packer builder
+# Read from environment to avoid committing real IPs to the repository
+variable "packer_ssh_host" {
   type        = string
-  description = "SHA512 checksum for the Splunk Enterprise .deb package"
-  default     = env("SPLUNK_DOWNLOAD_SHA512")
+  default     = env("PACKER_SSH_HOST")
+  description = "IP address for Packer SSH connection during build"
+}
+
+variable "packer_ip_address" {
+  type        = string
+  default     = env("PACKER_IP_ADDRESS")
+  description = "IP address for VM with CIDR (e.g., 192.168.1.250/24)"
+}
+
+variable "packer_gateway" {
+  type        = string
+  default     = env("PACKER_GATEWAY")
+  description = "Network gateway (e.g., 192.168.1.1)"
 }

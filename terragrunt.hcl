@@ -19,6 +19,9 @@ remote_state {
     encrypt        = true
     use_lockfile   = true
     dynamodb_table = "terraform-proxmox-locks-useast2"
+
+    # Retry configuration for transient S3/DynamoDB failures
+    max_retries = 5
   }
 }
 

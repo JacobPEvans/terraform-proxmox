@@ -117,6 +117,54 @@ nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault 
 - Follow conventional commit messages
 - Never commit without running validate + plan first
 
+### Timeout and Debug Logging
+
+When experiencing "context deadline exceeded" or slow Terraform operations:
+
+#### Pre-Operation Health Check
+
+```bash
+# Test API connectivity before running Terraform
+doppler run -- ./scripts/check-proxmox-api.sh
+```
+
+#### Debug Logging
+
+```bash
+# Full debug logging with file output
+TF_LOG=DEBUG TF_LOG_PATH=/tmp/terraform-debug.log \
+  terragrunt plan 2>&1 | tee /tmp/terraform-output.log
+
+# Monitor in second terminal
+tail -f /tmp/terraform-debug.log | grep -E "GET|POST|Refreshing|timeout|deadline"
+```
+
+#### Real-Time Monitoring (Multi-Terminal)
+
+```bash
+# Terminal 1: Run with logging
+TF_LOG=DEBUG terragrunt apply -auto-approve 2>&1 | tee /tmp/tf.log
+
+# Terminal 2: Monitor progress
+./scripts/monitor-terraform.sh /tmp/tf.log
+
+# Terminal 3 (optional): Watch Proxmox host
+ssh root@proxmox-host 'while true; do clear; date; free -h; qm list; pct list; sleep 10; done'
+```
+
+#### Timeout Configuration
+
+Resource-level timeouts are configured in modules (15 min standard, 30 min for clone/create):
+- `modules/proxmox-vm/main.tf`
+- `modules/splunk-vm/main.tf`
+
+For slow operations, reduce parallelism:
+```bash
+terragrunt apply -parallelism=1 -auto-approve
+```
+
+See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for detailed timeout analysis.
+
 ### Ansible
 
 - Lint with `ansible-lint` before commits

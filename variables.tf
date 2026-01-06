@@ -115,7 +115,7 @@ variable "datastore_backup" {
 variable "proxmox_ct_template_debian" {
   description = "The name of the Debian container template to use for containers"
   type        = string
-  default     = "debian-13-standard_13.2-1_amd64.tar.zst"
+  default     = "debian-13-standard_13.1-2_amd64.tar.zst"
 }
 
 variable "proxmox_iso_debian" {
@@ -318,6 +318,23 @@ variable "containers" {
     os_type    = optional(string, "debian")
   }))
   default = {}
+}
+
+# Network configuration - single source of truth
+variable "network_prefix" {
+  description = "Network prefix for IP address derivation (e.g., '10.0.1' - IPs derived as prefix.vm_id)"
+  type        = string
+  default     = "10.0.1"
+  validation {
+    condition     = can(regex("^([0-9]{1,3}\\.){2}[0-9]{1,3}$", var.network_prefix))
+    error_message = "Network prefix must be in format 'x.x.x' (e.g., '10.0.1')."
+  }
+}
+
+variable "network_cidr_mask" {
+  description = "CIDR mask for individual IPs (typically /32 for static IPs)"
+  type        = string
+  default     = "/32"
 }
 
 # Firewall configuration

@@ -84,6 +84,60 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
    terragrunt import module.vms.proxmox_virtual_environment_vm.vms["problematic-vm"] <vm-id>
    ```
 
+### "Context Deadline Exceeded" Analysis
+
+#### Understanding the Error
+
+This error occurs when the BPG provider's HTTP client times out during:
+1. **State refresh** - Querying all VMs/containers for current status
+2. **QEMU agent detection** - Cloud-init waiting for agent to come online
+3. **Backend lock operations** - DynamoDB acquiring/releasing locks
+
+#### Root Cause Analysis Checklist
+
+```bash
+# Check 1: Is Proxmox API responding?
+doppler run -- ./scripts/check-proxmox-api.sh
+# Should respond in <5 seconds for all tests
+
+# Check 2: Host resource contention?
+ssh root@proxmox-host 'free -h && df -h && uptime'
+# Look for: High memory usage, full disks, high load average
+
+# Check 3: DynamoDB lock stuck?
+aws dynamodb scan --table-name terraform-proxmox-locks-useast2 --region us-east-2
+# Should return quickly; if slow, AWS may be throttling
+
+# Check 4: Specific resource causing issues?
+TF_LOG=DEBUG terragrunt refresh 2>&1 | grep -B2 "context deadline\|timeout"
+```
+
+#### Proactive Monitoring
+
+Always monitor during long operations:
+
+```bash
+# Terminal 1: Run with debug logging
+TF_LOG=DEBUG terragrunt apply -auto-approve 2>&1 | tee /tmp/tf.log
+
+# Terminal 2: Real-time monitoring
+./scripts/monitor-terraform.sh /tmp/tf.log
+
+# Terminal 3 (optional): DynamoDB locks
+watch -n 5 'aws dynamodb scan --table-name terraform-proxmox-locks-useast2 --region us-east-2 --query Count'
+```
+
+#### Timeout Configuration
+
+Resource-level timeouts are set in modules (15 min standard, 30 min for clone/create):
+- See `modules/proxmox-vm/main.tf` lines 125-132
+- See `modules/splunk-vm/main.tf` lines 83-91
+
+For persistent timeout issues, reduce parallelism:
+```bash
+terragrunt apply -parallelism=1 -auto-approve
+```
+
 ### Network/Connectivity Issues
 
 #### Problem: Cannot reach infrastructure API endpoint

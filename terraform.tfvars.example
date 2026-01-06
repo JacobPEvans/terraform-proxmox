@@ -27,7 +27,7 @@ ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
 
 # ISO Configuration
 proxmox_iso_debian         = "debian-13.2.0-amd64-netinst.iso"
-proxmox_ct_template_debian = "debian-13-standard_13.2-1_amd64.tar.zst"
+proxmox_ct_template_debian = "debian-13-standard_13.1-2_amd64.tar.zst"
 
 # Firewall Configuration
 management_network     = "192.168.1.0/24"
@@ -59,13 +59,14 @@ vms = {}
 
 # Container Definitions
 # ID Scheme:
-#   100-110: Infrastructure (Ansible, PVE scripts)
+#   100-109: Infrastructure services (Ansible)
+#   110-119: Meta/Proxmox infrastructure (PVE scripts, bare metal helpers)
 #   150-169: AI development
 #   171-179: Cribl Stream
 #   181-189: Cribl Edge
 #   190-199: Splunk management
 containers = {
-  # Infrastructure (100-110)
+  # Infrastructure Services (100-109)
   "ansible" = {
     vm_id            = 100
     hostname         = "ansible"
@@ -120,14 +121,17 @@ containers = {
     }
   }
 
+  # Meta/Proxmox Infrastructure (110-119)
+  # NOTE: Container 110 may be created externally by community-scripts.
+  # If it already exists, either import it or comment out this definition.
   "pve-scripts-local" = {
-    vm_id            = 102
+    vm_id            = 110
     hostname         = "pve-scripts-local"
     description      = "Proxmox VE Helper Scripts (community-scripts/ProxmoxVE)"
     cpu_cores        = 1
     memory_dedicated = 512
     memory_swap      = 512
-    tags             = ["terraform", "proxmox", "helper-scripts", "container"]
+    tags             = ["terraform", "proxmox", "helper-scripts", "meta", "container"]
     pool_id          = "infrastructure"
 
     root_disk = {
@@ -142,7 +146,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.102/32"
+      ipv4_address = "192.168.1.110/32"
       ipv4_gateway = "192.168.1.1"
     }
   }

@@ -8,26 +8,34 @@ packer {
 }
 
 source "proxmox-clone" "splunk" {
-  # Connection - uses Doppler env vars (token auth preferred)
-  proxmox_url              = var.proxmox_url
-  username                 = var.proxmox_username
-  token                    = var.proxmox_token
+  proxmox_url              = local.proxmox_url
+  username                 = local.proxmox_username
+  token                    = local.proxmox_token
   node                     = var.proxmox_node
-  insecure_skip_tls_verify = var.proxmox_insecure_skip_tls_verify
+  insecure_skip_tls_verify = true
 
-  # Clone from base template
-  clone_vm             = "debian-12-base"
-  vm_id                = 9200
-  template_name        = "splunk-enterprise-10"
-  template_description = "Splunk ${var.splunk_version} on Debian 12 (Packer)"
-  full_clone           = true
+  clone_vm      = "debian-12-base"
+  vm_id         = 9200
+  vm_name       = "splunk-aio-template"
+  template_name = "splunk-aio-template"
+  full_clone    = true
 
-  # SSH (matches base template cloud-init)
   ssh_username = "debian"
-  ssh_password = var.packer_ssh_password
-  ssh_timeout  = "15m"
+  ssh_host     = var.packer_ssh_host
+  ssh_timeout  = "120s"
 
-  # Build resources
+  cloud_init              = true
+  cloud_init_storage_pool = "local-zfs"
+
+  network_adapters {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+  ipconfig {
+    ip      = var.packer_ip_address
+    gateway = var.packer_gateway
+  }
+
   cores  = 4
   memory = 4096
 }
@@ -37,6 +45,7 @@ build {
 
   provisioner "shell" {
     inline = [
+      "cloud-init status --wait || true",
       "sudo apt-get update",
       "sudo apt-get install -y wget",
       "wget -O splunk.deb 'https://download.splunk.com/products/splunk/releases/${var.splunk_version}/linux/splunk-${var.splunk_version}-${var.splunk_build}-linux-amd64.deb'",
