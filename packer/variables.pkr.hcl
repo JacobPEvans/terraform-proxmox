@@ -17,10 +17,12 @@ variable "proxmox_node" {
 
 # Parse BPG token format (user@realm!tokenid=secret) for Packer
 locals {
-  proxmox_url      = "${var.proxmox_endpoint}/api2/json"
-  token_parts      = split("=", var.proxmox_api_token_raw)
-  proxmox_username = local.token_parts[0]
-  proxmox_token    = local.token_parts[1]
+  proxmox_url        = "${var.proxmox_endpoint}/api2/json"
+  token_parts        = split("!", var.proxmox_api_token_raw)
+  token_id_parts     = split("=", local.token_parts[1])
+  proxmox_username   = local.token_parts[0]
+  proxmox_token      = local.token_id_parts[1]
+  proxmox_insecure   = env("PROXMOX_VE_INSECURE") == "true" ? true : false
 }
 
 # Splunk install (from Doppler)

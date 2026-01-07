@@ -19,7 +19,7 @@ variable "environment" {
 variable "proxmox_insecure" {
   description = "Allow insecure HTTPS connections to the Proxmox API (read from PROXMOX_VE_INSECURE)"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "proxmox_node" {
@@ -326,8 +326,8 @@ variable "network_prefix" {
   type        = string
   default     = "10.0.1"
   validation {
-    condition     = can(regex("^([0-9]{1,3}\\.){2}[0-9]{1,3}$", var.network_prefix))
-    error_message = "Network prefix must be in format 'x.x.x' (e.g., '10.0.1')."
+    condition     = can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.network_prefix))
+    error_message = "Network prefix must be in format 'x.x.x' where each octet is 0-255 (e.g., '10.0.1')."
   }
 }
 

@@ -93,8 +93,8 @@ module "containers" {
       # DRY: Derive IP from vm_id if not explicitly specified
       # Format: network_prefix.vm_id/mask (e.g., 10.0.1.100/32 for vm_id 100)
       ip_config = {
-        ipv4_address = try(v.ip_config.ipv4_address, null) != null ? v.ip_config.ipv4_address : local.derive_ip[v.vm_id]
-        ipv4_gateway = try(v.ip_config.ipv4_gateway, null) != null ? v.ip_config.ipv4_gateway : local.network_gateway
+        ipv4_address = try(v.ip_config.ipv4_address, local.derive_ip[v.vm_id])
+        ipv4_gateway = try(v.ip_config.ipv4_gateway, local.network_gateway)
       }
       # Only set user_account if explicitly provided or if we have SSH keys to add
       # For imported containers, this allows keeping their existing config
@@ -136,34 +136,30 @@ module "splunk_vm" {
 }
 
 # Firewall module - manages Proxmox firewall rules for Splunk
-# TODO: Re-enable once base infrastructure is stable
-# Commented out to allow clean end-to-end terragrunt apply without firewall timeouts
-#
-# module "firewall" {
-#   source = "./modules/firewall"
-#
-#   node_name = var.proxmox_node
-#
-#   splunk_vm_ids = merge(
-#     {
-#       for k, v in var.vms : k => v.vm_id
-#       if contains(try(v.tags, []), "splunk")
-#     },
-#     {
-#       "splunk-vm" = module.splunk_vm.vm_id
-#     }
-#   )
-#
-#   splunk_container_ids = {
-#     for k, v in var.containers : k => v.vm_id
-#     if contains(try(v.tags, []), "splunk")
-#   }
-#
-#   management_network = var.management_network
-#   splunk_network     = join(",", var.splunk_network)
-#
-#   depends_on = [module.vms, module.containers, module.splunk_vm]
-# }
+# Configured to enforce network policies on Splunk resources
+module "firewall" {
+  source = "./modules/firewall"
+
+  splunk_vm_ids = merge(
+    {
+      for k, v in var.vms : k => v.vm_id
+      if contains(try(v.tags, []), "splunk")
+    },
+    {
+      "splunk-vm" = module.splunk_vm.vm_id
+    }
+  )
+
+  splunk_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(try(v.tags, []), "splunk")
+  }
+
+  management_network = var.management_network
+  splunk_network     = join(",", var.splunk_network)
+
+  depends_on = [module.vms, module.containers, module.splunk_vm]
+}
 
 # Secure SSH key provisioning for Ansible VM
 resource "null_resource" "ansible_ssh_key_setup" {

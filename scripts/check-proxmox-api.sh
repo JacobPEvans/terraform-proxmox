@@ -19,30 +19,37 @@ if [[ -z "${PROXMOX_VE_API_TOKEN:-}" ]]; then
   exit 1
 fi
 
+# Optional: Use a custom CA certificate for TLS validation if provided.
+# If PROXMOX_VE_CACERT is not set, curl will use the system trust store.
+CURL_TLS_OPTS=()
+if [[ -n "${PROXMOX_VE_CACERT:-}" ]]; then
+  CURL_TLS_OPTS=(--cacert "${PROXMOX_VE_CACERT}")
+fi
+
 # Test 1: Version endpoint (fastest)
 echo "1. Version check (should be <1s):"
-time curl -k -s -m 10 \
+time curl "${CURL_TLS_OPTS[@]}" -s -m 10 \
   -X GET "${PROXMOX_VE_ENDPOINT}/api2/json/version" \
   -H "Authorization: PVEAPIToken=${PROXMOX_VE_API_TOKEN}" | jq -r '.data.version'
 
 # Test 2: Node status
 echo ""
 echo "2. Node status (shows load):"
-time curl -k -s -m 10 \
+time curl "${CURL_TLS_OPTS[@]}" -s -m 10 \
   -X GET "${PROXMOX_VE_ENDPOINT}/api2/json/nodes/${PROXMOX_VE_NODE:-pve}/status" \
   -H "Authorization: PVEAPIToken=${PROXMOX_VE_API_TOKEN}" | jq '{cpu: .data.cpu, memory: .data.memory}'
 
 # Test 3: List VMs (exercises state refresh path)
 echo ""
 echo "3. List VMs (state refresh test):"
-time curl -k -s -m 15 \
+time curl "${CURL_TLS_OPTS[@]}" -s -m 15 \
   -X GET "${PROXMOX_VE_ENDPOINT}/api2/json/nodes/${PROXMOX_VE_NODE:-pve}/qemu" \
   -H "Authorization: PVEAPIToken=${PROXMOX_VE_API_TOKEN}" | jq '.data | length' | xargs echo "VMs found:"
 
 # Test 4: List containers
 echo ""
 echo "4. List containers:"
-time curl -k -s -m 15 \
+time curl "${CURL_TLS_OPTS[@]}" -s -m 15 \
   -X GET "${PROXMOX_VE_ENDPOINT}/api2/json/nodes/${PROXMOX_VE_NODE:-pve}/lxc" \
   -H "Authorization: PVEAPIToken=${PROXMOX_VE_API_TOKEN}" | jq '.data | length' | xargs echo "Containers found:"
 

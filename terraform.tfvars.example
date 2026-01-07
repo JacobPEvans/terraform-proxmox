@@ -27,7 +27,7 @@ ansible_cloud_init_file = "cloud-init/ansible-server-example.yml"
 
 # ISO Configuration
 proxmox_iso_debian         = "debian-13.2.0-amd64-netinst.iso"
-proxmox_ct_template_debian = "debian-13-standard_13.1-2_amd64.tar.zst"
+proxmox_ct_template_debian = "debian-13-standard_13.2-1_amd64.tar.zst"
 
 # Firewall Configuration
 management_network     = "192.168.1.0/24"
@@ -52,7 +52,7 @@ splunk_vm_id         = 200
 splunk_vm_name       = "splunk-vm"
 splunk_vm_ip_address = "192.168.1.200/32"
 splunk_vm_pool_id    = "logging"
-template_id          = 9001  # Packer-built Splunk template
+template_id          = 9200  # Packer-built Splunk template
 
 # VM Definitions - Generic VMs (empty, Splunk uses dedicated module above)
 vms = {}

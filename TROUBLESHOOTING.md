@@ -88,7 +88,7 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
 
 #### Understanding the Error
 
-This error occurs when the BPG provider's HTTP client times out during:
+This error occurs when the Proxmox provider's HTTP client times out during:
 1. **State refresh** - Querying all VMs/containers for current status
 2. **QEMU agent detection** - Cloud-init waiting for agent to come online
 3. **Backend lock operations** - DynamoDB acquiring/releasing locks

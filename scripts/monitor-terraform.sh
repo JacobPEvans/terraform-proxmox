@@ -30,7 +30,7 @@ tail -f "$LOG_FILE" 2>/dev/null | while IFS= read -r line; do
     echo "[STATE]  $line"
   elif [[ "$line" =~ "context deadline" || "$line" =~ "deadline exceeded" ]]; then
     echo "[ERROR]  $line"
-  elif [[ "$line" =~ "timeout" && "$line" =~ -i "error" ]]; then
+  elif [[ "$line" =~ "timeout" ]] && [[ "$line" =~ [Ee]rror ]]; then
     echo "[ERROR]  $line"
   elif [[ "$line" =~ "Creating..." || "$line" =~ "Modifying..." || "$line" =~ "Destroying..." ]]; then
     echo "[CHANGE] $line"

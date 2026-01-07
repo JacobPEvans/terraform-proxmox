@@ -44,12 +44,12 @@ validate_secrets() {
     local optional_secrets=(
         "PACKER_SSH_PASSWORD"
         "SPLUNK_ADMIN_PASSWORD"
-        "SPLUNK_DOWNLOAD_SHA256"
+        "SPLUNK_DOWNLOAD_SHA512"
     )
 
     local missing=()
     local secrets
-    secrets=$(doppler secrets --only-names 2>/dev/null | tail -n +4 | head -n -1 | tr -d '│ ')
+    secrets=$(doppler secrets --json 2>/dev/null | jq -r 'keys[]')
 
     for secret in "${required_secrets[@]}"; do
         if ! echo "$secrets" | grep -q "^${secret}$"; then
@@ -81,7 +81,7 @@ validate_secrets() {
         log_info "Add missing secrets with:"
         echo "  doppler secrets set PACKER_SSH_PASSWORD"
         echo "  doppler secrets set SPLUNK_ADMIN_PASSWORD"
-        echo "  doppler secrets set SPLUNK_DOWNLOAD_SHA256"
+        echo "  doppler secrets set SPLUNK_DOWNLOAD_SHA512"
     fi
 }
 
@@ -101,7 +101,7 @@ case "${1:-build}" in
         ;;
     build)
         validate_secrets
-        log_info "Building Splunk template (9001)..."
+        log_info "Building Splunk template (9200)..."
         # Doppler secrets use PROXMOX_VE_* naming - no mapping needed
         doppler run -- packer build splunk.pkr.hcl
         ;;

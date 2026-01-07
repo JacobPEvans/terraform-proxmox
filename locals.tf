@@ -5,8 +5,8 @@ locals {
   network_gateway = "${var.network_prefix}.1"
 
   # Helper function to derive IP from VM ID
-  # Usage: local.derive_ip(100) => "10.0.1.100/32"
-  derive_ip = { for id in range(100, 300) : id => "${var.network_prefix}.${id}${var.network_cidr_mask}" }
+  # Usage: local.derive_ip[100] => "10.0.1.100/32"
+  derive_ip = { for id in range(1, 1000) : id => "${var.network_prefix}.${id}${var.network_cidr_mask}" }
 
   # Derived Splunk IP from VM ID (eliminates redundant splunk_vm_ip_address variable)
   splunk_derived_ip = "${var.network_prefix}.${var.splunk_vm_id}${var.network_cidr_mask}"

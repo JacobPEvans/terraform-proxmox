@@ -12,7 +12,7 @@ source "proxmox-clone" "splunk" {
   username                 = local.proxmox_username
   token                    = local.proxmox_token
   node                     = var.proxmox_node
-  insecure_skip_tls_verify = true
+  insecure_skip_tls_verify = local.proxmox_insecure
 
   clone_vm      = "debian-12-base"
   vm_id         = 9200
@@ -20,9 +20,10 @@ source "proxmox-clone" "splunk" {
   template_name = "splunk-aio-template"
   full_clone    = true
 
-  ssh_username = "debian"
-  ssh_host     = var.packer_ssh_host
-  ssh_timeout  = "120s"
+  ssh_username   = "debian"
+  ssh_host       = var.packer_ssh_host
+  ssh_timeout    = "120s"
+  ssh_agent_auth = true
 
   cloud_init              = true
   cloud_init_storage_pool = "local-zfs"
