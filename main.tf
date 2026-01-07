@@ -140,6 +140,8 @@ module "splunk_vm" {
 module "firewall" {
   source = "./modules/firewall"
 
+  node_name = var.proxmox_node
+
   splunk_vm_ids = merge(
     {
       for k, v in var.vms : k => v.vm_id
