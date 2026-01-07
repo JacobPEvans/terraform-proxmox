@@ -24,5 +24,5 @@ variable "management_network" {
 variable "splunk_network" {
   description = "Comma-separated list of Splunk node IPs for cluster communication"
   type        = string
-  default     = "192.168.1.100,192.168.1.101,192.168.1.205"
+  default     = "192.168.1.199,192.168.1.200"
 }

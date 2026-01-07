@@ -347,7 +347,7 @@ variable "management_network" {
 variable "splunk_network" {
   description = "List of Splunk VM IP addresses for firewall rules"
   type        = list(string)
-  default     = ["192.168.1.100"]
+  default     = ["192.168.1.199", "192.168.1.200"]
 }
 
 variable "splunk_vm_id" {
@@ -373,7 +373,7 @@ variable "splunk_vm_name" {
 variable "splunk_vm_ip_address" {
   description = "IPv4 address with CIDR notation for the Splunk VM"
   type        = string
-  default     = "192.168.1.100/32"
+  default     = "192.168.1.200/32"
   validation {
     condition     = can(cidrhost(var.splunk_vm_ip_address, 0))
     error_message = "Splunk VM IP address must be a valid IPv4 address in CIDR notation."
