@@ -1,7 +1,7 @@
 # ACME Certificate Implementation Plan
 
 **Status:** In Planning Phase
-**Plan File:** `/Users/jevans/.claude/plans/quizzical-herding-fountain.md`
+**Plan File:** `.claude/plans/quizzical-herding-fountain.md`
 **Created:** 2026-01-07
 
 ## Quick Summary
@@ -51,7 +51,7 @@ Parent Issue + 5 Child Issues will be created:
 4. `chore: Configure Doppler secrets for Route53 DNS challenges`
 5. `docs: Add ACME certificate management documentation`
 
-See `/Users/jevans/.claude/plans/quizzical-herding-fountain.md` for detailed issue templates.
+See `.claude/plans/quizzical-herding-fountain.md` for detailed issue templates.
 
 ## Key Design Decisions
 
@@ -60,6 +60,20 @@ See `/Users/jevans/.claude/plans/quizzical-herding-fountain.md` for detailed iss
 ✅ **Port Strategy:** Direct Proxmox config (simpler than reverse proxy)
 ✅ **Module Pattern:** Follows existing 7-module architecture with `for_each` patterns
 ✅ **Secrets:** All AWS credentials in Doppler, never in git or tfvars
+
+### Secret Flow: Doppler → Proxmox
+
+**For Terraform Deployment:**
+1. Local workstation runs: `aws-vault exec terraform -- doppler run -- terragrunt apply`
+2. Doppler injects `ROUTE53_ACCESS_KEY` and `ROUTE53_SECRET_KEY` as environment variables
+3. Terraform configures Proxmox DNS plugin via BPG provider API calls
+4. Proxmox stores credentials in `/etc/pve/priv/acme/plugins.cfg` (encrypted cluster filesystem)
+
+**For Automatic Renewal:**
+1. Proxmox's `pve-daily-update.service` runs certificate checks
+2. Proxmox reads credentials from `/etc/pve/priv/acme/plugins.cfg`
+3. Proxmox uses stored Route53 credentials for DNS-01 challenges
+4. No additional secret sync required - credentials persist in Proxmox cluster storage
 
 ## Success Criteria
 

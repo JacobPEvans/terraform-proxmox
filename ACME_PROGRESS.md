@@ -7,7 +7,7 @@
 ## Completed ✅
 
 ### 1. Implementation Planning
-- [x] Comprehensive plan document created (`/Users/jevans/.claude/plans/quizzical-herding-fountain.md`)
+- [x] Comprehensive plan document created (`.claude/plans/quizzical-herding-fountain.md`)
 - [x] Quick reference guide (`ACME_IMPLEMENTATION_PLAN.md`)
 - [x] GitHub issue hierarchy created:
   - **Parent:** #61 - Configure ACME certificates and HTTPS access for Proxmox
@@ -187,7 +187,7 @@ None at module level. Proceeding with:
 
 ## Links
 
-- **Plan Document:** `/Users/jevans/.claude/plans/quizzical-herring-fountain.md`
+- **Plan Document:** `.claude/plans/quizzical-herding-fountain.md`
 - **PR:** https://github.com/JacobPEvans/terraform-proxmox/pull/65
 - **Parent Issue:** https://github.com/JacobPEvans/terraform-proxmox/issues/61
 - **Module README:** `modules/acme-certificate/README.md`
