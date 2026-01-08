@@ -350,6 +350,12 @@ variable "splunk_network" {
   default     = ["192.168.1.199", "192.168.1.200"]
 }
 
+variable "internal_networks" {
+  description = "RFC1918 networks allowed to access Splunk (SSH, Web UI, forwarding port 9997). Configure in terraform.tfvars for your actual networks."
+  type        = list(string)
+  default     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+}
+
 variable "splunk_vm_id" {
   description = "VM ID for the Splunk VM"
   type        = number

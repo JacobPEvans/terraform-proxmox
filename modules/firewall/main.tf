@@ -40,29 +40,35 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_vm" {
   node_name = var.node_name
   vm_id     = each.value
 
-  # Allow SSH from management network
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dport   = "22"
-    source  = var.management_network
-    comment = "Allow SSH from management network"
-    enabled = true
+  # Allow SSH from all internal networks (RFC1918)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "22"
+      source  = rule.value
+      comment = "Allow SSH from ${rule.value}"
+      enabled = true
+    }
   }
 
-  # Allow Splunk Web UI (8000)
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dport   = "8000"
-    source  = var.management_network
-    comment = "Allow Splunk Web UI"
-    enabled = true
+  # Allow Splunk Web UI (8000) from all internal networks
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "8000"
+      source  = rule.value
+      comment = "Allow Splunk Web UI from ${rule.value}"
+      enabled = true
+    }
   }
 
-  # Allow Splunk Management Port (8089)
+  # Allow Splunk Management Port (8089) from cluster nodes only
   rule {
     type    = "in"
     action  = "ACCEPT"
@@ -73,15 +79,18 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_vm" {
     enabled = true
   }
 
-  # Allow Splunk Forwarding Port (9997)
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dport   = "9997"
-    source  = var.splunk_network
-    comment = "Allow Splunk forwarding from cluster"
-    enabled = true
+  # Allow Splunk Forwarding Port (9997) from all internal networks
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "9997"
+      source  = rule.value
+      comment = "Allow Splunk forwarding from ${rule.value}"
+      enabled = true
+    }
   }
 
   # Allow Splunk Replication (8080)
@@ -106,14 +115,43 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_vm" {
     enabled = true
   }
 
-  # OUTBOUND: Only allow to other Splunk nodes
-  rule {
-    type    = "out"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dest    = var.splunk_network
-    comment = "Allow outbound to Splunk cluster only"
-    enabled = true
+  # OUTBOUND: Allow responses to internal networks (for SSH, Web UI, etc.)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "out"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dest    = rule.value
+      comment = "Allow outbound to ${rule.value}"
+      enabled = true
+    }
+  }
+
+  # OUTBOUND: Allow ICMP to internal networks (for ping responses)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "out"
+      action  = "ACCEPT"
+      proto   = "icmp"
+      dest    = rule.value
+      comment = "Allow ICMP to ${rule.value}"
+      enabled = true
+    }
+  }
+
+  # INBOUND: Allow ICMP from internal networks (for ping)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "icmp"
+      source  = rule.value
+      comment = "Allow ICMP from ${rule.value}"
+      enabled = true
+    }
   }
 
   depends_on = [proxmox_virtual_environment_firewall_options.splunk_vm]
@@ -126,29 +164,35 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
   node_name    = var.node_name
   container_id = each.value
 
-  # Allow SSH
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dport   = "22"
-    source  = var.management_network
-    comment = "Allow SSH from management network"
-    enabled = true
+  # Allow SSH from all internal networks (RFC1918)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "22"
+      source  = rule.value
+      comment = "Allow SSH from ${rule.value}"
+      enabled = true
+    }
   }
 
-  # Allow Splunk Web UI
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dport   = "8000"
-    source  = var.management_network
-    comment = "Allow Splunk Web UI"
-    enabled = true
+  # Allow Splunk Web UI (8000) from all internal networks
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "8000"
+      source  = rule.value
+      comment = "Allow Splunk Web UI from ${rule.value}"
+      enabled = true
+    }
   }
 
-  # Allow Splunk Management
+  # Allow Splunk Management (8089) from cluster nodes only
   rule {
     type    = "in"
     action  = "ACCEPT"
@@ -159,15 +203,18 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
     enabled = true
   }
 
-  # Allow Splunk Forwarding Port (9997) - for receiving logs
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dport   = "9997"
-    source  = var.splunk_network
-    comment = "Allow Splunk forwarding"
-    enabled = true
+  # Allow Splunk Forwarding Port (9997) from all internal networks
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "9997"
+      source  = rule.value
+      comment = "Allow Splunk forwarding from ${rule.value}"
+      enabled = true
+    }
   }
 
   # Allow Splunk Replication (8080)
@@ -192,14 +239,43 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
     enabled = true
   }
 
-  # OUTBOUND: Only to Splunk nodes
-  rule {
-    type    = "out"
-    action  = "ACCEPT"
-    proto   = "tcp"
-    dest    = var.splunk_network
-    comment = "Allow outbound to Splunk cluster"
-    enabled = true
+  # OUTBOUND: Allow responses to internal networks (for SSH, Web UI, etc.)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "out"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dest    = rule.value
+      comment = "Allow outbound to ${rule.value}"
+      enabled = true
+    }
+  }
+
+  # OUTBOUND: Allow ICMP to internal networks (for ping responses)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "out"
+      action  = "ACCEPT"
+      proto   = "icmp"
+      dest    = rule.value
+      comment = "Allow ICMP to ${rule.value}"
+      enabled = true
+    }
+  }
+
+  # INBOUND: Allow ICMP from internal networks (for ping)
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "icmp"
+      source  = rule.value
+      comment = "Allow ICMP from ${rule.value}"
+      enabled = true
+    }
   }
 
   depends_on = [proxmox_virtual_environment_firewall_options.splunk_container]

@@ -34,6 +34,11 @@ management_network     = "192.168.1.0/24"
 splunk_network         = ["192.168.1.199", "192.168.1.200"]
 splunk_network_gateway = "192.168.1.1"
 
+# Internal networks allowed to access Splunk (SSH, Web UI, forwarding port 9997)
+# Default includes all RFC1918: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+# Override in terraform.tfvars (gitignored) with your actual internal networks
+internal_networks = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+
 # Resource Pools
 pools = {
   "logging" = {
