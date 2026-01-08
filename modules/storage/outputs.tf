@@ -7,7 +7,12 @@ output "cloud_init_file_id" {
   value       = length(proxmox_virtual_environment_file.cloud_init_config) > 0 ? proxmox_virtual_environment_file.cloud_init_config[0].id : null
 }
 
-output "storage_validated" {
-  description = "Confirms storage data sources are loaded"
-  value       = true
+output "datastores_available" {
+  description = "Available datastores on the target node"
+  value = {
+    for ds in data.proxmox_virtual_environment_datastores.available.datastores : ds.id => {
+      type          = ds.type
+      content_types = ds.content
+    }
+  }
 }

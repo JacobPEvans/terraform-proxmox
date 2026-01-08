@@ -15,8 +15,22 @@ data "proxmox_virtual_environment_datastores" "available" {
   node_name = var.node_name
 }
 
-# Note: Storage validation happens implicitly when VMs/containers reference datastore_id
-# The BPG provider will error if a non-existent datastore is referenced
+# Validate that common datastores exist on the target node
+# This provides faster feedback than waiting for a resource to fail during apply
+check "datastore_local_exists" {
+  condition = contains([
+    for ds in data.proxmox_virtual_environment_datastores.available.datastores : ds.id
+  ], "local")
+  error_message = "The required 'local' datastore for ISOs and snippets does not exist on node ${var.node_name}."
+}
+
+check "datastore_local_zfs_exists" {
+  condition = contains([
+    for ds in data.proxmox_virtual_environment_datastores.available.datastores : ds.id
+  ], "local-zfs")
+  error_message = "The required 'local-zfs' datastore for VM disks does not exist on node ${var.node_name}."
+}
+
 # Common datastores in our environment:
 #   - local       (dir, /var/lib/vz)          - ISOs, templates, backups
 #   - local-zfs   (zfspool, rpool/data)       - VM disks, container rootfs

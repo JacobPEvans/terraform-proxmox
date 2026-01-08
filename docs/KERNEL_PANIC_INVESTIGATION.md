@@ -166,4 +166,4 @@ This is a very new kernel (January 2026). If issues persist after removing overc
 
 - [ZFS Error Messages](https://openzfs.github.io/openzfs-docs/msg/ZFS-8000-8A)
 - [Proxmox VE Kernel Parameters](https://pve.proxmox.com/wiki/Linux_Container#pct_settings)
-- [AMD Zen DIV0 Bug](https://www.kernel.org/doc/html/latest/x86/amd-memory-encryption.html)
+- [AMD Zen1 DIV0 Bug](https://www.kernel.org/doc/html/latest/x86/amd-memory-encryption.html)
