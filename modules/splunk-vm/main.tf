@@ -76,6 +76,7 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
 
     user_account {
       username = "debian"
+      password = var.vm_password
       keys     = var.ssh_public_key != "" ? [var.ssh_public_key] : []
     }
   }

@@ -98,3 +98,10 @@ variable "ssh_public_key" {
     error_message = "SSH public key must be empty or start with a valid SSH key type prefix."
   }
 }
+
+variable "vm_password" {
+  description = "Password for the VM user account"
+  type        = string
+  default     = "packer123"
+  sensitive   = true
+}
