@@ -41,58 +41,16 @@
   tags:
     - molecule-notest
 
-- name: Allow Splunk Web UI from allowed networks
+- name: Allow Splunk ports from allowed networks
   ansible.builtin.iptables:
     chain: INPUT
     protocol: tcp
-    destination_port: "{{ splunk_ports.web }}"
-    source: "{{ item }}"
+    destination_port: "{{ item[1].value }}"
+    source: "{{ item[0] }}"
     jump: ACCEPT
-  loop: "{{ splunk_allowed_networks }}"
-  tags:
-    - molecule-notest
-
-- name: Allow Splunk Management from allowed networks
-  ansible.builtin.iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: "{{ splunk_ports.mgmt }}"
-    source: "{{ item }}"
-    jump: ACCEPT
-  loop: "{{ splunk_allowed_networks }}"
-  tags:
-    - molecule-notest
-
-- name: Allow Splunk Forwarding from allowed networks
-  ansible.builtin.iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: "{{ splunk_ports.forwarding }}"
-    source: "{{ item }}"
-    jump: ACCEPT
-  loop: "{{ splunk_allowed_networks }}"
-  tags:
-    - molecule-notest
-
-- name: Allow Splunk Replication from allowed networks
-  ansible.builtin.iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: "{{ splunk_ports.replication }}"
-    source: "{{ item }}"
-    jump: ACCEPT
-  loop: "{{ splunk_allowed_networks }}"
-  tags:
-    - molecule-notest
-
-- name: Allow Splunk Clustering from allowed networks
-  ansible.builtin.iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: "{{ splunk_ports.clustering }}"
-    source: "{{ item }}"
-    jump: ACCEPT
-  loop: "{{ splunk_allowed_networks }}"
+  loop: "{{ splunk_allowed_networks | product(splunk_ports | dict2items) | list }}"
+  loop_control:
+    label: "Allow {{ item[1].key }} from {{ item[0] }}"
   tags:
     - molecule-notest
 
