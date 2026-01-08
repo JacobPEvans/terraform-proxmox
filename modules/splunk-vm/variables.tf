@@ -100,7 +100,8 @@ variable "ssh_public_key" {
 }
 
 variable "vm_password" {
-  description = "Password for the VM user account. This must be set explicitly."
+  description = "Password for the VM user account"
   type        = string
+  default     = "packer123"
   sensitive   = true
 }

@@ -12,7 +12,7 @@ variable "vms" {
 
     # Resource configuration
     cpu_cores        = optional(number, 2)
-    cpu_type         = optional(string, "x86-64-v2-AES")
+    cpu_type         = optional(string, "host")
     memory_dedicated = optional(number, 1024)
     memory_floating  = optional(number)
     vga_type         = optional(string, "std")
