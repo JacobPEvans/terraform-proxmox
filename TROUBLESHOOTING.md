@@ -157,6 +157,58 @@ terragrunt apply -parallelism=1 -auto-approve
    ssh -i <ssh-key-path> <user>@<host>
    ```
 
+### SSL Certificate Issues
+
+#### Problem: Browser shows certificate error or wrong hostname
+
+After Proxmox upgrades, hostname changes, or domain migrations, certificates may reference old hostnames.
+
+**Symptoms:**
+
+- Browser shows `NET::ERR_CERT_COMMON_NAME_INVALID`
+- Certificate shows wrong CN (e.g., `CN=pve.mgmt` when accessing `pve.example.com`)
+- `curl -vk` shows unexpected subject/issuer
+
+**Diagnosis:**
+
+```bash
+# Check what certificate is being served
+curl -vk https://pve.example.com:8006/ 2>&1 | grep -E "(subject|issuer)"
+
+# Check certificate on server
+ssh pve "openssl x509 -in /etc/pve/local/pve-ssl.pem -noout -subject -ext subjectAltName"
+
+# Check hostname configuration
+ssh pve "hostname && hostname -f && cat /etc/hosts | grep pve"
+```
+
+**Root Cause:**
+
+Certificate was generated before hostname/domain configuration was corrected. The `pvecm updatecerts` command uses values from `/etc/hosts` at generation time.
+
+**Fix for Self-Signed Certificates:**
+
+```bash
+# Ensure /etc/hosts is correct first:
+# <IP> <FQDN> <short-hostname>
+# Example: 10.0.1.14 pve.example.com pve
+
+ssh pve "pvecm updatecerts --force && systemctl restart pveproxy"
+```
+
+**Fix for ACME/Let's Encrypt Certificates:**
+
+```bash
+# Configure ACME with correct domain
+ssh pve "cat /etc/pve/nodes/pve/config"
+# Should show: acmedomain0: pve.example.com,plugin=AWS
+
+# Order new certificate
+ssh pve "pvenode acme cert order --force"
+```
+
+See [docs/ACME.md](./docs/ACME.md) for detailed ACME configuration.
+
 ### State vs Infrastructure Mismatch
 
 #### Problem: Terraform state shows different resources than actual infrastructure
