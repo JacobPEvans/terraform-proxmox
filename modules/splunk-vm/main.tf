@@ -31,8 +31,12 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
 
   cpu {
     cores      = 6
-    type       = "x86-64-v2-AES"
+    type       = "host"
     hotplugged = 0
+  }
+
+  vga {
+    type = "std"
   }
 
   memory {
