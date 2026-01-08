@@ -31,4 +31,12 @@ variable "internal_networks" {
   description = "RFC1918 networks allowed to access Splunk (SSH, Web UI, forwarding port 9997)"
   type        = list(string)
   default     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+
+  validation {
+    condition = alltrue([
+      for net in var.internal_networks :
+      can(cidrnetmask(net))
+    ])
+    error_message = "Each internal_networks entry must be a valid CIDR block, for example 10.0.0.0/8."
+  }
 }

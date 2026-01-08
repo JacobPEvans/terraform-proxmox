@@ -115,7 +115,40 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_vm" {
     enabled = true
   }
 
-  # OUTBOUND: Allow responses to internal networks (for SSH, Web UI, etc.)
+  # OUTBOUND: Allow Splunk Management (8089) to cluster network
+  rule {
+    type    = "out"
+    action  = "ACCEPT"
+    proto   = "tcp"
+    dport   = "8089"
+    dest    = var.splunk_network
+    comment = "Allow outbound Splunk management to cluster"
+    enabled = true
+  }
+
+  # OUTBOUND: Allow Splunk Replication (8080) to cluster network
+  rule {
+    type    = "out"
+    action  = "ACCEPT"
+    proto   = "tcp"
+    dport   = "8080"
+    dest    = var.splunk_network
+    comment = "Allow outbound Splunk replication to cluster"
+    enabled = true
+  }
+
+  # OUTBOUND: Allow Splunk Clustering (9887) to cluster network
+  rule {
+    type    = "out"
+    action  = "ACCEPT"
+    proto   = "tcp"
+    dport   = "9887"
+    dest    = var.splunk_network
+    comment = "Allow outbound Splunk clustering to cluster"
+    enabled = true
+  }
+
+  # OUTBOUND: Allow outbound TCP to internal networks for SSH, Web UI responses
   dynamic "rule" {
     for_each = var.internal_networks
     content {
@@ -123,12 +156,12 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_vm" {
       action  = "ACCEPT"
       proto   = "tcp"
       dest    = rule.value
-      comment = "Allow outbound to ${rule.value}"
+      comment = "Allow outbound TCP to ${rule.value}"
       enabled = true
     }
   }
 
-  # OUTBOUND: Allow ICMP to internal networks (for ping responses)
+  # OUTBOUND: Allow outbound ICMP to internal networks for diagnostics (ping, traceroute)
   dynamic "rule" {
     for_each = var.internal_networks
     content {
@@ -136,7 +169,7 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_vm" {
       action  = "ACCEPT"
       proto   = "icmp"
       dest    = rule.value
-      comment = "Allow ICMP to ${rule.value}"
+      comment = "Allow outbound ICMP to ${rule.value} for diagnostics"
       enabled = true
     }
   }
@@ -239,7 +272,40 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
     enabled = true
   }
 
-  # OUTBOUND: Allow responses to internal networks (for SSH, Web UI, etc.)
+  # OUTBOUND: Allow Splunk Management (8089) to Splunk network
+  rule {
+    type    = "out"
+    action  = "ACCEPT"
+    proto   = "tcp"
+    dport   = "8089"
+    dest    = var.splunk_network
+    comment = "Allow outbound Splunk management to Splunk network"
+    enabled = true
+  }
+
+  # OUTBOUND: Allow Splunk Replication (8080) to Splunk network
+  rule {
+    type    = "out"
+    action  = "ACCEPT"
+    proto   = "tcp"
+    dport   = "8080"
+    dest    = var.splunk_network
+    comment = "Allow outbound Splunk replication to Splunk network"
+    enabled = true
+  }
+
+  # OUTBOUND: Allow Splunk Clustering (9887) to Splunk network
+  rule {
+    type    = "out"
+    action  = "ACCEPT"
+    proto   = "tcp"
+    dport   = "9887"
+    dest    = var.splunk_network
+    comment = "Allow outbound Splunk clustering to Splunk network"
+    enabled = true
+  }
+
+  # OUTBOUND: Allow outbound TCP to internal networks for SSH, Web UI responses
   dynamic "rule" {
     for_each = var.internal_networks
     content {
@@ -247,12 +313,12 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
       action  = "ACCEPT"
       proto   = "tcp"
       dest    = rule.value
-      comment = "Allow outbound to ${rule.value}"
+      comment = "Allow outbound TCP to ${rule.value}"
       enabled = true
     }
   }
 
-  # OUTBOUND: Allow ICMP to internal networks (for ping responses)
+  # OUTBOUND: Allow outbound ICMP to internal networks for diagnostics (ping, traceroute)
   dynamic "rule" {
     for_each = var.internal_networks
     content {
@@ -260,7 +326,7 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
       action  = "ACCEPT"
       proto   = "icmp"
       dest    = rule.value
-      comment = "Allow ICMP to ${rule.value}"
+      comment = "Allow outbound ICMP to ${rule.value} for diagnostics"
       enabled = true
     }
   }
