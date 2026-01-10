@@ -16,14 +16,14 @@ output "pools" {
 }
 
 # Storage outputs
-output "datastores" {
-  description = "Created datastores"
-  value       = module.storage.datastores
-}
-
 output "cloud_init_file_id" {
   description = "Cloud-init configuration file ID"
   value       = module.storage.cloud_init_file_id
+}
+
+output "storage_validated" {
+  description = "Confirms storage data sources are loaded"
+  value       = module.storage.storage_validated
 }
 
 # VM outputs

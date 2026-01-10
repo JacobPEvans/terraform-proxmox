@@ -332,9 +332,9 @@ variable "network_prefix" {
 }
 
 variable "network_cidr_mask" {
-  description = "CIDR mask for individual IPs (typically /32 for static IPs)"
+  description = "CIDR mask for network IPs (use /24 for standard LAN, /32 only for point-to-point)"
   type        = string
-  default     = "/32"
+  default     = "/24"
 }
 
 # Firewall configuration

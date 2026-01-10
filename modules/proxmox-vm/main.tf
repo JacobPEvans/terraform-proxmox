@@ -36,6 +36,10 @@ resource "proxmox_virtual_environment_vm" "vms" {
     hotplugged = 0
   }
 
+  vga {
+    type = each.value.vga_type
+  }
+
   memory {
     dedicated = each.value.memory_dedicated
     floating  = each.value.memory_floating != null ? each.value.memory_floating : each.value.memory_dedicated

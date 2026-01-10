@@ -35,12 +35,12 @@ variable "pool_id" {
 }
 
 variable "ip_address" {
-  description = "IPv4 address with CIDR notation for the Splunk VM (e.g., 192.168.1.100/32)"
+  description = "IPv4 address with CIDR notation for the Splunk VM (e.g., 192.168.1.100/24)"
   type        = string
 
   validation {
     condition     = can(cidrhost(var.ip_address, 0))
-    error_message = "IP address must be a valid IPv4 address in CIDR notation (e.g., 192.168.1.100/32)."
+    error_message = "IP address must be a valid IPv4 address in CIDR notation (e.g., 192.168.1.100/24)."
   }
 }
 
@@ -97,4 +97,11 @@ variable "ssh_public_key" {
     condition     = can(regex("^(ssh-rsa |ssh-ed25519 |ecdsa-sha2-|$)", var.ssh_public_key))
     error_message = "SSH public key must be empty or start with a valid SSH key type prefix."
   }
+}
+
+variable "vm_password" {
+  description = "Password for the VM user account"
+  type        = string
+  default     = "packer123"
+  sensitive   = true
 }

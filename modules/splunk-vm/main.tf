@@ -29,10 +29,17 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
     type    = "virtio"
   }
 
+  # CPU type "host" exposes all host CPU features for maximum performance
+  # This improves performance for workloads like MongoDB that require modern CPU instructions (AVX, SSE4.2)
+  # Trade-off: VMs cannot be live migrated to hosts with different CPUs. Use portable default for multi-host environments.
   cpu {
     cores      = 6
-    type       = "x86-64-v2-AES"
+    type       = "host"
     hotplugged = 0
+  }
+
+  vga {
+    type = "std"
   }
 
   memory {
@@ -72,6 +79,7 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
 
     user_account {
       username = "debian"
+      password = var.vm_password
       keys     = var.ssh_public_key != "" ? [var.ssh_public_key] : []
     }
   }
