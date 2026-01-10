@@ -33,14 +33,9 @@ resource "proxmox_virtual_environment_acme_dns_plugin" "dns_plugins" {
   plugin = each.value.plugin_type # e.g., "route53"
   id     = each.key                # Plugin identifier
 
-  # API-specific configuration (e.g., AWS credentials)
-  # This comes from Doppler secrets as a JSON string
-  api = each.value.api_type
-
-  # Prevent drift - plugin configuration is managed outside Terraform
-  lifecycle {
-    ignore_changes = [api]
-  }
+  # API-specific configuration (AWS credentials as JSON)
+  # This comes from Doppler secrets and contains the AWS access key and secret key
+  api = each.value.api
 }
 
 # ACME Certificate - the actual TLS certificate
@@ -58,11 +53,8 @@ resource "proxmox_virtual_environment_acme_certificate" "certificates" {
     }
   ]
 
-  # Lifecycle management
-  # Don't regenerate certificates on every Terraform run
-  lifecycle {
-    ignore_changes = [domains]
-  }
+  # Note: Proxmox manages certificate renewal automatically via pve-daily-update.service
+  # Terraform manages the certificate resource but respects Proxmox's automatic renewal
 
   # Ensure dependencies are satisfied
   depends_on = [

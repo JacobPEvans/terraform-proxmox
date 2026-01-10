@@ -7,15 +7,18 @@
 ## Quick Summary
 
 This document outlines the implementation plan for:
+
 1. **Importing existing ACME certificates** from Proxmox into Terraform state
 2. **Configuring Proxmox to accept HTTPS on port 443** (eliminating :8006 requirement)
 
 ## Current State
+
 - ACME certificates exist in Proxmox but are not managed by Terraform
 - HTTPS access requires `:8006` port suffix
 - Certificate management is manual (not in IaC)
 
 ## Target Outcome
+
 - All ACME resources managed via Terraform modules
 - Proxmox accessible via `https://pve.example.com` (standard port)
 - Automatic certificate renewal via Proxmox + Route53
@@ -24,6 +27,7 @@ This document outlines the implementation plan for:
 ## Implementation Structure
 
 ### Part 1: ACME Import (6 phases)
+
 1. **Discovery** - Query Proxmox API for existing resources
 2. **Module Creation** - Create `modules/acme-certificate/`
 3. **Root Integration** - Integrate module into main configuration
@@ -32,6 +36,7 @@ This document outlines the implementation plan for:
 6. **Validation** - Zero-drift terraform plan
 
 ### Part 2: Port 443 Configuration (5 phases)
+
 1. **Proxmox Config** - Modify pveproxy to listen on port 443
 2. **Firewall Rules** - Allow port 443 inbound
 3. **DNS Validation** - Verify Route53 A record
@@ -45,6 +50,7 @@ Parent Issue + 5 Child Issues will be created:
 **Parent:** `feat: Configure ACME certificates and HTTPS access for Proxmox`
 
 **Children:**
+
 1. `feat: Create ACME certificate Terraform module`
 2. `feat: Import existing ACME resources into Terraform state`
 3. `feat: Configure Proxmox for port 443 HTTPS access`
@@ -64,12 +70,14 @@ See `.claude/plans/quizzical-herding-fountain.md` for detailed issue templates.
 ### Secret Flow: Doppler → Proxmox
 
 **For Terraform Deployment:**
+
 1. Local workstation runs: `aws-vault exec terraform -- doppler run -- terragrunt apply`
 2. Doppler injects `ROUTE53_ACCESS_KEY` and `ROUTE53_SECRET_KEY` as environment variables
 3. Terraform configures Proxmox DNS plugin via BPG provider API calls
 4. Proxmox stores credentials in `/etc/pve/priv/acme/plugins.cfg` (encrypted cluster filesystem)
 
 **For Automatic Renewal:**
+
 1. Proxmox's `pve-daily-update.service` runs certificate checks
 2. Proxmox reads credentials from `/etc/pve/priv/acme/plugins.cfg`
 3. Proxmox uses stored Route53 credentials for DNS-01 challenges
@@ -90,19 +98,20 @@ See `.claude/plans/quizzical-herding-fountain.md` for detailed issue templates.
 ## Files to Create/Modify
 
 **New Files:**
+
 - `modules/acme-certificate/main.tf`
 - `modules/acme-certificate/variables.tf`
 - `modules/acme-certificate/outputs.tf`
 - `modules/acme-certificate/README.md`
 
 **Modified Files:**
-- `main.tf` (add module instantiation)
+
+- `main.tf` (add ACME module instantiation and locals for Route53 DNS plugin config)
 - `variables.tf` (add ACME variables)
 - `outputs.tf` (add ACME outputs)
-- `locals.tf` (add Route53 config builder)
-- `.env/terraform.tfvars` (add ACME config)
 
 **Doppler Secrets to Add:**
+
 - ROUTE53_ACCESS_KEY
 - ROUTE53_SECRET_KEY
 - ROUTE53_ZONE_ID

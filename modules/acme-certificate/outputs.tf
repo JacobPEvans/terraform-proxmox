@@ -12,11 +12,11 @@ output "dns_plugins" {
   description = "Configured DNS challenge plugins"
   value = {
     for k, v in proxmox_virtual_environment_acme_dns_plugin.dns_plugins : k => {
-      id         = v.id
-      plugin     = v.plugin
-      api_type   = v.api
+      id     = v.id
+      plugin = v.plugin
     }
   }
+  sensitive = true
 }
 
 output "certificates" {

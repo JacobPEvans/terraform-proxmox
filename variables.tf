@@ -428,13 +428,21 @@ variable "acme_accounts" {
     ])
     error_message = "Each email must be a valid email address."
   }
+
+  validation {
+    condition = alltrue([
+      for k, v in var.acme_accounts :
+      can(regex("^https://[A-Za-z0-9._~:/?#\\[\\]@!$&'()*+,;=%-]+$", v.directory))
+    ])
+    error_message = "Each ACME directory must be a valid HTTPS URL (e.g., https://acme-v02.api.letsencrypt.org/directory)."
+  }
 }
 
 variable "dns_plugins" {
   description = "DNS challenge plugins for ACME validation (e.g., AWS Route53)"
   type = map(object({
-    plugin_type = string
-    api_type    = string
+    plugin_type = string # Plugin identifier (e.g., "route53")
+    api         = string # AWS credentials as JSON string from Doppler secrets
   }))
   default = {}
 

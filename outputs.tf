@@ -62,4 +62,5 @@ output "acme_accounts" {
 output "acme_dns_plugins" {
   description = "DNS plugins for ACME validation"
   value       = try(module.acme_certificates[0].dns_plugins, {})
+  sensitive   = true
 }
