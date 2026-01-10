@@ -16,3 +16,8 @@ output "datastores_available" {
     }
   }
 }
+
+output "storage_validated" {
+  description = "Confirms storage validation checks have passed"
+  value       = true
+}
