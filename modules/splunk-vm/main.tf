@@ -32,7 +32,7 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
     type    = "virtio"
   }
 
-  # CPU configuration: "host" exposes all AMD Ryzen 7 1700 CPU features directly
+  # CPU configuration: "host" exposes all host CPU features directly
   # to the VM with zero emulation overhead. This provides maximum stability and
   # performance on a single-node homelab. VMs will only run on identical/similar
   # CPUs, but that's acceptable for homelab use.

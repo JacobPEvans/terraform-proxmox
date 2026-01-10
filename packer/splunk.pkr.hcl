@@ -22,7 +22,7 @@ source "proxmox-clone" "splunk" {
 
   # CRITICAL: CPU and hardware configuration to prevent system freezes
   # These settings override Packer's defaults which can cause system instability:
-  # - cpu_type: "host" exposes all AMD Ryzen 7 1700 features (AVX2, FMA, BMI2)
+  # - cpu_type: "host" exposes all host CPU features with native performance
   #   instead of kvm64 generic emulation which causes TSC clock instability
   # - scsi_controller: virtio-scsi-pci is modern/fast vs. LSI Logic (default)
   #   which is ancient (~2003) and adds high CPU overhead during disk I/O
