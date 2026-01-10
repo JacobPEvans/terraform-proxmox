@@ -47,3 +47,22 @@ output "container_network_info" {
   description = "Container network interface information"
   value       = length(var.containers) > 0 ? module.containers[0].container_network_interfaces : {}
 }
+
+# NOTE: Route53 DNS outputs are now in aws-infra/outputs.tf
+
+# ACME Certificate outputs
+output "acme_certificates" {
+  description = "ACME certificates information"
+  value       = try(module.acme_certificates[0].certificates, {})
+}
+
+output "acme_accounts" {
+  description = "ACME accounts information"
+  value       = try(module.acme_certificates[0].acme_accounts, {})
+}
+
+output "acme_dns_plugins" {
+  description = "DNS plugins for ACME validation"
+  value       = try(module.acme_certificates[0].dns_plugins, {})
+  sensitive   = true
+}

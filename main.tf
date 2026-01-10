@@ -3,7 +3,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.91"
+      version = "~> 0.92"
     }
     tls = {
       source  = "hashicorp/tls"
@@ -162,6 +162,21 @@ module "firewall" {
   internal_networks  = var.internal_networks
 
   depends_on = [module.vms, module.containers, module.splunk_vm]
+}
+
+# ACME Certificate module - manages Let's Encrypt certificates via Route53
+# NOTE: Route53 DNS records are managed separately in aws-infra/
+# Ensure Route53 A record exists before running ACME certificate provisioning
+module "acme_certificates" {
+  count  = length(var.acme_accounts) > 0 ? 1 : 0
+  source = "./modules/acme-certificate"
+
+  acme_accounts     = var.acme_accounts
+  dns_plugins       = var.dns_plugins
+  acme_certificates = var.acme_certificates
+  environment       = var.environment
+
+  depends_on = [module.pools]
 }
 
 # Secure SSH key provisioning for Ansible VM
