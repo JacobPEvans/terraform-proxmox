@@ -39,12 +39,10 @@ validate_secrets() {
         "PKR_PVE_USERNAME"
         "PROXMOX_TOKEN"
         "PROXMOX_VE_NODE"
-        "PROXMOX_VE_HOSTNAME"
     )
 
     local optional_secrets=(
         "PROXMOX_VE_INSECURE"
-        "PROXMOX_VM_SSH_PASSWORD"
         "SPLUNK_ADMIN_PASSWORD"
         "SPLUNK_DOWNLOAD_SHA512"
     )
@@ -93,24 +91,28 @@ case "${1:-build}" in
     validate)
         validate_secrets
         log_info "Validating Packer configuration..."
-        # Export all Doppler secrets as PKR_VAR_* environment variables
-        PACKER_VARS=$(doppler secrets --json | jq -r '
-            to_entries
-            | map("export PKR_VAR_\(.key)=\"\(.value.computed)\"")
-            | join("; ")
-        ')
-        eval "$PACKER_VARS; packer validate -var-file=variables.pkrvars.hcl ."
+        # Use doppler run with --name-transformer to safely pass secrets as environment variables
+        # This avoids shell injection risks by letting Doppler handle secret injection
+        doppler run --name-transformer=upper -- bash -c '
+            # Transform PROXMOX_VE_* and other secrets to PKR_VAR_* format
+            for var in $(doppler secrets list --json | jq -r ".[].name"); do
+                export PKR_VAR_${var}="${!var}"
+            done
+            packer validate -var-file=variables.pkrvars.hcl .
+        '
         ;;
     build)
         validate_secrets
         log_info "Building Splunk template (9200)..."
-        # Export all Doppler secrets as PKR_VAR_* environment variables
-        PACKER_VARS=$(doppler secrets --json | jq -r '
-            to_entries
-            | map("export PKR_VAR_\(.key)=\"\(.value.computed)\"")
-            | join("; ")
-        ')
-        eval "$PACKER_VARS; packer build -var-file=variables.pkrvars.hcl ."
+        # Use doppler run with --name-transformer to safely pass secrets as environment variables
+        # This avoids shell injection risks by letting Doppler handle secret injection
+        doppler run --name-transformer=upper -- bash -c '
+            # Transform PROXMOX_VE_* and other secrets to PKR_VAR_* format
+            for var in $(doppler secrets list --json | jq -r ".[].name"); do
+                export PKR_VAR_${var}="${!var}"
+            done
+            packer build -var-file=variables.pkrvars.hcl .
+        '
         ;;
     *)
         echo "Usage: $0 [init|validate|build]"

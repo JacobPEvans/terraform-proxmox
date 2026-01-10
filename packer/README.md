@@ -30,7 +30,7 @@ for maximum stability. VMs will only run on identical/similar CPUs, which is acc
 #### SCSI Controller: `virtio-scsi-pci`
 
 ```hcl
-scsihw = "virtio-scsi-pci"
+scsi_controller = "virtio-scsi-pci"
 ```
 
 **Why**: Modern, high-performance SCSI controller with low CPU overhead. The default `lsi` (LSI Logic)
@@ -53,18 +53,21 @@ os_type = "l26"
 Variables are injected from two sources:
 
 1. **Doppler Secrets** (via `PKR_VAR_*` environment variables):
-   - `PROXMOX_VE_ENDPOINT` - API URL
-   - `PKR_PVE_USERNAME` - Proxmox username with token ID (`user@realm!tokenid`)
-   - `PROXMOX_TOKEN` - API token secret
-   - `PROXMOX_VE_NODE` - Node name
-   - `PROXMOX_VE_HOSTNAME` - Hostname for SSH
-   - `SPLUNK_ADMIN_PASSWORD` - Splunk admin password
-   - `SPLUNK_DOWNLOAD_SHA512` - Package checksum
+   - `PROXMOX_VE_ENDPOINT` - API endpoint URL (e.g., `https://pve.example.com`)
+   - `PKR_PVE_USERNAME` - Proxmox username with token ID in format `user@realm!tokenid`
+   - `PROXMOX_TOKEN` - Proxmox API token secret (the secret portion of the token)
+   - `PROXMOX_VE_NODE` - Target Proxmox node name
+   - `PROXMOX_VE_INSECURE` (optional) - Set to "true" to skip TLS verification
+   - `SPLUNK_ADMIN_PASSWORD` (optional) - Initial Splunk admin password
+   - `SPLUNK_DOWNLOAD_SHA512` (optional) - SHA512 checksum for Splunk package validation
 
 2. **Committed Config File** (`variables.pkrvars.hcl`):
-   - Splunk version and build number
-   - Architecture (amd64/arm64)
-   - Installation paths
+   - `SPLUNK_VERSION` - Splunk version (e.g., 10.0.2)
+   - `SPLUNK_BUILD` - Splunk build number (e.g., e2d18b4767e9)
+   - `SPLUNK_ARCHITECTURE` - CPU architecture (amd64 or arm64)
+   - `SPLUNK_USER` - User account running Splunk (typically "splunk")
+   - `SPLUNK_GROUP` - Group owning Splunk files (typically "splunk")
+   - `SPLUNK_HOME` - Splunk installation directory (typically "/opt/splunk")
 
 ### Building Templates
 

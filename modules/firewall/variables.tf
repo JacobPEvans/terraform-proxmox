@@ -16,15 +16,15 @@ variable "splunk_container_ids" {
 }
 
 variable "management_network" {
-  description = "CIDR of management network for SSH/Web access"
+  description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
-  default     = "192.168.1.0/24"
+  # No default - must be specified in .tfvars for environment-specific configuration
 }
 
 variable "splunk_network" {
-  description = "Comma-separated list of Splunk node IPs for cluster communication"
+  description = "Comma-separated list of Splunk node IPs for cluster communication. Configure in terraform.tfvars for your environment."
   type        = string
-  default     = "192.168.1.199,192.168.1.200"
+  # No default - must be specified in .tfvars for environment-specific configuration
 }
 
 variable "internal_networks" {
