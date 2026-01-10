@@ -30,6 +30,8 @@ resource "proxmox_virtual_environment_vm" "vms" {
     type    = "virtio"
   }
 
+  # CPU configuration: "host" by default for single-node homelab stability
+  # Exposes all AMD Ryzen 7 1700 features with zero emulation overhead
   cpu {
     cores      = each.value.cpu_cores
     type       = each.value.cpu_type

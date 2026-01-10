@@ -36,13 +36,15 @@ validate_secrets() {
 
     local required_secrets=(
         "PROXMOX_VE_ENDPOINT"
-        "PROXMOX_VE_USERNAME"
-        "PROXMOX_VE_API_TOKEN"
+        "PKR_PVE_USERNAME"
+        "PROXMOX_TOKEN"
         "PROXMOX_VE_NODE"
+        "PROXMOX_VE_HOSTNAME"
     )
 
     local optional_secrets=(
-        "PACKER_SSH_PASSWORD"
+        "PROXMOX_VE_INSECURE"
+        "PROXMOX_VM_SSH_PASSWORD"
         "SPLUNK_ADMIN_PASSWORD"
         "SPLUNK_DOWNLOAD_SHA512"
     )
@@ -77,11 +79,6 @@ validate_secrets() {
         for secret in "${missing_optional[@]}"; do
             echo "  - $secret"
         done
-        echo ""
-        log_info "Add missing secrets with:"
-        echo "  doppler secrets set PACKER_SSH_PASSWORD"
-        echo "  doppler secrets set SPLUNK_ADMIN_PASSWORD"
-        echo "  doppler secrets set SPLUNK_DOWNLOAD_SHA512"
     fi
 }
 
@@ -96,14 +93,24 @@ case "${1:-build}" in
     validate)
         validate_secrets
         log_info "Validating Packer configuration..."
-        # Doppler secrets use PROXMOX_VE_* naming - no mapping needed
-        doppler run -- packer validate splunk.pkr.hcl
+        # Export all Doppler secrets as PKR_VAR_* environment variables
+        PACKER_VARS=$(doppler secrets --json | jq -r '
+            to_entries
+            | map("export PKR_VAR_\(.key)=\"\(.value.computed)\"")
+            | join("; ")
+        ')
+        eval "$PACKER_VARS; packer validate -var-file=variables.pkrvars.hcl ."
         ;;
     build)
         validate_secrets
         log_info "Building Splunk template (9200)..."
-        # Doppler secrets use PROXMOX_VE_* naming - no mapping needed
-        doppler run -- packer build splunk.pkr.hcl
+        # Export all Doppler secrets as PKR_VAR_* environment variables
+        PACKER_VARS=$(doppler secrets --json | jq -r '
+            to_entries
+            | map("export PKR_VAR_\(.key)=\"\(.value.computed)\"")
+            | join("; ")
+        ')
+        eval "$PACKER_VARS; packer build -var-file=variables.pkrvars.hcl ."
         ;;
     *)
         echo "Usage: $0 [init|validate|build]"
@@ -114,8 +121,7 @@ case "${1:-build}" in
         echo "  build     - Build the Splunk template"
         echo ""
         echo "Environment:"
-        echo "  Doppler secrets must include PROXMOX_VE_* variables"
-        echo "  (same naming as BPG Terraform provider)"
+        echo "  Doppler secrets are mapped to Packer -var flags at runtime"
         exit 1
         ;;
 esac

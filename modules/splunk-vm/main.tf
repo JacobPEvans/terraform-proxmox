@@ -29,17 +29,15 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
     type    = "virtio"
   }
 
-  # CPU type "host" exposes all host CPU features for maximum performance
-  # This improves performance for workloads like MongoDB that require modern CPU instructions (AVX, SSE4.2)
-  # Trade-off: VMs cannot be live migrated to hosts with different CPUs. Use portable default for multi-host environments.
+  # CPU configuration: "host" exposes all AMD Ryzen 7 1700 CPU features directly
+  # to the VM with zero emulation overhead. This provides maximum stability and
+  # performance on a single-node homelab. VMs will only run on identical/similar
+  # CPUs, but that's acceptable for homelab use.
+  # CRITICAL: Must match Packer template's cpu_type="host" setting.
   cpu {
     cores      = 6
     type       = "host"
     hotplugged = 0
-  }
-
-  vga {
-    type = "std"
   }
 
   memory {
@@ -47,6 +45,10 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
     floating  = 6144
   }
 
+  # Disk configuration: virtio0 interface uses VirtIO SCSI controller (virtio-scsi-pci)
+  # which provides modern, high-performance storage with low CPU overhead.
+  # This matches the Packer template's explicit scsihw="virtio-scsi-pci" setting.
+  # DO NOT use IDE or LSI Logic controllers - they are legacy and cause performance issues.
   disk {
     datastore_id = var.datastore_id
     interface    = "virtio0"
@@ -79,7 +81,6 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
 
     user_account {
       username = "debian"
-      password = var.vm_password
       keys     = var.ssh_public_key != "" ? [var.ssh_public_key] : []
     }
   }
