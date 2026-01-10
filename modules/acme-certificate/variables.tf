@@ -1,9 +1,9 @@
 variable "acme_accounts" {
   description = "ACME account configurations for Let's Encrypt certificate management"
   type = map(object({
-    email      = string  # Email address for Let's Encrypt notifications
-    directory  = string  # ACME directory URL (production or staging)
-    tos_agreed = bool    # Must be true to accept Let's Encrypt TOS
+    email     = string # Email address for Let's Encrypt notifications
+    directory = string # ACME directory URL (production or staging)
+    tos       = string # Terms of Service URL - setting this indicates agreement
   }))
   default = {}
 
@@ -30,12 +30,12 @@ variable "acme_accounts" {
 variable "dns_plugins" {
   description = "DNS challenge plugins for ACME validation (e.g., AWS Route53)"
   type = map(object({
-    plugin_type = string # Plugin identifier (e.g., "route53")
-    api         = string # AWS credentials as JSON string (e.g., {\"access_key\": \"...\", \"secret_key\": \"...\"})
+    plugin_type = string # API plugin name (e.g., "route53")
+    data        = map(string) # DNS plugin data as key=value pairs (e.g., AWS credentials)
   }))
   default = {}
 
-  sensitive = true # Contains DNS provider credentials
+  # Note: Not marked sensitive here to allow for_each, but outputs are sensitive
 }
 
 variable "acme_certificates" {
