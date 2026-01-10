@@ -9,10 +9,10 @@ packer {
 
 source "proxmox-clone" "splunk" {
   proxmox_url              = local.proxmox_url
-  username                 = local.proxmox_username
-  token                    = local.proxmox_token
-  node                     = var.proxmox_node
-  insecure_skip_tls_verify = local.proxmox_insecure
+  username                 = var.PKR_PVE_USERNAME
+  token                    = var.PROXMOX_TOKEN
+  node                     = var.PROXMOX_VE_NODE
+  insecure_skip_tls_verify = var.PROXMOX_VE_INSECURE == "true"
 
   clone_vm      = "debian-12-base"
   vm_id         = 9200
@@ -20,10 +20,25 @@ source "proxmox-clone" "splunk" {
   template_name = "splunk-aio-template"
   full_clone    = true
 
-  ssh_username   = "debian"
-  ssh_host       = var.packer_ssh_host
-  ssh_timeout    = "120s"
-  ssh_agent_auth = true
+  # CRITICAL: CPU and hardware configuration to prevent system freezes
+  # These settings override Packer's defaults which can cause system instability:
+  # - cpu_type: "host" exposes all AMD Ryzen 7 1700 features (AVX2, FMA, BMI2)
+  #   instead of kvm64 generic emulation which causes TSC clock instability
+  # - scsi_controller: virtio-scsi-pci is modern/fast vs. LSI Logic (default)
+  #   which is ancient (~2003) and adds high CPU overhead during disk I/O
+  # - os: "l26" optimizes for Linux 2.6+ kernel instead of "other"
+  # See: https://github.com/hashicorp/packer-plugin-proxmox/issues/307
+  cpu_type        = "host"
+  scsi_controller = "virtio-scsi-pci"
+  os              = "l26"
+
+  # SSH configuration: Use the VM-specific SSH key (id_rsa_vm) that matches
+  # the public key configured in the base template's cloud-init.
+  # Packer automatically detects the VM's IP address from Proxmox API.
+  ssh_username         = "debian"
+  ssh_timeout          = "300s"
+  ssh_agent_auth       = false
+  ssh_private_key_file = pathexpand("~/.ssh/id_rsa_vm")
 
   cloud_init              = true
   cloud_init_storage_pool = "local-zfs"
@@ -33,8 +48,7 @@ source "proxmox-clone" "splunk" {
     model  = "virtio"
   }
   ipconfig {
-    ip      = var.packer_ip_address
-    gateway = var.packer_gateway
+    ip = "dhcp"
   }
 
   cores  = 4
@@ -49,14 +63,29 @@ build {
       "cloud-init status --wait || true",
       "sudo apt-get update",
       "sudo apt-get install -y wget",
-      "wget -O splunk.deb 'https://download.splunk.com/products/splunk/releases/${var.splunk_version}/linux/splunk-${var.splunk_version}-${var.splunk_build}-linux-amd64.deb'",
-      "echo \"${var.splunk_download_sha512}  splunk.deb\" | sha512sum -c -",
-      "sudo dpkg -i splunk.deb",
-      "rm splunk.deb",
-      "sudo tee /opt/splunk/etc/system/local/user-seed.conf > /dev/null <<EOF\n[user_info]\nUSERNAME = admin\nPASSWORD = ${var.splunk_admin_password}\nEOF",
-      "sudo /opt/splunk/bin/splunk enable boot-start --accept-license --answer-yes --no-prompt",
+      "TMPDIR=$${TMPDIR:-/tmp}",
+      "cd $TMPDIR",
+      "wget -O splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb 'https://download.splunk.com/products/splunk/releases/${var.SPLUNK_VERSION}/linux/splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb'",
+      "echo \"${var.SPLUNK_DOWNLOAD_SHA512}  splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb\" | sha512sum -c -",
+      "sudo dpkg -i splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb",
+      "sudo ${var.SPLUNK_HOME}/bin/splunk enable boot-start -user ${var.SPLUNK_USER} --accept-license --answer-yes --no-prompt --seed-passwd '${var.SPLUNK_ADMIN_PASSWORD}'",
+      "sudo chown -R ${var.SPLUNK_USER}:${var.SPLUNK_GROUP} ${var.SPLUNK_HOME}",
       "sudo cloud-init clean",
       "sudo truncate -s 0 /etc/machine-id"
+    ]
+  }
+
+  # Validation: Ensure all files in SPLUNK_HOME are owned by splunk:splunk
+  provisioner "shell" {
+    inline = [
+      "echo 'Validating Splunk file ownership...'",
+      "NON_SPLUNK_FILES=$(sudo find ${var.SPLUNK_HOME} ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} 2>/dev/null | wc -l)",
+      "if [ \"$NON_SPLUNK_FILES\" -ne 0 ]; then",
+      "  echo \"ERROR: Found $NON_SPLUNK_FILES files not owned by ${var.SPLUNK_USER}:${var.SPLUNK_GROUP}\"",
+      "  sudo find ${var.SPLUNK_HOME} ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} 2>/dev/null | head -20",
+      "  exit 1",
+      "fi",
+      "echo 'Validation passed: All files in ${var.SPLUNK_HOME} owned by ${var.SPLUNK_USER}:${var.SPLUNK_GROUP}'"
     ]
   }
 }
