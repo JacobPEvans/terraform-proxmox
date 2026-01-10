@@ -159,8 +159,22 @@ module "firewall" {
 
   management_network = var.management_network
   splunk_network     = join(",", var.splunk_network)
+  internal_networks  = var.internal_networks
 
   depends_on = [module.vms, module.containers, module.splunk_vm]
+}
+
+# ACME Certificate module - manages Let's Encrypt certificates via Route53
+module "acme_certificates" {
+  count  = length(var.acme_accounts) > 0 ? 1 : 0
+  source = "./modules/acme-certificate"
+
+  acme_accounts    = var.acme_accounts
+  dns_plugins      = var.dns_plugins
+  acme_certificates = var.acme_certificates
+  environment      = var.environment
+
+  depends_on = [module.pools]
 }
 
 # Secure SSH key provisioning for Ansible VM

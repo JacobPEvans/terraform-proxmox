@@ -350,6 +350,20 @@ variable "splunk_network" {
   default     = ["192.168.1.199", "192.168.1.200"]
 }
 
+variable "internal_networks" {
+  description = "RFC1918 networks allowed to access Splunk (SSH, Web UI, forwarding port 9997). Configure in terraform.tfvars for your actual networks."
+  type        = list(string)
+  default     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+
+  validation {
+    condition = alltrue([
+      for net in var.internal_networks :
+      can(cidrnetmask(net))
+    ])
+    error_message = "Each internal_networks entry must be a valid CIDR block, for example 10.0.0.0/8."
+  }
+}
+
 variable "splunk_vm_id" {
   description = "VM ID for the Splunk VM"
   type        = number
@@ -394,4 +408,54 @@ variable "splunk_network_gateway" {
     condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}$", var.splunk_network_gateway))
     error_message = "Gateway must be a valid IPv4 address."
   }
+}
+
+# ACME Certificate Configuration
+
+variable "acme_accounts" {
+  description = "ACME account configurations for Let's Encrypt certificate management"
+  type = map(object({
+    email      = string
+    directory  = string
+    tos_agreed = optional(bool, true)
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.acme_accounts :
+      can(regex("^[^@]+@[^@]+\\.[^@]+$", v.email))
+    ])
+    error_message = "Each email must be a valid email address."
+  }
+
+  validation {
+    condition = alltrue([
+      for k, v in var.acme_accounts :
+      can(regex("^https://[A-Za-z0-9._~:/?#\\[\\]@!$&'()*+,;=%-]+$", v.directory))
+    ])
+    error_message = "Each ACME directory must be a valid HTTPS URL (e.g., https://acme-v02.api.letsencrypt.org/directory)."
+  }
+}
+
+variable "dns_plugins" {
+  description = "DNS challenge plugins for ACME validation (e.g., AWS Route53)"
+  type = map(object({
+    plugin_type = string # Plugin identifier (e.g., "route53")
+    api         = string # AWS credentials as JSON string from Doppler secrets
+  }))
+  default = {}
+
+  sensitive = true
+}
+
+variable "acme_certificates" {
+  description = "ACME certificates to provision and manage"
+  type = map(object({
+    node_name      = string
+    domain         = string
+    account_id     = string
+    dns_plugin_id  = string
+  }))
+  default = {}
 }
