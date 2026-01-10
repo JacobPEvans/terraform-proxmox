@@ -36,13 +36,13 @@ validate_secrets() {
 
     local required_secrets=(
         "PROXMOX_VE_ENDPOINT"
-        "PROXMOX_VE_USERNAME"
-        "PROXMOX_VE_API_TOKEN"
+        "PKR_PVE_USERNAME"
+        "PROXMOX_TOKEN"
         "PROXMOX_VE_NODE"
     )
 
     local optional_secrets=(
-        "PACKER_SSH_PASSWORD"
+        "PROXMOX_VE_INSECURE"
         "SPLUNK_ADMIN_PASSWORD"
         "SPLUNK_DOWNLOAD_SHA512"
     )
@@ -77,11 +77,6 @@ validate_secrets() {
         for secret in "${missing_optional[@]}"; do
             echo "  - $secret"
         done
-        echo ""
-        log_info "Add missing secrets with:"
-        echo "  doppler secrets set PACKER_SSH_PASSWORD"
-        echo "  doppler secrets set SPLUNK_ADMIN_PASSWORD"
-        echo "  doppler secrets set SPLUNK_DOWNLOAD_SHA512"
     fi
 }
 
@@ -96,14 +91,28 @@ case "${1:-build}" in
     validate)
         validate_secrets
         log_info "Validating Packer configuration..."
-        # Doppler secrets use PROXMOX_VE_* naming - no mapping needed
-        doppler run -- packer validate splunk.pkr.hcl
+        # Use doppler run with --name-transformer to safely pass secrets as environment variables
+        # This avoids shell injection risks by letting Doppler handle secret injection
+        doppler run --name-transformer=upper -- bash -c '
+            # Transform PROXMOX_VE_* and other secrets to PKR_VAR_* format
+            for var in $(doppler secrets list --json | jq -r ".[].name"); do
+                export PKR_VAR_${var}="${!var}"
+            done
+            packer validate -var-file=variables.pkrvars.hcl .
+        '
         ;;
     build)
         validate_secrets
         log_info "Building Splunk template (9200)..."
-        # Doppler secrets use PROXMOX_VE_* naming - no mapping needed
-        doppler run -- packer build splunk.pkr.hcl
+        # Use doppler run with --name-transformer to safely pass secrets as environment variables
+        # This avoids shell injection risks by letting Doppler handle secret injection
+        doppler run --name-transformer=upper -- bash -c '
+            # Transform PROXMOX_VE_* and other secrets to PKR_VAR_* format
+            for var in $(doppler secrets list --json | jq -r ".[].name"); do
+                export PKR_VAR_${var}="${!var}"
+            done
+            packer build -var-file=variables.pkrvars.hcl .
+        '
         ;;
     *)
         echo "Usage: $0 [init|validate|build]"
@@ -114,8 +123,7 @@ case "${1:-build}" in
         echo "  build     - Build the Splunk template"
         echo ""
         echo "Environment:"
-        echo "  Doppler secrets must include PROXMOX_VE_* variables"
-        echo "  (same naming as BPG Terraform provider)"
+        echo "  Doppler secrets are mapped to Packer -var flags at runtime"
         exit 1
         ;;
 esac

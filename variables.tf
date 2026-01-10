@@ -322,12 +322,12 @@ variable "containers" {
 
 # Network configuration - single source of truth
 variable "network_prefix" {
-  description = "Network prefix for IP address derivation (e.g., '10.0.1' - IPs derived as prefix.vm_id)"
+  description = "Network prefix for IP address derivation (e.g., '192.168.0' - IPs derived as prefix.vm_id)"
   type        = string
-  default     = "10.0.1"
+  default     = "192.168.0"
   validation {
     condition     = can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.network_prefix))
-    error_message = "Network prefix must be in format 'x.x.x' where each octet is 0-255 (e.g., '10.0.1')."
+    error_message = "Network prefix must be in format 'x.x.x' where each octet is 0-255 (e.g., '192.168.0')."
   }
 }
 
@@ -339,15 +339,15 @@ variable "network_cidr_mask" {
 
 # Firewall configuration
 variable "management_network" {
-  description = "CIDR of management network for SSH/Web access"
+  description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
-  default     = "192.168.1.0/24"
+  # No default - must be specified in .tfvars for environment-specific configuration
 }
 
 variable "splunk_network" {
-  description = "List of Splunk VM IP addresses for firewall rules"
+  description = "List of Splunk VM IP addresses for firewall rules. Configure in terraform.tfvars for your environment."
   type        = list(string)
-  default     = ["192.168.1.199", "192.168.1.200"]
+  # No default - must be specified in .tfvars for environment-specific configuration
 }
 
 variable "internal_networks" {
@@ -385,9 +385,9 @@ variable "splunk_vm_name" {
 }
 
 variable "splunk_vm_ip_address" {
-  description = "IPv4 address with CIDR notation for the Splunk VM"
+  description = "IPv4 address with CIDR notation for the Splunk VM. Configure in terraform.tfvars for your environment."
   type        = string
-  default     = "192.168.1.200/32"
+  # No default - must be specified in .tfvars for environment-specific configuration
   validation {
     condition     = can(cidrhost(var.splunk_vm_ip_address, 0))
     error_message = "Splunk VM IP address must be a valid IPv4 address in CIDR notation."
