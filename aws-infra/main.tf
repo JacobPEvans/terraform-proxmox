@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.10"
 
   required_providers {
     aws = {
@@ -10,6 +10,9 @@ terraform {
 }
 
 # AWS Provider - credentials from Doppler environment variables
+# Static credentials are used here because this infrastructure runs on a local Proxmox host
+# rather than on AWS infrastructure. For production AWS environments, consider using
+# IAM roles, instance profiles, or the AWS CLI credential chain instead.
 provider "aws" {
   region     = var.aws_region
   access_key = var.aws_access_key

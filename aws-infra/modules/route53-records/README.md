@@ -14,9 +14,9 @@ to the Proxmox UI via a custom domain with valid TLS certificates.
 module "route53_records" {
   source = "./modules/route53-records"
 
-  route53_zone_id    = "Z02923121TYKNIGJQI0A2"
-  proxmox_domain     = "pve.jacobpevans.com"
-  proxmox_ip_address = "10.0.1.14"
+  route53_zone_id    = "Z0123456789ABCDEFGHIJ"
+  proxmox_domain     = "pve.example.com"
+  proxmox_ip_address = "192.0.2.10"
   environment        = "homelab"
 }
 ```

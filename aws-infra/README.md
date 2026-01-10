@@ -40,32 +40,34 @@ terraform-proxmox/
    ```bash
    doppler secrets set AWS_ROUTE53_ACCESS_KEY=AKIA...
    doppler secrets set AWS_ROUTE53_SECRET_KEY=...
-   doppler secrets set ROUTE53_ZONE_ID=Z02923121TYKNIGJQI0A2
-   doppler secrets set PROXMOX_DOMAIN=pve.jacobpevans.com
-   doppler secrets set PROXMOX_IP_ADDRESS=10.0.1.14
+   doppler secrets set ROUTE53_ZONE_ID=Z0123456789ABCDEFGHIJ
+   doppler secrets set PROXMOX_DOMAIN=pve.example.com
+   doppler secrets set PROXMOX_IP_ADDRESS=192.0.2.10
    ```
 
 2. Run from this directory:
 
    ```bash
    cd aws-infra/
-   nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+   nix develop /path/to/terraform-nix-shell --command bash -c \
      "aws-vault exec terraform -- doppler run -- terragrunt init"
    ```
+
+   **NOTE**: Replace `/path/to/terraform-nix-shell` with your local Nix dev shell for Terraform.
 
 ### Commands
 
 ```bash
 # Validate
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+nix develop /path/to/terraform-nix-shell --command bash -c \
   "aws-vault exec terraform -- doppler run -- terragrunt validate"
 
 # Plan
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+nix develop /path/to/terraform-nix-shell --command bash -c \
   "aws-vault exec terraform -- doppler run -- terragrunt plan"
 
 # Apply
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+nix develop /path/to/terraform-nix-shell --command bash -c \
   "aws-vault exec terraform -- doppler run -- terragrunt apply"
 ```
 

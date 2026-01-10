@@ -417,7 +417,7 @@ variable "acme_accounts" {
   type = map(object({
     email     = string
     directory = string
-    tos_url   = string
+    tos       = string
   }))
   default = {}
 
