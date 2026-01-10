@@ -50,7 +50,7 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
 
   # Disk configuration: virtio0 interface uses VirtIO SCSI controller (virtio-scsi-pci)
   # which provides modern, high-performance storage with low CPU overhead.
-  # This matches the Packer template's explicit scsihw="virtio-scsi-pci" setting.
+  # This matches the Packer template's explicit scsi_controller="virtio-scsi-pci" setting.
   # DO NOT use IDE or LSI Logic controllers - they are legacy and cause performance issues.
   disk {
     datastore_id = var.datastore_id

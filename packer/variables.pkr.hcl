@@ -6,10 +6,9 @@
 #
 # Required Doppler secrets:
 #   PROXMOX_VE_ENDPOINT       - API endpoint URL
-#   PKR_PVE_USERNAME          - Composed as: ${PROXMOX_VE_USERNAME}@pve!${PROXMOX_VE_USERNAME}
+#   PKR_PVE_USERNAME          - Composed as: ${PROXMOX_VE_USERNAME}@realm!${PROXMOX_TOKEN_ID}
 #   PROXMOX_TOKEN             - Just the secret UUID
 #   PROXMOX_VE_NODE           - Node name
-#   PROXMOX_VE_HOSTNAME       - Hostname for SSH
 # ==============================================================================
 
 variable "PROXMOX_VE_ENDPOINT" {
@@ -53,18 +52,6 @@ variable "SPLUNK_DOWNLOAD_SHA512" {
   type        = string
   description = "SHA512 checksum for Splunk package"
   sensitive   = false
-}
-
-variable "PROXMOX_VE_HOSTNAME" {
-  type        = string
-  description = "Hostname for Packer SSH connection"
-  sensitive   = false
-}
-
-variable "PROXMOX_VM_SSH_PASSWORD" {
-  type        = string
-  description = "SSH password for Packer connection"
-  sensitive   = true
 }
 
 # URL construction (concatenation is OK)

@@ -79,10 +79,10 @@ build {
   provisioner "shell" {
     inline = [
       "echo 'Validating Splunk file ownership...'",
-      "NON_SPLUNK_FILES=$(sudo find ${var.SPLUNK_HOME} ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} 2>/dev/null | wc -l)",
+      "NON_SPLUNK_FILES=$(sudo find ${var.SPLUNK_HOME} \\( ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} \\) 2>/dev/null | wc -l)",
       "if [ \"$NON_SPLUNK_FILES\" -ne 0 ]; then",
       "  echo \"ERROR: Found $NON_SPLUNK_FILES files not owned by ${var.SPLUNK_USER}:${var.SPLUNK_GROUP}\"",
-      "  sudo find ${var.SPLUNK_HOME} ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} 2>/dev/null | head -20",
+      "  sudo find ${var.SPLUNK_HOME} \\( ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} \\) 2>/dev/null | head -20",
       "  exit 1",
       "fi",
       "echo 'Validation passed: All files in ${var.SPLUNK_HOME} owned by ${var.SPLUNK_USER}:${var.SPLUNK_GROUP}'"
