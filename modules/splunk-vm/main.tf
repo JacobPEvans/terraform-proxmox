@@ -22,6 +22,9 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   pool_id    = var.pool_id
   protection = false
 
+  # Startup configuration
+  on_boot = true
+
   agent {
     enabled = true
     timeout = "15m"

@@ -23,6 +23,9 @@ resource "proxmox_virtual_environment_vm" "vms" {
   pool_id    = each.value.pool_id
   protection = each.value.protection
 
+  # Startup configuration
+  on_boot = try(each.value.on_boot, true)
+
   agent {
     enabled = each.value.agent_enabled
     timeout = "15m"

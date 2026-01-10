@@ -50,7 +50,8 @@ variable "containers" {
     }), {})
 
     # Features
-    protection = optional(bool, false)
+    protection    = optional(bool, false)
+    start_on_boot = optional(bool, true)
   }))
   default = {}
 }

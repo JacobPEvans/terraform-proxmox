@@ -26,6 +26,9 @@ resource "proxmox_virtual_environment_container" "containers" {
   # Protection
   protection = each.value.protection
 
+  # Startup configuration
+  start_on_boot = each.value.start_on_boot
+
   # Container initialization
   initialization {
     hostname = each.value.hostname
@@ -104,6 +107,10 @@ resource "proxmox_virtual_environment_container" "containers" {
       initialization[0].user_account[0].keys,
       operating_system[0].template_file_id,
       pool_id,
+      # Ignore the runtime started status - this is a computed field that reflects
+      # whether the container is currently running. We manage boot behavior via
+      # start_on_boot, not runtime state.
+      started,
     ]
   }
 }
