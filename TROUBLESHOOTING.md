@@ -89,6 +89,7 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
 #### Understanding the Error
 
 This error occurs when the Proxmox provider's HTTP client times out during:
+
 1. **State refresh** - Querying all VMs/containers for current status
 2. **QEMU agent detection** - Cloud-init waiting for agent to come online
 3. **Backend lock operations** - DynamoDB acquiring/releasing locks
@@ -130,10 +131,12 @@ watch -n 5 'aws dynamodb scan --table-name terraform-proxmox-locks-useast2 --reg
 #### Timeout Configuration
 
 Resource-level timeouts are set in modules (15 min standard, 30 min for clone/create):
+
 - See `modules/proxmox-vm/main.tf` lines 125-132
 - See `modules/splunk-vm/main.tf` lines 83-91
 
 For persistent timeout issues, reduce parallelism:
+
 ```bash
 terragrunt apply -parallelism=1 -auto-approve
 ```
@@ -156,6 +159,59 @@ terragrunt apply -parallelism=1 -auto-approve
    ```bash
    ssh -i <ssh-key-path> <user>@<host>
    ```
+
+### SSL Certificate Issues
+
+#### Problem: Browser shows certificate error or wrong hostname
+
+After Proxmox upgrades, hostname changes, or domain migrations, certificates may reference old hostnames.
+
+**Symptoms:**
+
+- Browser shows `NET::ERR_CERT_COMMON_NAME_INVALID`
+- Certificate shows wrong CN (e.g., `CN=pve.mgmt` when accessing `pve.example.com`)
+- `curl -vk` shows unexpected subject/issuer
+
+**Diagnosis:**
+
+```bash
+# Check what certificate is being served
+curl -vk https://pve.example.com:8006/ 2>&1 | grep -E "(subject|issuer)"
+
+# Check certificate on server
+ssh pve "openssl x509 -in /etc/pve/local/pveproxy-ssl.pem -noout -subject -ext subjectAltName"
+
+# Check hostname configuration
+ssh pve "hostname && hostname -f && grep -E '^[^#]*\bpve\b' /etc/hosts"
+```
+
+**Root Cause:**
+
+Certificate was generated before hostname/domain configuration was corrected. The
+`pvecm updatecerts` command uses values from `/etc/hosts` at generation time.
+
+**Fix for Self-Signed Certificates:**
+
+```bash
+# Ensure /etc/hosts is correct first:
+# <IP> <FQDN> <short-hostname>
+# Example: 10.0.1.14 pve.example.com pve
+
+ssh pve "pvecm updatecerts --force && systemctl restart pveproxy"
+```
+
+**Fix for ACME/Let's Encrypt Certificates:**
+
+```bash
+# Configure ACME with correct domain
+ssh pve "cat /etc/pve/nodes/pve/config"
+# Should show: acmedomain0: pve.example.com,plugin=AWS
+
+# Order new certificate
+ssh pve "pvenode acme cert order --force"
+```
+
+See [docs/ACME.md](./docs/ACME.md) for detailed ACME configuration.
 
 ### State vs Infrastructure Mismatch
 
