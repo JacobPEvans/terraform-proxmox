@@ -415,9 +415,9 @@ variable "splunk_network_gateway" {
 variable "acme_accounts" {
   description = "ACME account configurations for Let's Encrypt certificate management"
   type = map(object({
-    email      = string
-    directory  = string
-    tos_agreed = optional(bool, true)
+    email     = string
+    directory = string
+    tos_url   = string
   }))
   default = {}
 
@@ -441,8 +441,8 @@ variable "acme_accounts" {
 variable "dns_plugins" {
   description = "DNS challenge plugins for ACME validation (e.g., AWS Route53)"
   type = map(object({
-    plugin_type = string # Plugin identifier (e.g., "route53")
-    api         = string # AWS credentials as JSON string from Doppler secrets
+    plugin_type = string      # API plugin name (e.g., "route53")
+    data        = map(string) # DNS plugin data as key=value pairs (e.g., AWS credentials)
   }))
   default = {}
 
@@ -452,10 +452,13 @@ variable "dns_plugins" {
 variable "acme_certificates" {
   description = "ACME certificates to provision and manage"
   type = map(object({
-    node_name      = string
-    domain         = string
-    account_id     = string
-    dns_plugin_id  = string
+    node_name     = string
+    domain        = string
+    account_id    = string
+    dns_plugin_id = string
   }))
   default = {}
 }
+
+# NOTE: Route53 DNS configuration is now managed separately in aws-infra/
+# See aws-infra/variables.tf for AWS-related variables

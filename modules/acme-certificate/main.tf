@@ -12,15 +12,15 @@ terraform {
 resource "proxmox_virtual_environment_acme_account" "accounts" {
   for_each = var.acme_accounts
 
-  account_id = each.key
-  email      = each.value.email
-  directory  = each.value.directory
-  tos_agreed = each.value.tos_agreed
+  name      = each.key
+  contact   = each.value.email
+  directory = each.value.directory
+  tos       = each.value.tos_url
 
   # Prevent unnecessary drift after initial creation
   # Account properties are managed by Let's Encrypt
   lifecycle {
-    ignore_changes = [tos_agreed]
+    ignore_changes = [tos]
   }
 }
 
@@ -30,12 +30,9 @@ resource "proxmox_virtual_environment_acme_account" "accounts" {
 resource "proxmox_virtual_environment_acme_dns_plugin" "dns_plugins" {
   for_each = var.dns_plugins
 
-  plugin = each.value.plugin_type # e.g., "route53"
-  id     = each.key                # Plugin identifier
-
-  # API-specific configuration (AWS credentials as JSON)
-  # This comes from Doppler secrets and contains the AWS access key and secret key
-  api = each.value.api
+  plugin = each.key                # Plugin identifier (e.g., "myroute53")
+  api    = each.value.plugin_type  # API plugin name (e.g., "route53")
+  data   = each.value.data         # DNS plugin data (credentials as key=value pairs)
 }
 
 # ACME Certificate - the actual TLS certificate
