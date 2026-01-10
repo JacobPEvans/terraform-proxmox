@@ -1,9 +1,9 @@
 variable "acme_accounts" {
   description = "ACME account configurations for Let's Encrypt certificate management"
   type = map(object({
-    email   = string  # Email address for Let's Encrypt notifications
-    directory = string  # ACME directory URL (production or staging)
-    tos_url = string  # Terms of Service URL - setting this indicates agreement
+    email     = string # Email address for Let's Encrypt notifications
+    directory = string # ACME directory URL (production or staging)
+    tos       = string # Terms of Service URL - setting this indicates agreement
   }))
   default = {}
 

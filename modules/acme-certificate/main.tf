@@ -15,7 +15,7 @@ resource "proxmox_virtual_environment_acme_account" "accounts" {
   name      = each.key
   contact   = each.value.email
   directory = each.value.directory
-  tos       = each.value.tos_url
+  tos       = each.value.tos
 
   # Prevent unnecessary drift after initial creation
   # Account properties are managed by Let's Encrypt
