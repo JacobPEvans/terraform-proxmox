@@ -32,8 +32,8 @@ dns: AWS
 The `data` field contains base64-encoded AWS credentials:
 
 ```text
-AWS_ACCESS_KEY_ID=<your-access-key>
-AWS_SECRET_ACCESS_KEY=<your-secret-key>
+AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY_ID>
+AWS_SECRET_ACCESS_KEY=<YOUR_SECRET_ACCESS_KEY>
 ```
 
 #### 2. Configure Node for ACME
@@ -168,4 +168,4 @@ acmedomain0: example.com,plugin=AWS
 
 - [Proxmox Certificate Management Wiki](https://pve.proxmox.com/wiki/Certificate_Management)
 - [Let's Encrypt Documentation](https://letsencrypt.org/docs/)
-- [AWS Route53 ACME DNS Validation](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-configuring-dnssec.html)
+- [AWS Route53 – Working with DNS Records](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/rrsets-working-with.html)

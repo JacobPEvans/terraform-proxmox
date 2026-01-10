@@ -89,6 +89,7 @@ Debug logs show: `module.vms.proxmox_virtual_environment_vm.vms["vm_name"]: Refr
 #### Understanding the Error
 
 This error occurs when the Proxmox provider's HTTP client times out during:
+
 1. **State refresh** - Querying all VMs/containers for current status
 2. **QEMU agent detection** - Cloud-init waiting for agent to come online
 3. **Backend lock operations** - DynamoDB acquiring/releasing locks
@@ -130,10 +131,12 @@ watch -n 5 'aws dynamodb scan --table-name terraform-proxmox-locks-useast2 --reg
 #### Timeout Configuration
 
 Resource-level timeouts are set in modules (15 min standard, 30 min for clone/create):
+
 - See `modules/proxmox-vm/main.tf` lines 125-132
 - See `modules/splunk-vm/main.tf` lines 83-91
 
 For persistent timeout issues, reduce parallelism:
+
 ```bash
 terragrunt apply -parallelism=1 -auto-approve
 ```
@@ -176,15 +179,16 @@ After Proxmox upgrades, hostname changes, or domain migrations, certificates may
 curl -vk https://pve.example.com:8006/ 2>&1 | grep -E "(subject|issuer)"
 
 # Check certificate on server
-ssh pve "openssl x509 -in /etc/pve/local/pve-ssl.pem -noout -subject -ext subjectAltName"
+ssh pve "openssl x509 -in /etc/pve/local/pveproxy-ssl.pem -noout -subject -ext subjectAltName"
 
 # Check hostname configuration
-ssh pve "hostname && hostname -f && cat /etc/hosts | grep pve"
+ssh pve "hostname && hostname -f && grep -E '^[^#]*\bpve\b' /etc/hosts"
 ```
 
 **Root Cause:**
 
-Certificate was generated before hostname/domain configuration was corrected. The `pvecm updatecerts` command uses values from `/etc/hosts` at generation time.
+Certificate was generated before hostname/domain configuration was corrected. The
+`pvecm updatecerts` command uses values from `/etc/hosts` at generation time.
 
 **Fix for Self-Signed Certificates:**
 

@@ -63,8 +63,8 @@ This only applies to legacy BIOS systems. UEFI systems need systemd-boot.
 
    ```bash
    # Edit /etc/apt/sources.list.d/debian.sources
-   # Change: Components: main contrib
-   # To: Components: main contrib non-free-firmware
+   # Add `non-free-firmware` to the `Components` line for each suite.
+   # e.g., `Components: main contrib non-free-firmware`
    ```
 
 2. Install the package:
