@@ -13,7 +13,7 @@ variable "vms" {
     # Resource configuration
     cpu_cores        = optional(number, 2)
     # cpu_type: "host" for single-node homelab stability (zero CPU emulation overhead)
-    # VMs inherit all AMD Ryzen 7 1700 features. Not portable across different CPUs.
+    # VMs inherit all host CPU features. Not portable across different CPUs.
     cpu_type         = optional(string, "host")
     memory_dedicated = optional(number, 1024)
     memory_floating  = optional(number)

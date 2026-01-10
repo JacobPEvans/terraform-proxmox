@@ -322,12 +322,12 @@ variable "containers" {
 
 # Network configuration - single source of truth
 variable "network_prefix" {
-  description = "Network prefix for IP address derivation (e.g., '10.0.1' - IPs derived as prefix.vm_id)"
+  description = "Network prefix for IP address derivation (e.g., '192.168.0' - IPs derived as prefix.vm_id)"
   type        = string
-  default     = "10.0.1"
+  default     = "192.168.0"
   validation {
     condition     = can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.network_prefix))
-    error_message = "Network prefix must be in format 'x.x.x' where each octet is 0-255 (e.g., '10.0.1')."
+    error_message = "Network prefix must be in format 'x.x.x' where each octet is 0-255 (e.g., '192.168.0')."
   }
 }
 

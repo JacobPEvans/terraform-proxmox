@@ -1,11 +1,11 @@
 # Local values for common computed expressions
 locals {
   # DRY Network Configuration - Single Source of Truth
-  # IPs are derived from VM IDs: network_prefix.vm_id (e.g., 10.0.1.200 for VM ID 200)
+  # IPs are derived from VM IDs: network_prefix.vm_id (e.g., 192.168.0.200 for VM ID 200)
   network_gateway = "${var.network_prefix}.1"
 
   # Helper function to derive IP from VM ID
-  # Usage: local.derive_ip[100] => "10.0.1.100/32"
+  # Usage: local.derive_ip[100] => "192.168.0.100/32"
   derive_ip = { for id in range(1, 1000) : id => "${var.network_prefix}.${id}${var.network_cidr_mask}" }
 
   # Derived Splunk IP from VM ID (eliminates redundant splunk_vm_ip_address variable)
