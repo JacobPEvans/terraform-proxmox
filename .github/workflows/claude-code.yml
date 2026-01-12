@@ -20,11 +20,15 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Check Claude Code Integration Setup
+        env:
+          HAS_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
           echo "🔍 Checking Claude Code GitHub integration setup..."
           echo ""
           echo "Current status:"
-          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          if [ "$HAS_API_KEY" = "true" ]; then
             echo "✅ ANTHROPIC_API_KEY secret is configured"
             echo "✅ Ready to test Claude Code integration"
           else
@@ -32,10 +36,10 @@ jobs:
             echo "   Add it in: Settings > Secrets and variables > Actions"
           fi
           echo ""
-          echo "Event: ${{ github.event_name }}"
-          if [ "${{ github.event_name }}" = "issue_comment" ]; then
-            echo "Comment body: ${{ github.event.comment.body }}"
-            if [[ "${{ github.event.comment.body }}" == *"@claude"* ]]; then
+          echo "Event: $EVENT_NAME"
+          if [ "$EVENT_NAME" = "issue_comment" ]; then
+            echo "Comment received (checking for @claude mention)"
+            if [[ "$COMMENT_BODY" == *"@claude"* ]]; then
               echo "🤖 @claude mention detected!"
             fi
           fi
