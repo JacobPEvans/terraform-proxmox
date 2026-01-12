@@ -80,6 +80,21 @@ validate_secrets() {
     fi
 }
 
+# Run Packer command with Doppler secrets exported as PKR_VAR_* environment variables
+run_packer_with_secrets() {
+    local packer_command="$1"
+
+    doppler run -- bash -c '
+        # Transform secrets to PKR_VAR_* format for Packer
+        for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_ADMIN_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
+            if [[ -n "${!var:-}" ]]; then
+                export PKR_VAR_${var}="${!var}"
+            fi
+        done
+        '"$packer_command"'
+    '
+}
+
 # Main
 check_requirements
 
@@ -91,30 +106,12 @@ case "${1:-build}" in
     validate)
         validate_secrets
         log_info "Validating Packer configuration..."
-        # Export Doppler secrets with PKR_VAR_ prefix for Packer
-        doppler run -- bash -c '
-            # Transform secrets to PKR_VAR_* format for Packer
-            for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_ADMIN_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
-                if [[ -n "${!var:-}" ]]; then
-                    export PKR_VAR_${var}="${!var}"
-                fi
-            done
-            packer validate -var-file=variables.pkrvars.hcl .
-        '
+        run_packer_with_secrets "packer validate -var-file=variables.pkrvars.hcl ."
         ;;
     build)
         validate_secrets
         log_info "Building Splunk template (9200)..."
-        # Export Doppler secrets with PKR_VAR_ prefix for Packer
-        doppler run -- bash -c '
-            # Transform secrets to PKR_VAR_* format for Packer
-            for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_ADMIN_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
-                if [[ -n "${!var:-}" ]]; then
-                    export PKR_VAR_${var}="${!var}"
-                fi
-            done
-            packer build -var-file=variables.pkrvars.hcl .
-        '
+        run_packer_with_secrets "packer build -var-file=variables.pkrvars.hcl ."
         ;;
     *)
         echo "Usage: $0 [init|validate|build]"

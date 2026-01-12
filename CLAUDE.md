@@ -61,24 +61,15 @@ nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault 
 
 ### Doppler Configuration
 
-Doppler is configured at the **bare repository root** (`~/git/terraform-proxmox`), so all worktrees automatically inherit the configuration. No per-worktree setup is required.
-
-```bash
-# One-time setup at bare repo root (already done)
-cd ~/git/terraform-proxmox
-doppler setup --project <YOUR_PROJECT> --config <YOUR_CONFIG>
-```
-
-This scopes the project/config to `~/git/terraform-proxmox` in `~/.doppler/.doppler.yaml`, and all subdirectories (worktrees) inherit it automatically.
-
-**Note**: Actual project/config names are in your local `SECRETS_SETUP.md` (gitignored).
+Doppler is configured once at the repository root and automatically inherited by all
+worktrees. See your local environment documentation for project and config details.
 
 ### Doppler Secret Naming (BPG Standard)
 
 Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
 
 | Secret | Purpose |
-|--------|---------|
+| --- | --- |
 | `PROXMOX_VE_ENDPOINT` | API URL (without /api2/json) |
 | `PROXMOX_VE_API_TOKEN` | API token (user@realm!tokenid=secret) |
 | `PROXMOX_VE_USERNAME` | Username for token |
@@ -112,6 +103,7 @@ nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault 
 ```
 
 **Best Practices**:
+
 - Test in isolated resource pools, never production-first
 - Use feature branches for all changes
 - Follow conventional commit messages
@@ -155,10 +147,12 @@ ssh root@proxmox-host 'while true; do clear; date; free -h; qm list; pct list; s
 #### Timeout Configuration
 
 Resource-level timeouts are configured in modules (15 min standard, 30 min for clone/create):
+
 - `modules/proxmox-vm/main.tf`
 - `modules/splunk-vm/main.tf`
 
 For slow operations, reduce parallelism:
+
 ```bash
 terragrunt apply -parallelism=1 -auto-approve
 ```
