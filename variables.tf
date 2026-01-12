@@ -384,30 +384,10 @@ variable "splunk_vm_name" {
   }
 }
 
-variable "splunk_vm_ip_address" {
-  description = "IPv4 address with CIDR notation for the Splunk VM. Configure in terraform.tfvars for your environment."
-  type        = string
-  # No default - must be specified in .tfvars for environment-specific configuration
-  validation {
-    condition     = can(cidrhost(var.splunk_vm_ip_address, 0))
-    error_message = "Splunk VM IP address must be a valid IPv4 address in CIDR notation."
-  }
-}
-
 variable "splunk_vm_pool_id" {
   description = "Resource pool ID for the Splunk VM (optional)"
   type        = string
   default     = ""
-}
-
-variable "splunk_network_gateway" {
-  description = "Gateway IP address for the Splunk network"
-  type        = string
-  default     = "192.168.1.1"
-  validation {
-    condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}$", var.splunk_network_gateway))
-    error_message = "Gateway must be a valid IPv4 address."
-  }
 }
 
 # ACME Certificate Configuration

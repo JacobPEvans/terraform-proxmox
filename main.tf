@@ -91,7 +91,7 @@ module "containers" {
       node_name        = var.proxmox_node
       template_file_id = "${var.datastore_iso}:vztmpl/${var.proxmox_ct_template_debian}"
       # DRY: Derive IP from vm_id if not explicitly specified
-      # Format: network_prefix.vm_id/mask (e.g., 192.168.0.100/32 for vm_id 100)
+      # Format: network_prefix.vm_id/mask (e.g., 192.168.0.100/24 for vm_id 100)
       ip_config = {
         ipv4_address = try(v.ip_config.ipv4_address, local.derive_ip[v.vm_id])
         ipv4_gateway = try(v.ip_config.ipv4_gateway, local.network_gateway)
