@@ -91,12 +91,13 @@ case "${1:-build}" in
     validate)
         validate_secrets
         log_info "Validating Packer configuration..."
-        # Use doppler run with --name-transformer to safely pass secrets as environment variables
-        # This avoids shell injection risks by letting Doppler handle secret injection
-        doppler run --name-transformer=upper -- bash -c '
-            # Transform PROXMOX_VE_* and other secrets to PKR_VAR_* format
-            for var in $(doppler secrets list --json | jq -r ".[].name"); do
-                export PKR_VAR_${var}="${!var}"
+        # Export Doppler secrets with PKR_VAR_ prefix for Packer
+        doppler run -- bash -c '
+            # Transform secrets to PKR_VAR_* format for Packer
+            for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_ADMIN_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
+                if [[ -n "${!var:-}" ]]; then
+                    export PKR_VAR_${var}="${!var}"
+                fi
             done
             packer validate -var-file=variables.pkrvars.hcl .
         '
@@ -104,12 +105,13 @@ case "${1:-build}" in
     build)
         validate_secrets
         log_info "Building Splunk template (9200)..."
-        # Use doppler run with --name-transformer to safely pass secrets as environment variables
-        # This avoids shell injection risks by letting Doppler handle secret injection
-        doppler run --name-transformer=upper -- bash -c '
-            # Transform PROXMOX_VE_* and other secrets to PKR_VAR_* format
-            for var in $(doppler secrets list --json | jq -r ".[].name"); do
-                export PKR_VAR_${var}="${!var}"
+        # Export Doppler secrets with PKR_VAR_ prefix for Packer
+        doppler run -- bash -c '
+            # Transform secrets to PKR_VAR_* format for Packer
+            for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_ADMIN_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
+                if [[ -n "${!var:-}" ]]; then
+                    export PKR_VAR_${var}="${!var}"
+                fi
             done
             packer build -var-file=variables.pkrvars.hcl .
         '
