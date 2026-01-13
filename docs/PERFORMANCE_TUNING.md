@@ -23,8 +23,8 @@ zfs create -V 96G -b $(getconf PAGESIZE) \
 mkswap /dev/zvol/rpool/swap
 swapon /dev/zvol/rpool/swap
 
-# Add to fstab for persistence
-echo "/dev/zvol/rpool/swap none swap sw 0 0" >> /etc/fstab
+# Add to fstab for persistence (idempotent)
+grep -qF '/dev/zvol/rpool/swap' /etc/fstab || echo '/dev/zvol/rpool/swap none swap sw 0 0' >> /etc/fstab
 ```
 
 ### Settings Explained
@@ -71,10 +71,6 @@ Create `/etc/security/limits.d/90-services.conf`:
 * hard nofile 65536
 * soft nproc 65536
 * hard nproc 65536
-splunk soft nofile 65536
-splunk hard nofile 65536
-root soft nofile 65536
-root hard nofile 65536
 ```
 
 ### Systemd Default Limits
@@ -95,21 +91,28 @@ The ZFS Adaptive Replacement Cache (ARC) should be sized based on total RAM.
 
 ### Recommended ARC Sizes
 
-| Physical RAM | Recommended ARC Max | Command                            |
-| ------------ | ------------------- | ---------------------------------- |
-| 16 GB        | 2-4 GB              | `echo 4294967296 > ...zfs_arc_max` |
-| 32 GB        | 8-16 GB             | `echo 17179869184 > ...zfs_arc_max`|
-| 64 GB        | 32-48 GB            | `echo 51539607552 > ...zfs_arc_max`|
+| Physical RAM | Recommended ARC Max | Bytes         |
+| ------------ | ------------------- | ------------- |
+| 16 GB        | 2-4 GB              | 4294967296    |
+| 32 GB        | 8-16 GB             | 17179869184   |
+| 64 GB        | 32-48 GB            | 51539607552   |
 
 ### Persistent Configuration
 
-Create `/etc/modprobe.d/zfs.conf`:
+Create `/etc/modprobe.d/zfs.conf` (replace `<BYTES>` with value from table above):
 
 ```bash
-options zfs zfs_arc_max=<ARC_MAX_BYTES>
+options zfs zfs_arc_max=<BYTES>
 ```
 
 Then regenerate initramfs: `update-initramfs -u`
+
+### Runtime Configuration (non-persistent)
+
+```bash
+# Replace <BYTES> with value from table
+echo <BYTES> > /sys/module/zfs/parameters/zfs_arc_max
+```
 
 ## Verification Commands
 
