@@ -48,7 +48,7 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.3 Standardize Example IPs to 192.168.1.x
 
-- [x] **Ensure all example IPs use RFC5737 documentation range**
+- [x] **Ensure all example IPs use RFC1918 private address range**
   - File: `terraform.tfvars.example`
   - All IPs use `192.168.1.x` placeholder pattern
   - Gateway: `192.168.1.1`

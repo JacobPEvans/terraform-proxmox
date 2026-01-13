@@ -182,7 +182,7 @@ qm clone 9001 999 --name test-clone
 
 # Configure cloud-init
 qm set 999 --ciuser debian --cipassword test123 --sshkeys ~/.ssh/authorized_keys
-qm set 999 --ipconfig0 ip=192.168.1.99/24,gw=192.168.1.1
+qm set 999 --ipconfig0 ip=192.168.1.99/32,gw=192.168.1.1
 
 # Start and verify
 qm start 999
@@ -203,7 +203,7 @@ clone_template = {
 }
 
 ip_config = {
-  ipv4_address = "192.168.1.100/24"
+  ipv4_address = "192.168.1.100/32"
   ipv4_gateway = "192.168.1.1"
 }
 
