@@ -83,6 +83,7 @@ local/
 temp/
 tmp/
 .local/
+.docs/
 
 # Local context files with sensitive data (never commit)
 # Note: Real infrastructure context is maintained in private int_homelab repo
