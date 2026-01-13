@@ -12,7 +12,7 @@ output "datastores_available" {
   value = {
     for ds in data.proxmox_virtual_environment_datastores.available.datastores : ds.id => {
       type          = ds.type
-      content_types = ds.content
+      content_types = ds.content_types
     }
   }
 }

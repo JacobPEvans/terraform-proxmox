@@ -58,6 +58,7 @@ source "proxmox-clone" "splunk" {
 build {
   sources = ["source.proxmox-clone.splunk"]
 
+  # Splunk installation provisioner
   provisioner "shell" {
     inline = [
       "cloud-init status --wait || true",
@@ -72,6 +73,31 @@ build {
       "sudo chown -R ${var.SPLUNK_USER}:${var.SPLUNK_GROUP} ${var.SPLUNK_HOME}",
       "sudo cloud-init clean",
       "sudo truncate -s 0 /etc/machine-id"
+    ]
+  }
+
+  # System tuning: Configure ulimits for Splunk performance
+  # Splunk requires high file descriptor and process limits (64,000+)
+  provisioner "shell" {
+    inline = [
+      "echo 'Configuring ulimits for Splunk...'",
+      "sudo tee /etc/security/limits.d/99-splunk.conf > /dev/null <<'LIMITS'",
+      "# Splunk requires high file descriptor and process limits",
+      "# See: https://docs.splunk.com/Documentation/Splunk/latest/Installation/Systemrequirements",
+      "${var.SPLUNK_USER} soft nofile 65536",
+      "${var.SPLUNK_USER} hard nofile 65536",
+      "${var.SPLUNK_USER} soft nproc 65536",
+      "${var.SPLUNK_USER} hard nproc 65536",
+      "LIMITS",
+      "echo 'Configuring systemd service limits...'",
+      "sudo mkdir -p /etc/systemd/system/splunk.service.d",
+      "sudo tee /etc/systemd/system/splunk.service.d/limits.conf > /dev/null <<'SYSTEMD'",
+      "[Service]",
+      "LimitNOFILE=65536",
+      "LimitNPROC=65536",
+      "SYSTEMD",
+      "sudo systemctl daemon-reload",
+      "echo 'ulimits configuration complete'"
     ]
   }
 
