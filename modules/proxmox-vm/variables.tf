@@ -81,6 +81,13 @@ variable "vms" {
     os_type = optional(string, "l26")
   }))
   default = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.vms : contains(["std", "cirrus", "vmware", "qxl"], v.vga_type)
+    ])
+    error_message = "The vga_type for each VM must be one of: std, cirrus, vmware, qxl."
+  }
 }
 
 variable "environment" {
