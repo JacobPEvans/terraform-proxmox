@@ -34,7 +34,7 @@ proxmox_api_endpoint = "https://proxmox.example.com:8006/api2/json"
 vms = {
   "splunk-idx1" = {
     vm_id = 100
-    ipv4_address = "192.168.1.100/32"
+    ipv4_address = "192.168.1.100/24"
     # ...
   }
 }
@@ -44,7 +44,7 @@ proxmox_api_endpoint = "https://pve.your-real-domain.local:8006/api2/json"
 vms = {
   "splunk-idx1" = {
     vm_id = 100
-    ipv4_address = "YOUR_REAL_IP/32"  # Your actual network address
+    ipv4_address = "YOUR_REAL_IP/24"  # Your actual network address
     # ...
   }
 }
@@ -67,7 +67,7 @@ grep tfvars .gitignore
 ### Network Configuration
 
 - **IP Addresses**: Replace all 192.168.1.x placeholder addresses with your actual network addresses
-- **Subnet Mask**: Adjust /32 if using different subnet design
+- **Subnet Mask**: Use /24 for standard LAN (matches your network's actual CIDR)
 - **Gateway**: Replace example gateway with your actual gateway
 - **DNS**: Update DNS servers if specified
 
@@ -268,4 +268,5 @@ git commit -m "your message"
 ✅ Secret values: Via Doppler (TF_VAR_* environment variables)
 ```
 
-This pattern ensures your public repository reveals no sensitive infrastructure details while maintaining a clear template for users.
+This pattern ensures your public repository reveals no sensitive infrastructure details
+while maintaining a clear template for users.
