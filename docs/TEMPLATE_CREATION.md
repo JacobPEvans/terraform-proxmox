@@ -54,6 +54,7 @@ wget https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64
 ```
 
 **Why cloud images?**
+
 - Pre-installed cloud-init and qemu-guest-agent
 - Optimized for virtual environments
 - Small size (~350MB)
@@ -181,11 +182,11 @@ qm clone 9001 999 --name test-clone
 
 # Configure cloud-init
 qm set 999 --ciuser debian --cipassword test123 --sshkeys ~/.ssh/authorized_keys
-qm set 999 --ipconfig0 ip=10.0.1.99/32,gw=10.0.1.1
+qm set 999 --ipconfig0 ip=192.168.1.99/24,gw=192.168.1.1
 
 # Start and verify
 qm start 999
-ssh debian@10.0.1.99
+ssh debian@192.168.1.99
 
 # Cleanup
 qm stop 999
@@ -202,8 +203,8 @@ clone_template = {
 }
 
 ip_config = {
-  ipv4_address = "10.0.1.100/32"
-  ipv4_gateway = "10.0.1.1"
+  ipv4_address = "192.168.1.100/24"
+  ipv4_gateway = "192.168.1.1"
 }
 
 user_account = {
@@ -214,6 +215,7 @@ user_account = {
 ```
 
 Cloud-init applies:
+
 - Network configuration (static IP)
 - User account creation
 - SSH key installation
@@ -222,14 +224,17 @@ Cloud-init applies:
 ## Troubleshooting
 
 **VM won't boot after cloning:**
+
 - Check boot order: `qm config 9001 | grep boot`
 - Verify disk attached: `qm config 9001 | grep scsi0`
 
 **Cloud-init not applying configuration:**
+
 - Check cloud-init drive exists: `qm config 9001 | grep ide2`
 - View cloud-init logs: `journalctl -u cloud-init`
 
 **Network not configured:**
+
 - Verify DHCP available on vmbr0 during first boot
 - Check cloud-init network config: `cat /etc/network/interfaces.d/50-cloud-init`
 

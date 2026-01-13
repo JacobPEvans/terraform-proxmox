@@ -1,15 +1,18 @@
 # Managing Real Infrastructure Values
 
-**Critical Security Pattern**: This repository uses placeholder values in all committed files. Real infrastructure details are maintained locally and never committed to git.
+**Critical Security Pattern**: This repository uses placeholder values in all committed files.
+Real infrastructure details are maintained locally and never committed to git.
 
 ## The Pattern
 
 ### Committed Files (Public/Safe)
+
 - `terraform.tfvars.example` - Placeholder RFC 1918 addresses (192.168.1.x)
 - All documentation uses example IPs and names
 - No real infrastructure topology exposed
 
 ### Local Files (Private/Gitignored)
+
 - `terraform.tfvars` - Your real IP addresses, hostnames, and configuration
 - Protected by `.gitignore` entries: `*.tfvars` and `terraform.tfvars`
 
@@ -31,7 +34,7 @@ proxmox_api_endpoint = "https://proxmox.example.com:8006/api2/json"
 vms = {
   "splunk-idx1" = {
     vm_id = 100
-    ipv4_address = "192.168.1.100/32"
+    ipv4_address = "192.168.1.100/24"
     # ...
   }
 }
@@ -41,7 +44,7 @@ proxmox_api_endpoint = "https://pve.your-real-domain.local:8006/api2/json"
 vms = {
   "splunk-idx1" = {
     vm_id = 100
-    ipv4_address = "YOUR_REAL_IP/32"  # Your actual network address
+    ipv4_address = "YOUR_REAL_IP/24"  # Your actual network address
     # ...
   }
 }
@@ -62,17 +65,20 @@ grep tfvars .gitignore
 ## What Values to Replace
 
 ### Network Configuration
+
 - **IP Addresses**: Replace all 192.168.1.x placeholder addresses with your actual network addresses
-- **Subnet Mask**: Adjust /32 if using different subnet design
+- **Subnet Mask**: Use /24 for standard LAN (matches your network's actual CIDR)
 - **Gateway**: Replace example gateway with your actual gateway
 - **DNS**: Update DNS servers if specified
 
 ### Proxmox Configuration
+
 - **API Endpoint**: Your actual Proxmox hostname or IP address
 - **Node Name**: Your actual Proxmox node name (check Proxmox UI)
 - **Domain**: Your actual internal domain name
 
 ### VM/Container IDs
+
 - **IDs**: Use the v2.0 numbering scheme as-is, or adjust if you have existing VMs with ID conflicts
 - **Names**: Modify if you prefer different naming conventions
 
@@ -153,6 +159,7 @@ fi
 ### Example Values in Docs
 
 All documentation uses **example values only**:
+
 - IPs: 192.168.1.x (RFC 1918 private range)
 - Domains: example.com, pve.example.com
 - Hostnames: Generic names (proxmox, pve)
@@ -160,6 +167,7 @@ All documentation uses **example values only**:
 ### Real Values Documentation
 
 Document your real infrastructure in:
+
 - **Private notes** (not in git)
 - **Password manager** (Bitwarden, 1Password, etc.)
 - **Separate private repo** (if needed)
@@ -170,6 +178,7 @@ Document your real infrastructure in:
 ### "My changes aren't being applied"
 
 Check if you're editing the example file instead of the real one:
+
 ```bash
 ls -la terraform.tfvars*
 # Should show both:
@@ -201,11 +210,12 @@ git commit -m "your message"
 
 ## Summary
 
-```
+```text
 ✅ Committed:     terraform.tfvars.example (192.168.1.x placeholders)
 ❌ Never commit:  terraform.tfvars (your real IP addresses)
 ✅ Gitignored:    *.tfvars, terraform.tfvars
 ✅ Secret values: Via Doppler (TF_VAR_* environment variables)
 ```
 
-This pattern ensures your public repository reveals no sensitive infrastructure details while maintaining a clear template for users.
+This pattern ensures your public repository reveals no sensitive infrastructure details
+while maintaining a clear template for users.

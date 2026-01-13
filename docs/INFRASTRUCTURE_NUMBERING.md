@@ -111,40 +111,40 @@ Heavy I/O workloads run as full VMs:
 
 ## Network Addressing
 
-All resources use /32 host addresses in the management network.
+All resources use /24 CIDR notation for host addresses on the management network.
 
 Example configuration uses 192.168.1.0/24:
 
 ### Infrastructure (100-110)
 
-- 192.168.1.100/32 - ansible
-- 192.168.1.101/32 - ansible-2
-- 192.168.1.102/32 - pve-scripts-local
+- 192.168.1.100/24 - ansible
+- 192.168.1.101/24 - ansible-2
+- 192.168.1.102/24 - pve-scripts-local
 
 ### AI Development (150-169)
 
-- 192.168.1.150/32 - claude-code-01
-- 192.168.1.151/32 - claude-code-02
-- 192.168.1.161/32 - gemini-01
-- 192.168.1.162/32 - gemini-02
+- 192.168.1.150/24 - claude-code-01
+- 192.168.1.151/24 - claude-code-02
+- 192.168.1.161/24 - gemini-01
+- 192.168.1.162/24 - gemini-02
 
 ### Cribl Stream (171-179)
 
-- 192.168.1.171/32 - cribl-stream-1
-- 192.168.1.172/32 - cribl-stream-2
+- 192.168.1.171/24 - cribl-stream-1
+- 192.168.1.172/24 - cribl-stream-2
 
 ### Cribl Edge (181-189)
 
-- 192.168.1.181/32 - cribl-edge-01
-- 192.168.1.182/32 - cribl-edge-02
+- 192.168.1.181/24 - cribl-edge-01
+- 192.168.1.182/24 - cribl-edge-02
 
 ### Splunk Management (190-199)
 
-- 192.168.1.199/32 - splunk-mgmt
+- 192.168.1.199/24 - splunk-mgmt
 
 ### VMs (200+)
 
-- 192.168.1.200/32 - splunk-vm
+- 192.168.1.200/24 - splunk-vm
 
 ---
 

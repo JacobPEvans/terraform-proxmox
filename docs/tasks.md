@@ -40,11 +40,10 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.2 Fix IP Subnet in terraform.tfvars.example
 
-- [x] **Update IP format from /24 to /32 for Splunk nodes**
+- [x] **Verify IP format uses /24 for standard LAN**
   - File: `terraform.tfvars.example`
-  - Line 104: Change `10.0.1.100/24` to `192.168.1.100/32`
-  - Line 149: Change `10.0.1.101/24` to `192.168.1.101/32`
-  - Line 193: Change `10.0.1.205/24` to `192.168.1.205/32`
+  - All host IPs use /24 CIDR notation (e.g., `192.168.1.100/24`)
+  - /24 is correct for hosts on a standard LAN network
 
 ### 1.3 Fix Example IPs (10.0.1.x to 192.168.1.x)
 
@@ -231,7 +230,7 @@ Group 4 (Scripts) ----> Group 5 (Documentation)
 | Splunk Version | 10.0.2 |
 | Splunk Build | e2d18b4767e9 |
 | Example Network | 192.168.1.0/24 |
-| IP Format | /32 per host |
+| IP Format | /24 per host |
 | Pool Name | logging |
 | Management IP | 192.168.1.205 |
 | Indexer 1 IP | 192.168.1.100 |
@@ -240,7 +239,7 @@ Group 4 (Scripts) ----> Group 5 (Documentation)
 ### Constraints
 
 - Real `terraform.tfvars` is never committed (in .gitignore)
-- Example values use 192.168.1.x/32 network
+- Example values use 192.168.1.x/24 network
 - All real infrastructure details sanitized from committed files
 - Related Ansible automation in separate `feat/initial-splunk-ansible` branch
 

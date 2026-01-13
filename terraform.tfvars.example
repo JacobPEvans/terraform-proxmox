@@ -55,7 +55,7 @@ pools = {
 # Splunk VM Module Configuration - Single All-in-One (200+)
 splunk_vm_id         = 200
 splunk_vm_name       = "splunk-vm"
-splunk_vm_ip_address = "192.168.1.200/32"
+splunk_vm_ip_address = "192.168.1.200/24"
 splunk_vm_pool_id    = "logging"
 template_id          = 9200  # Packer-built Splunk template
 
@@ -94,7 +94,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.100/32"
+      ipv4_address = "192.168.1.100/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -121,7 +121,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.101/32"
+      ipv4_address = "192.168.1.101/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -151,7 +151,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.110/32"
+      ipv4_address = "192.168.1.110/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -179,7 +179,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.150/32"
+      ipv4_address = "192.168.1.150/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -206,7 +206,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.151/32"
+      ipv4_address = "192.168.1.151/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -233,7 +233,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.161/32"
+      ipv4_address = "192.168.1.161/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -260,7 +260,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.162/32"
+      ipv4_address = "192.168.1.162/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -288,7 +288,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.171/32"
+      ipv4_address = "192.168.1.171/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -315,7 +315,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.172/32"
+      ipv4_address = "192.168.1.172/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -343,7 +343,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.181/32"
+      ipv4_address = "192.168.1.181/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -370,7 +370,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.182/32"
+      ipv4_address = "192.168.1.182/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
@@ -398,7 +398,7 @@ containers = {
     }]
 
     ip_config = {
-      ipv4_address = "192.168.1.199/32"
+      ipv4_address = "192.168.1.199/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
