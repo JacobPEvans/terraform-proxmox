@@ -24,8 +24,6 @@ internal cluster communication.
 4. Provide centralized logging for homelab infrastructure
 5. Maintain DRY principles in infrastructure code
 
-
-
 ---
 
 ## Architecture
@@ -38,8 +36,12 @@ internal cluster communication.
 | splunk-idx1 (VM) | 135 | 192.168.1.135/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 1 |
 | splunk-idx2 (VM) | 136 | 192.168.1.136/32 | 4 cores, 4GB RAM, 200GB | local-zfs | Indexer 2 |
 
+**Total Resource Allocation**: 10 cores, 10GB RAM, 450GB storage
 
-**Total Resource Allocation**: 8 cores, 10GB RAM, 450GB storage
+> Note: This sizing is intentionally minimized for a 500MB/day Splunk Enterprise development
+> license and a 16GB RAM Proxmox host. It has been validated against Splunk's published minimum
+> recommendations for low-volume, non-production workloads; higher ingestion or search concurrency
+> will require proportionally larger indexer resources.
 
 ### Network Configuration
 
@@ -77,7 +79,6 @@ internal cluster communication.
 - Search Factor: 1
 - Cluster Master URI: [https://192.168.1.130:8089](https://192.168.1.130:8089)
 
-
 ---
 
 ## Network Security
@@ -106,7 +107,6 @@ internal cluster communication.
 - ALLOW outbound only to 192.168.1.0/24
 - NO internet access
 
-
 **Port Matrix**:
 
 | Port | Protocol | Purpose | Allowed From |
@@ -118,30 +118,34 @@ internal cluster communication.
 | 8080 | TCP | Replication | Splunk cluster only |
 | 9887 | TCP | Clustering | Splunk cluster only |
 
-
 ---
 
 ## Secrets Management
 
 ### Approach: File-Based (Simplified)
 
-**Rationale**: Proxmox is air-gapped with no internet access. Cloud-based secrets management (Vault, BWS) is not viable. File-based approach prioritizes simplicity.
+**Rationale**: Proxmox is air-gapped with no internet access. Cloud-based secrets management
+(Vault, BWS) is not viable. File-based approach prioritizes simplicity.
 
 **Local (Mac)**:
+
 - Doppler: Stores Proxmox API credentials for Terraform execution
 - SSH Keys: `~/.ssh/id_rsa_pve` (Proxmox), `~/.ssh/id_rsa_vm` (VMs)
 
 **Proxmox Host**:
+
 - Splunk Package: `/opt/splunk-packages/splunk-10.0.2-e2d18b4767e9-linux-amd64.deb`
 - Files staged manually on Proxmox host
 - No secrets service required
 
 **Terraform State**:
+
 - S3 Backend: `terraform-proxmox-state-useast2-${aws_account_id}`
 - DynamoDB Locking: `terraform-proxmox-locks-useast2`
 - Encryption: Enabled
 
 **Splunk Credentials** (managed by Ansible role):
+
 - Admin password: Set by Ansible during initial installation (must be provided via Ansible Vault or --extra-vars)
 - Cluster secret key: Set by Ansible for cluster communication (must be provided via Ansible Vault or --extra-vars)
 - **IMPORTANT**: No hardcoded defaults - credentials must be supplied securely for each deployment
@@ -150,7 +154,7 @@ internal cluster communication.
 
 ## Implementation Phases
 
-### Phase 1: Provider Updates ✅ COMPLETED
+### Phase 1: Provider Updates - COMPLETED
 
 **Status**: Done (bpg/proxmox v0.90.0 installed)
 
@@ -160,13 +164,14 @@ internal cluster communication.
 - Ran `terraform init -upgrade`
 - Provider locked at v0.90.0
 
-### Phase 2: Splunk Indexer Module (DRY) ❌ PENDING
+### Phase 2: Splunk Indexer Module (DRY) - PENDING
 
 **Current Problem**: Two 40+ line VM blocks duplicated in `terraform.tfvars.example`
 
 **Solution**: Create reusable `modules/splunk-indexer/`
 
 **Module Interface**:
+
 ```hcl
 module "splunk_idx1" {
   source      = "./modules/splunk-indexer"
@@ -179,6 +184,7 @@ module "splunk_idx1" {
 ```
 
 **Shared Configuration** (DRY inside module):
+
 - CPU: 4 cores
 - Memory: 4096 MB
 - Disk: 200 GB (local-zfs, virtio, iothread=true)
@@ -186,53 +192,59 @@ module "splunk_idx1" {
 - Clone: template_id = 9000 (Ubuntu cloud-init)
 - OS: l26 (Linux 2.6+ kernel)
 
-### Phase 3: Firewall Module ✅ COMPLETED
+### Phase 3: Firewall Module - COMPLETED
 
 **Status**: Done
 
 Created `modules/firewall/` with:
+
 - `main.tf`: Proxmox firewall options and rules for VMs/containers
 - `variables.tf`: node_name, splunk_vm_ids, splunk_container_ids, networks
 - `outputs.tf`: Firewall enabled status
 
 Integrated in `main.tf` after containers module.
 
-### Phase 4: Terraform Configuration ⚠️ PARTIAL
+### Phase 4: Terraform Configuration - PARTIAL
 
 **Completed**:
-- ✅ Firewall variables added to `variables.tf`
-- ✅ Firewall module integrated in `main.tf`
-- ✅ Splunk management container added to `terraform.tfvars.example`
+
+- Firewall variables added to `variables.tf`
+- Firewall module integrated in `main.tf`
+- Splunk management container added to `terraform.tfvars.example`
 
 **Pending Fixes**:
-- ❌ Remove duplicated splunk-idx1/idx2 blocks from `terraform.tfvars.example`
-- ❌ Update pool from "splunk" to "logging"
-- ❌ Update IP format from /24 to /32
-- ❌ Update example IPs from 10.0.1.x to 192.168.1.x
 
-### Phase 5: Ansible Splunk Role ⚠️ PARTIAL
+- Remove duplicated splunk-idx1/idx2 blocks from `terraform.tfvars.example`
+- Update pool from "splunk" to "logging"
+- Update IP format from /24 to /32
+- Update example IPs from 10.0.1.x to 192.168.1.x
+
+### Phase 5: Ansible Splunk Role - PARTIAL
 
 **Completed**:
-- ✅ Role structure created (`ansible/roles/splunk/`)
-- ✅ Installation tasks (`tasks/install.yml`)
-- ✅ Configuration tasks (`tasks/configure.yml`)
-- ✅ Firewall tasks (`tasks/firewall.yml`)
-- ✅ Handlers, meta, defaults
+
+- Role structure created (`ansible/roles/splunk/`)
+- Installation tasks (`tasks/install.yml`)
+- Configuration tasks (`tasks/configure.yml`)
+- Firewall tasks (`tasks/firewall.yml`)
+- Handlers, meta, defaults
 
 **Pending Fixes**:
-- ❌ Update Splunk version from 9.4.0 to 10.0.2
-- ❌ Update build from 6b4ebe426ca6 to e2d18b4767e9
-- ❌ Create Molecule tests (`molecule/default/`)
-- ❌ Update package_name variable
 
-### Phase 6: Ansible Integration ❌ PENDING
+- Update Splunk version from 9.4.0 to 10.0.2
+- Update build from 6b4ebe426ca6 to e2d18b4767e9
+- Create Molecule tests (`molecule/default/`)
+- Update package_name variable
+
+### Phase 6: Ansible Integration - PENDING
 
 **Files to Update**:
+
 - `.github/workflows/ansible.yml`: Add "splunk" to matrix
 - `ansible/playbooks/site.yml`: Add splunk_indexers and splunk_management plays
 - `ansible/inventory/hosts.yml.example`: Add splunk groups
 
-### Phase 7: Timing Script ❌ PENDING
+### Phase 7: Timing Script - PENDING
 
 **Create**: `scripts/timing.sh`
 
@@ -240,7 +252,7 @@ Integrated in `main.tf` after containers module.
 
 **Output**: `scripts/timing-results.txt`
 
-### Phase 8: GitHub Issue ❌ PENDING
+### Phase 8: GitHub Issue - PENDING
 
 **Title**: `feat(ansible): Automate Splunk-to-Splunk cluster communication`
 
@@ -251,6 +263,7 @@ Integrated in `main.tf` after containers module.
 ## Validation Checklist
 
 ### Terraform
+
 - [x] `terraform init -upgrade` passes
 - [x] `terraform validate` passes
 - [ ] `terraform fmt -check` passes
@@ -258,6 +271,7 @@ Integrated in `main.tf` after containers module.
 - [ ] No DRY violations
 
 ### Ansible
+
 - [ ] `ansible-lint` passes (production profile)
 - [ ] `molecule test` passes for splunk role
 - [ ] Idempotency verified (run twice, no changes)
@@ -265,6 +279,7 @@ Integrated in `main.tf` after containers module.
 - [ ] iptables tasks tagged `molecule-notest`
 
 ### Integration
+
 - [ ] Firewall module resources created successfully
 - [ ] Splunk indexer modules create VMs correctly
 - [ ] Container firewall rules applied
@@ -279,6 +294,7 @@ Integrated in `main.tf` after containers module.
 **Proxmox Host**: Ryzen 7 1700 (8 cores), 16GB RAM
 
 **Memory Allocation**:
+
 - Original Plan: 2x 8GB indexers = 16GB (exceeds capacity)
 - **Decision**: Reduced to 2x 4GB indexers + 2GB management = 10GB total
 - Rationale: Leave 6GB for Proxmox host and other services
@@ -296,6 +312,7 @@ Integrated in `main.tf` after containers module.
 **Decision**: File-based secrets (not Vault, BWS, Doppler on Proxmox)
 
 **Rationale**:
+
 - Proxmox has no internet access (air-gapped)
 - Complexity of self-hosted Vault outweighs benefits for 3-node cluster
 - File-based secrets sufficient for homelab use case
@@ -307,6 +324,7 @@ Integrated in `main.tf` after containers module.
 **Decision**: Splunk-to-Splunk communication configured manually by user
 
 **Deferred to GitHub Issue**:
+
 - Cluster peer registration
 - Replication port configuration
 - Bucket policies
@@ -318,7 +336,7 @@ Integrated in `main.tf` after containers module.
 
 ## Prerequisites
 
-### Already Staged ✅
+### Already Staged
 
 - Splunk Package: `/opt/splunk-packages/splunk-10.0.2-e2d18b4767e9-linux-amd64.deb` on pve
 - Network: Real config in `terraform.tfvars` (example: 192.168.1.x/32)
@@ -327,7 +345,7 @@ Integrated in `main.tf` after containers module.
 
 ### User Must Provide
 
-1. **Cloud-init Template**: VM 9000 must exist on Proxmox with Ubuntu LTS
+1. **Cloud-init Template**: VM 9000 must exist on Proxmox with Ubuntu 24.04 LTS (Noble)
 2. **SSH Keys**: `~/.ssh/id_rsa_vm`, `~/.ssh/id_rsa_pve` configured
 3. **AWS Credentials**: For Terragrunt S3 backend
 4. **Doppler**: Configured locally for Proxmox API credentials
@@ -339,11 +357,13 @@ Integrated in `main.tf` after containers module.
 ### Unit Testing
 
 **Terraform**:
+
 - `terraform validate`: Syntax and provider constraints
 - `terraform fmt`: Code formatting
 - `terraform plan`: Resource generation without apply
 
 **Ansible**:
+
 - `ansible-lint`: YAML syntax, best practices (production profile)
 - `molecule test`: Docker-based role testing
   - Dependency resolution
@@ -355,16 +375,18 @@ Integrated in `main.tf` after containers module.
 ### Integration Testing
 
 **Manual Verification**:
+
 1. Run `terraform apply` in isolated environment
 2. Verify VMs created with correct specs
 3. Verify container created
 4. Verify Proxmox firewall rules applied
 5. Test SSH access to VMs
-6. Test Splunk Web UI access (http://192.168.1.130:8000)
+6. Test Splunk Web UI access ([http://192.168.1.130:8000](http://192.168.1.130:8000))
 7. Verify network isolation (no outbound internet)
 8. Verify cluster communication (8089, 9997, 8080, 9887 ports)
 
 **Performance Testing**:
+
 - Run `scripts/timing.sh` to measure terragrunt plan/apply times
 - Record baseline metrics for future optimization
 
@@ -375,12 +397,14 @@ Integrated in `main.tf` after containers module.
 ### If Deployment Fails
 
 **Terraform**:
+
 1. Run `terraform destroy` to remove resources
 2. Review error logs
 3. Fix configuration issues
 4. Re-run `terraform plan` and `terraform apply`
 
 **Ansible**:
+
 1. SSH into VMs manually
 2. Stop Splunk service: `systemctl stop Splunkd`
 3. Remove Splunk: `apt remove splunk` or `rm -rf /opt/splunk`
@@ -388,6 +412,7 @@ Integrated in `main.tf` after containers module.
 5. Re-run Ansible playbook
 
 **Proxmox Firewall**:
+
 1. Disable firewall in Proxmox UI: Datacenter > Firewall > Options > Firewall: No
 2. Remove firewall rules manually if needed
 
@@ -451,10 +476,10 @@ Integrated in `main.tf` after containers module.
 
 ### Documentation
 
-- **Splunk Docs**: https://docs.splunk.com/
-- **Proxmox VE**: https://pve.proxmox.com/wiki/
-- **Terraform Proxmox Provider**: https://registry.terraform.io/providers/bpg/proxmox/
-- **Ansible Best Practices**: https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html
+- **Splunk Docs**: [https://docs.splunk.com/](https://docs.splunk.com/)
+- **Proxmox VE**: [https://pve.proxmox.com/wiki/](https://pve.proxmox.com/wiki/)
+- **Terraform Proxmox Provider**: [https://registry.terraform.io/providers/bpg/proxmox/](https://registry.terraform.io/providers/bpg/proxmox/)
+- **Ansible Best Practices**: [https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html](https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html)
 
 ### Internal
 
@@ -468,7 +493,7 @@ Integrated in `main.tf` after containers module.
 
 ### v1.0.0 (2025-12-25)
 
-**Initial specification created**
+Initial specification created
 
 - Defined architecture (2 indexers + 1 management container)
 - Documented network security (defense-in-depth firewall)

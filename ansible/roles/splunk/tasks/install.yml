@@ -39,6 +39,11 @@
     state: present
   notify: Restart Splunk
 
+- name: Remove temporary Splunk package from /tmp
+  ansible.builtin.file:
+    path: "/tmp/{{ splunk_package_name }}"
+    state: absent
+
 - name: Set ownership of Splunk home
   ansible.builtin.file:
     path: "{{ splunk_home }}"
@@ -46,19 +51,34 @@
     group: "{{ splunk_group }}"
     recurse: true
 
+- name: Create Splunk admin password seed file
+  ansible.builtin.copy:
+    dest: "/tmp/splunk.seed.passwd"
+    content: "{{ splunk_admin_password }}"
+    owner: "{{ splunk_user }}"
+    group: "{{ splunk_group }}"
+    mode: "0600"
+  become: true
+  no_log: true
+
 - name: Accept Splunk license and set admin password
-  # NOTE: --seed-passwd exposes password in process list temporarily
-  # This is a Splunk limitation. Risk mitigated by: vault-encrypted password,
-  # creates parameter (runs only once), and air-gapped environment.
+  # Use seed password file to avoid exposing password in process list
   ansible.builtin.command:
     cmd: >
       {{ splunk_home }}/bin/splunk start --accept-license
       --answer-yes --no-prompt
-      --seed-passwd '{{ splunk_admin_password }}'
-    creates: "{{ splunk_home }}/etc/system/local/server.conf"
+      --seed-passwd-file /tmp/splunk.seed.passwd
+    creates: "{{ splunk_home }}/var/run/splunk"
   become: true
   become_user: "{{ splunk_user }}"
   notify: Restart Splunk
+  no_log: true
+
+- name: Remove Splunk admin password seed file
+  ansible.builtin.file:
+    path: "/tmp/splunk.seed.passwd"
+    state: absent
+  become: true
   no_log: true
 
 - name: Enable Splunk to start at boot

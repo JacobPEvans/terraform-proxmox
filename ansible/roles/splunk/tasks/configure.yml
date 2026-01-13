@@ -41,6 +41,7 @@
   when: splunk_role in ["cluster_manager", "all_in_one"] and splunk_cluster_enabled
   notify: Restart Splunk
   no_log: true
+  # Sensitive cluster password must not be exposed in logs
 
 - name: Configure license (dev mode)
   ansible.builtin.blockinfile:

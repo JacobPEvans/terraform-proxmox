@@ -1,5 +1,7 @@
 ---
 - name: Restart Splunk
+  # Note: expects the Splunk systemd service to be named "Splunkd".
+  # Update the "name" parameter below if your environment uses a different unit name.
   ansible.builtin.systemd:
     name: Splunkd
     state: restarted

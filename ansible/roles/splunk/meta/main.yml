@@ -12,5 +12,4 @@ galaxy_info:
         - jammy
         - noble
 
-dependencies:
-  - role: common
+dependencies: []

@@ -1,16 +1,18 @@
 # Splunk Cluster Infrastructure - Implementation Tasks
 
 **Spec**: `docs/splunk-cluster-spec.md`
-**Branch**: `feat/initial-splunk`
+**Branch**: `feat/initial-splunk-ansible`
 **Created**: 2025-12-25
 **Status**: In Progress
+
+**Related**: Issues `#27` (Terraform), `#28` (Ansible)
 
 ---
 
 ## Task Summary
 
 | Group | Total | Completed | Pending |
-|-------|-------|-----------|---------|
+| --- | --- | --- | --- |
 | 1. Bug Fixes | 5 | 5 | 0 |
 | 2. Terraform Modules | 4 | 0 | 4 |
 | 3. Terraform Configuration | 3 | 0 | 3 |
@@ -300,16 +302,19 @@ Final validation before PR creation.
 ### 10.1 Terraform Validation
 
 - [ ] **Run terraform fmt**
+
   ```bash
   cd /Users/jevans/git/terraform-proxmox/feat/initial-splunk && terraform fmt -recursive
   ```
 
 - [ ] **Run terraform validate**
+
   ```bash
   cd /Users/jevans/git/terraform-proxmox/feat/initial-splunk && terraform validate
   ```
 
 - [ ] **Run terraform plan (dry run)**
+
   ```bash
   cd /Users/jevans/git/terraform-proxmox/feat/initial-splunk && terraform plan
   ```
@@ -317,11 +322,13 @@ Final validation before PR creation.
 ### 10.2 Ansible Validation
 
 - [ ] **Run ansible-lint**
+
   ```bash
   cd ansible && ansible-lint
   ```
 
 - [ ] **Run molecule test for splunk role**
+
   ```bash
   cd ansible/roles/splunk && molecule test
   ```
@@ -329,6 +336,7 @@ Final validation before PR creation.
 ### 10.3 Pre-commit Hooks
 
 - [ ] **Run all pre-commit hooks**
+
   ```bash
   cd /Users/jevans/git/terraform-proxmox/feat/initial-splunk && pre-commit run --all-files
   ```
@@ -337,7 +345,7 @@ Final validation before PR creation.
 
 ## Dependency Graph
 
-```
+```text
 Group 1 (Bug Fixes)
     |
     v
@@ -373,7 +381,7 @@ Group 8 (Scripts) -------------> Group 9 (Docs)
 ### File Locations Summary
 
 | Component | Path |
-|-----------|------|
+| --- | --- |
 | Terraform root | `` |
 | Terraform modules | `modules/` |
 | Ansible roles | `ansible/roles/` |
@@ -384,7 +392,7 @@ Group 8 (Scripts) -------------> Group 9 (Docs)
 ### Key Configuration Values
 
 | Item | Correct Value |
-|------|---------------|
+| --- | --- |
 | Splunk Version | 10.0.2 |
 | Splunk Build | e2d18b4767e9 |
 | Example Network | 192.168.1.0/24 |

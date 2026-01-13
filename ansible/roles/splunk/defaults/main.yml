@@ -12,7 +12,7 @@ splunk_home: "/opt/splunk"
 
 # Splunk admin credentials (MUST be set via Ansible Vault or extra-vars)
 splunk_admin_user: "admin"
-# splunk_admin_password: "changeme123!"  # NO DEFAULT - set via vault or --extra-vars
+splunk_admin_password: "CHANGEME-SPLUNK-ADMIN-PASSWORD"  # Placeholder default - override via vault or --extra-vars before use
 
 # Splunk role: indexer, search_head, deployment_server, cluster_manager, all_in_one
 splunk_role: "indexer"
@@ -20,7 +20,7 @@ splunk_role: "indexer"
 # Cluster configuration
 splunk_cluster_enabled: true
 splunk_cluster_master_uri: "https://{{ splunk_mgmt_ip | default('192.168.1.130') }}:8089"
-# splunk_cluster_pass4symmkey: "changeme_cluster_key"  # NO DEFAULT - set via vault or --extra-vars
+splunk_cluster_pass4symmkey: "changeme_cluster_key"  # DEFAULT PLACEHOLDER - OVERRIDE VIA VAULT OR --extra-vars FOR PRODUCTION
 splunk_cluster_replication_factor: 2
 splunk_cluster_search_factor: 1
 

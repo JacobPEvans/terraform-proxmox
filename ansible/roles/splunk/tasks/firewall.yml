@@ -1,4 +1,9 @@
 ---
+# IMPORTANT: Do not skip firewall rules with --skip-tags molecule-notest
+# The molecule-notest tag is only for skipping during Docker-based Molecule tests
+# If you need to skip these tasks, use --skip-tags splunk_firewall instead
+# To apply firewall rules in production, run without any skip tags
+
 - name: Install iptables-persistent
   ansible.builtin.apt:
     name:
@@ -42,6 +47,9 @@
     - molecule-notest
 
 - name: Allow Splunk ports from allowed networks
+  # Creates a cartesian product of allowed networks and splunk ports.
+  # If a rule fails, check the loop_control label output to identify which
+  # specific network/port combination failed. Each network/port pair is applied atomically.
   ansible.builtin.iptables:
     chain: INPUT
     protocol: tcp
