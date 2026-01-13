@@ -2,6 +2,14 @@
 
 terraform {
   source = "."
+
+  # Load environment-specific tfvars (gitignored, contains real values)
+  extra_arguments "env_vars" {
+    commands = get_terraform_commands_that_need_vars()
+    optional_var_files = [
+      "${get_terragrunt_dir()}/.env/terraform.tfvars"
+    ]
+  }
 }
 
 # Remote state backend configuration using S3 + DynamoDB

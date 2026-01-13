@@ -208,6 +208,9 @@ variable "vms" {
       keys     = []
     })
 
+    # Display
+    vga_type = optional(string, "std")
+
     # Features
     agent_enabled = optional(bool, true)
     protection    = optional(bool, false)
