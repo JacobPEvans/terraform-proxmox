@@ -195,7 +195,7 @@ Certificate was generated before hostname/domain configuration was corrected. Th
 ```bash
 # Ensure /etc/hosts is correct first:
 # <IP> <FQDN> <short-hostname>
-# Example: 10.0.1.14 pve.example.com pve
+# Example: 192.168.1.14 pve.example.com pve
 
 ssh pve "pvecm updatecerts --force && systemctl restart pveproxy"
 ```

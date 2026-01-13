@@ -12,7 +12,7 @@
 ## Task Summary
 
 | Group | Total | Completed | Pending |
-|-------|-------|-----------|---------|
+| ----- | ----- | --------- | ------- |
 | 1. Bug Fixes | 5 | 5 | 0 |
 | 2. Terraform Modules | 4 | 0 | 4 |
 | 3. Terraform Configuration | 3 | 0 | 3 |
@@ -23,7 +23,9 @@
 
 ---
 
-**Note**: Ansible-related tasks have been moved to the `feat/initial-splunk-ansible` branch and GitHub issue #28. This branch focuses exclusively on Terraform infrastructure code.
+**Note**: Ansible-related tasks have been moved to the `feat/initial-splunk-ansible`
+branch and GitHub issue #28. This branch focuses exclusively on Terraform
+infrastructure code.
 
 ---
 
@@ -40,20 +42,18 @@ These issues were identified during WIP commit review. Fix before proceeding wit
 
 ### 1.2 Fix IP Subnet in terraform.tfvars.example
 
-- [x] **Update IP format from /24 to /32 for Splunk nodes**
+- [x] **Update IP format to /32 for Splunk nodes**
   - File: `terraform.tfvars.example`
-  - Line 104: Change `10.0.1.100/24` to `192.168.1.100/32`
-  - Line 149: Change `10.0.1.101/24` to `192.168.1.101/32`
-  - Line 193: Change `10.0.1.205/24` to `192.168.1.205/32`
+  - Updated all Splunk node IPs to use /32 subnet mask
 
-### 1.3 Fix Example IPs (10.0.1.x to 192.168.1.x)
+### 1.3 Standardize Example IPs to 192.168.1.x
 
-- [x] **Replace real network IPs with example IPs**
+- [x] **Ensure all example IPs use RFC5737 documentation range**
   - File: `terraform.tfvars.example`
-  - Replace all `10.0.1.x` with `192.168.1.x` for Splunk nodes
-  - Update gateway from `10.0.1.1` to `192.168.1.1` for Splunk nodes
-  - Update `management_network` from `10.0.1.0/24` to `192.168.1.0/24`
-  - Update `splunk_network` to `192.168.1.100,192.168.1.101,192.168.1.205`
+  - All IPs use `192.168.1.x` placeholder pattern
+  - Gateway: `192.168.1.1`
+  - Management network: `192.168.1.0/24`
+  - Splunk network: `192.168.1.100`, `192.168.1.101`, `192.168.1.205`
 
 ### 1.4 Fix Pool Name
 
@@ -165,6 +165,7 @@ Final validation before PR creation.
 ### 6.1 Run Terraform Formatting
 
 - [ ] **Run terraform fmt**
+
   ```bash
   terraform fmt -recursive
   ```
@@ -172,6 +173,7 @@ Final validation before PR creation.
 ### 6.2 Run Terraform Validation
 
 - [ ] **Run terraform validate**
+
   ```bash
   terraform validate
   ```
@@ -179,6 +181,7 @@ Final validation before PR creation.
 ### 6.3 Run Terraform Plan (Dry Run)
 
 - [ ] **Run terraform plan**
+
   ```bash
   terraform plan
   ```
@@ -187,7 +190,7 @@ Final validation before PR creation.
 
 ## Dependency Graph
 
-```
+```text
 Group 1 (Bug Fixes)
     |
     v
@@ -216,7 +219,7 @@ Group 4 (Scripts) ----> Group 5 (Documentation)
 ### File Locations Summary
 
 | Component | Path |
-|-----------|------|
+| --------- | ---- |
 | Terraform root | `.` |
 | Terraform modules | `modules/` |
 | Terraform configs | `main.tf`, `variables.tf`, `container.tf`, `outputs.tf` |
@@ -227,7 +230,7 @@ Group 4 (Scripts) ----> Group 5 (Documentation)
 ### Key Configuration Values
 
 | Item | Correct Value |
-|------|---------------|
+| ---- | ------------- |
 | Splunk Version | 10.0.2 |
 | Splunk Build | e2d18b4767e9 |
 | Example Network | 192.168.1.0/24 |

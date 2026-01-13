@@ -134,10 +134,10 @@ ssh root@pve.your-domain 'qm list'
 ssh root@pve.your-domain 'pct list'
 
 # Test SSH access to VMs
-ssh -i ~/.ssh/id_rsa_vm debian@10.0.1.100  # splunk-idx1
+ssh -i ~/.ssh/id_rsa_vm debian@192.168.1.100  # splunk-idx1
 
 # Check container access
-ssh root@10.0.1.200  # ansible (if configured)
+ssh root@192.168.1.200  # ansible (if configured)
 ```
 
 ## Updates and Changes
