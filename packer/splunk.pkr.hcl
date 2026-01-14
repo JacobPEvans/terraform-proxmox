@@ -96,8 +96,17 @@ build {
       "LimitNOFILE=65536",
       "LimitNPROC=65536",
       "SYSTEMD",
+      "echo 'Configuring systemd restart policy...'",
+      "sudo tee /etc/systemd/system/splunk.service.d/restart.conf > /dev/null <<'RESTART'",
+      "[Service]",
+      "# Auto-restart Splunk if it fails during boot (race condition with other services)",
+      "Restart=on-failure",
+      "RestartSec=30",
+      "StartLimitIntervalSec=300",
+      "StartLimitBurst=3",
+      "RESTART",
       "sudo systemctl daemon-reload",
-      "echo 'ulimits configuration complete'"
+      "echo 'systemd configuration complete'"
     ]
   }
 
