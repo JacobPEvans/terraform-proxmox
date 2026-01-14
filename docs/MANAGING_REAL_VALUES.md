@@ -1,15 +1,18 @@
 # Managing Real Infrastructure Values
 
-**Critical Security Pattern**: This repository uses placeholder values in all committed files. Real infrastructure details are maintained locally and never committed to git.
+**Critical Security Pattern**: This repository uses placeholder values in all committed files.
+Real infrastructure details are maintained locally and never committed to git.
 
 ## The Pattern
 
 ### Committed Files (Public/Safe)
+
 - `terraform.tfvars.example` - Placeholder RFC 1918 addresses (192.168.1.x)
 - All documentation uses example IPs and names
 - No real infrastructure topology exposed
 
 ### Local Files (Private/Gitignored)
+
 - `terraform.tfvars` - Your real IP addresses, hostnames, and configuration
 - Protected by `.gitignore` entries: `*.tfvars` and `terraform.tfvars`
 
@@ -62,21 +65,26 @@ grep tfvars .gitignore
 ## What Values to Replace
 
 ### Network Configuration
+
 - **IP Addresses**: Replace all 192.168.1.x placeholder addresses with your actual network addresses
 - **Subnet Mask**: Adjust /32 if using different subnet design
 - **Gateway**: Replace example gateway with your actual gateway
 - **DNS**: Update DNS servers if specified
 
 ### Proxmox Configuration
+
 - **API Endpoint**: Your actual Proxmox hostname or IP address
 - **Node Name**: Your actual Proxmox node name (check Proxmox UI)
 - **Domain**: Your actual internal domain name
 
 ### VM/Container IDs
+
 - **IDs**: Use the v2.0 numbering scheme as-is, or adjust if you have existing VMs with ID conflicts
 - **Names**: Modify if you prefer different naming conventions
 
 ## Environment-Specific Configurations
+
+### Method 1: Multiple tfvars Files (Legacy)
 
 For multiple environments (dev/staging/prod), use different tfvars files:
 
@@ -90,6 +98,55 @@ terraform.tfvars.prod # Gitignored via *.tfvars
 # Use with:
 terragrunt plan -var-file=terraform.tfvars.dev
 terragrunt apply -var-file=terraform.tfvars.prod
+```
+
+### Method 2: Worktree-Based Configuration (Recommended)
+
+**As of v2.1**, Terragrunt automatically loads environment-specific variables from `.env/terraform.tfvars`:
+
+```bash
+# Repository structure with worktrees
+~/git/terraform-proxmox/
+├── .git/                    # Shared git directory (bare repo)
+├── .env/terraform.tfvars    # Shared environment config (gitignored)
+├── main/                    # Main branch worktree
+├── feat/feature-name/       # Feature branch worktree
+└── fix/bug-fix/             # Fix branch worktree
+
+# Each worktree references the shared .env/terraform.tfvars via symlink
+~/git/terraform-proxmox/feat/feature-name/.env -> ../../.env
+```
+
+**Configuration precedence** (highest to lowest):
+
+1. CLI `-var` flags
+2. `-var-file` explicit files
+3. `.env/terraform.tfvars` (environment-specific, loaded automatically)
+4. `terraform.tfvars.example` (placeholder template, NOT loaded)
+
+**Benefits**:
+
+- Single source of truth for environment values (`.env/terraform.tfvars`)
+- All worktrees share the same environment configuration
+- No need to specify `-var-file` on every command
+- Supports rapid development across multiple feature branches
+
+**Setup**:
+
+```bash
+# Create .env directory at repo root (if not exists)
+mkdir -p ~/git/terraform-proxmox/.env
+
+# Copy your real values to .env/terraform.tfvars
+cp terraform.tfvars.example .env/terraform.tfvars
+# Edit .env/terraform.tfvars with your real values
+
+# Create symlink in each worktree
+cd ~/git/terraform-proxmox/feat/your-branch
+ln -s ../../.env .env
+
+# Terragrunt now automatically loads .env/terraform.tfvars
+terragrunt plan  # No -var-file needed!
 ```
 
 ## Doppler Integration (Optional)
@@ -153,6 +210,7 @@ fi
 ### Example Values in Docs
 
 All documentation uses **example values only**:
+
 - IPs: 192.168.1.x (RFC 1918 private range)
 - Domains: example.com, pve.example.com
 - Hostnames: Generic names (proxmox, pve)
@@ -160,6 +218,7 @@ All documentation uses **example values only**:
 ### Real Values Documentation
 
 Document your real infrastructure in:
+
 - **Private notes** (not in git)
 - **Password manager** (Bitwarden, 1Password, etc.)
 - **Separate private repo** (if needed)
@@ -170,6 +229,7 @@ Document your real infrastructure in:
 ### "My changes aren't being applied"
 
 Check if you're editing the example file instead of the real one:
+
 ```bash
 ls -la terraform.tfvars*
 # Should show both:
@@ -201,7 +261,7 @@ git commit -m "your message"
 
 ## Summary
 
-```
+```text
 ✅ Committed:     terraform.tfvars.example (192.168.1.x placeholders)
 ❌ Never commit:  terraform.tfvars (your real IP addresses)
 ✅ Gitignored:    *.tfvars, terraform.tfvars

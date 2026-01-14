@@ -208,6 +208,9 @@ variable "vms" {
       keys     = []
     })
 
+    # Display
+    vga_type = optional(string, "std")
+
     # Features
     agent_enabled = optional(bool, true)
     protection    = optional(bool, false)
@@ -237,6 +240,13 @@ variable "vms" {
       for k, v in var.vms : v.memory_dedicated >= 256 && v.memory_dedicated <= 65536
     ])
     error_message = "Memory must be between 256 MB and 64 GB."
+  }
+
+  validation {
+    condition = alltrue([
+      for k, v in var.vms : contains(["std", "cirrus", "vmware", "qxl"], v.vga_type)
+    ])
+    error_message = "The vga_type for each VM must be one of: std, cirrus, vmware, qxl."
   }
 }
 
