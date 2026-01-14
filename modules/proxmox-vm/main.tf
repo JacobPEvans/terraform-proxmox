@@ -26,6 +26,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
   # Startup configuration
   on_boot = try(each.value.on_boot, true)
 
+  # Startup order: 256 - vm_id (higher IDs start first)
+  # Delay: global startup_delay between each start
+  startup {
+    order    = 256 - each.value.vm_id
+    up_delay = var.startup_delay
+  }
+
   agent {
     enabled = each.value.agent_enabled
     timeout = "15m"

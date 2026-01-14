@@ -67,3 +67,9 @@ variable "default_datastore" {
   type        = string
   default     = "local-zfs"
 }
+
+variable "startup_delay" {
+  description = "Global startup delay in seconds between container starts"
+  type        = number
+  default     = 30
+}

@@ -29,6 +29,13 @@ resource "proxmox_virtual_environment_container" "containers" {
   # Startup configuration
   start_on_boot = each.value.start_on_boot
 
+  # Startup order: 256 - vm_id (higher IDs start first)
+  # Delay: global startup_delay between each start
+  startup {
+    order    = 256 - each.value.vm_id
+    up_delay = var.startup_delay
+  }
+
   # Container initialization
   initialization {
     hostname = each.value.hostname
