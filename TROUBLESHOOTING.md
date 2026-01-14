@@ -487,3 +487,117 @@ aws dynamodb scan --table-name <lock-table> --region <region> \
 - Verify API connectivity before operations
 - Monitor resource usage on Proxmox hosts
 - Use targeted operations for faster troubleshooting cycles
+
+---
+
+## System Crash Investigation
+
+When the Proxmox host becomes unresponsive and requires a forced power cycle.
+
+### Immediate Post-Recovery Diagnostics
+
+Run these commands immediately after the system boots:
+
+```bash
+# 1. Check boot time and uptime
+uptime && who -b
+
+# 2. Check previous boot for crash indicators
+journalctl -b -1 | grep -iE "mce|panic|oom|lockup|error|killed" | head -50
+
+# 3. Check RAS daemon for hardware errors
+ras-mc-ctl --summary
+ras-mc-ctl --errors
+
+# 4. Check ZFS health
+zpool status
+
+# 5. Check VM/container recovery
+qm list && pct list
+
+# 6. Get last messages before crash
+journalctl -b -1 --no-pager | tail -100
+```
+
+### Crash Type Identification
+
+| Symptom | Likely Cause | Investigation |
+| ------- | ------------ | ------------- |
+| OOM killer in logs | Memory exhaustion | Check swap usage, ARC limits |
+| MCE errors in RAS | Hardware failure | Check memory, CPU, replace hardware |
+| Soft lockup messages | Scheduler stall | Check for I/O bottlenecks |
+| No errors, logs stop | Silent hang/deadlock | Check kernel params, enable kdump |
+| ZFS errors | Storage issue | Run `zpool scrub`, check SMART |
+
+### Silent Hang Investigation
+
+When system hangs with no error messages:
+
+```bash
+# Check NMI watchdog is enabled
+cat /proc/sys/kernel/nmi_watchdog  # Should be 1
+
+# Check kernel parameters
+cat /proc/cmdline
+
+# Look for soft lockups that might not panic
+journalctl -b -1 | grep -iE "soft lockup|rcu_sched|hung_task"
+
+# Check ZFS ARC pressure
+cat /proc/spl/kstat/zfs/arcstats | grep -E "^(c |c_max|size)"
+cat /sys/module/zfs/parameters/zfs_arc_max
+```
+
+### Enabling Better Crash Diagnostics
+
+Add to `/etc/default/grub` GRUB_CMDLINE_LINUX:
+
+```text
+nmi_watchdog=1 softlockup_panic=1 hung_task_panic=1
+```
+
+Then run `update-grub` and reboot.
+
+### ZFS ARC Tuning for Stability
+
+If crashes correlate with memory pressure:
+
+```bash
+# Check current ARC max (bytes)
+cat /sys/module/zfs/parameters/zfs_arc_max
+
+# Set ARC max to 2GB (recommended for 15GB RAM systems)
+echo 2147483648 > /sys/module/zfs/parameters/zfs_arc_max
+
+# Make permanent in /etc/modprobe.d/zfs.conf:
+# options zfs zfs_arc_max=2147483648
+```
+
+### Crash Investigation Log
+
+Document each crash in `.docs/crash-investigation-log.md` (gitignored) with:
+
+- Timeline (boot time, last log entry, recovery time)
+- RAS daemon output
+- ZFS pool status
+- VM/container recovery status
+- Suspected cause and recommendations
+
+### 2026-01-13 Crash Reference
+
+System hung during overnight stress testing. Characteristics:
+
+- No OOM killer, no MCE, no soft lockups in logs
+- **NMI watchdog was enabled** (`NMI watchdog: Enabled` in boot logs) but didn't trigger
+- **Runtime panic triggers active** (`softlockup_panic=1`, `hung_task_panic=1` via sysctl)
+- **TSC clocksource marked unstable at boot** - potential timing issue under load
+- ZFS pools healthy, all VMs/containers recovered
+- Suspected hard CPU lockup or kernel deadlock
+
+**What's Missing** (needed for next crash):
+
+- **kdump not installed** - no crash dump captured
+- **Boot-time kernel params** - panic triggers only set via sysctl, not GRUB
+- **Serial console capture** - no crash output preserved
+
+See `.docs/crash-investigation-log.md` for full analysis.

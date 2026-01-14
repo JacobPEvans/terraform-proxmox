@@ -79,6 +79,12 @@ variable "vms" {
 
     # Operating system
     os_type = optional(string, "l26")
+
+    # Display configuration
+    vga_type = optional(string, "std")
+
+    # Startup configuration
+    on_boot = optional(bool, true)
   }))
   default = {}
 
@@ -114,4 +120,10 @@ variable "proxmox_ssh_username" {
 variable "proxmox_ssh_private_key" {
   description = "The path to the SSH private key for connecting to the Proxmox node"
   type        = string
+}
+
+variable "startup_delay" {
+  description = "Global startup delay in seconds between VM starts"
+  type        = number
+  default     = 30
 }
