@@ -64,7 +64,7 @@ vms = {}
 
 # Container Definitions
 # ID Scheme:
-#   100-109: Infrastructure services (Ansible)
+#   100-109: Infrastructure services (Ansible, Pi-Hole, DNS)
 #   110-119: Meta/Proxmox infrastructure (PVE scripts, bare metal helpers)
 #   150-169: AI development
 #   171-179: Cribl Stream
@@ -122,6 +122,33 @@ containers = {
 
     ip_config = {
       ipv4_address = "192.168.1.101/24"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  "pi-hole" = {
+    vm_id            = 104
+    hostname         = "pi-hole"
+    description      = "Pi-Hole DNS server and ad blocker"
+    cpu_cores        = 1
+    memory_dedicated = 512
+    memory_swap      = 512
+    tags             = ["terraform", "infrastructure", "dns", "ad-blocker", "container"]
+    pool_id          = "infrastructure"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 16
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.104/24"
       ipv4_gateway = "192.168.1.1"
     }
   }
