@@ -60,58 +60,36 @@ build {
 
   # Splunk installation provisioner
   provisioner "shell" {
-    inline = [
-      "cloud-init status --wait || true",
-      "sudo apt-get update",
-      "sudo apt-get install -y wget",
-      "TMPDIR=$${TMPDIR:-/tmp}",
-      "cd $TMPDIR",
-      "wget -O splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb 'https://download.splunk.com/products/splunk/releases/${var.SPLUNK_VERSION}/linux/splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb'",
-      "echo \"${var.SPLUNK_DOWNLOAD_SHA512}  splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb\" | sha512sum -c -",
-      "sudo dpkg -i splunk-${var.SPLUNK_VERSION}-${var.SPLUNK_BUILD}-linux-${var.SPLUNK_ARCHITECTURE}.deb",
-      "sudo ${var.SPLUNK_HOME}/bin/splunk enable boot-start -user ${var.SPLUNK_USER} --accept-license --answer-yes --no-prompt --seed-passwd '${var.SPLUNK_ADMIN_PASSWORD}'",
-      "sudo chown -R ${var.SPLUNK_USER}:${var.SPLUNK_GROUP} ${var.SPLUNK_HOME}",
-      "sudo cloud-init clean",
-      "sudo truncate -s 0 /etc/machine-id"
+    script = "${path.root}/scripts/install-splunk.sh"
+    environment_vars = [
+      "SPLUNK_VERSION=${var.SPLUNK_VERSION}",
+      "SPLUNK_BUILD=${var.SPLUNK_BUILD}",
+      "SPLUNK_ARCHITECTURE=${var.SPLUNK_ARCHITECTURE}",
+      "SPLUNK_DOWNLOAD_SHA512=${var.SPLUNK_DOWNLOAD_SHA512}",
+      "SPLUNK_HOME=${var.SPLUNK_HOME}",
+      "SPLUNK_USER=${var.SPLUNK_USER}",
+      "SPLUNK_GROUP=${var.SPLUNK_GROUP}",
+      "SPLUNK_ADMIN_PASSWORD=${var.SPLUNK_ADMIN_PASSWORD}"
     ]
   }
 
-  # System tuning: Configure ulimits for Splunk performance
-  # Splunk requires high file descriptor and process limits (64,000+)
+  # System tuning: Configure systemd service limits and restart policy
+  # Consolidates ulimits and restart configuration per review feedback
   provisioner "shell" {
-    inline = [
-      "echo 'Configuring ulimits for Splunk...'",
-      "sudo tee /etc/security/limits.d/99-splunk.conf > /dev/null <<'LIMITS'",
-      "# Splunk requires high file descriptor and process limits",
-      "# See: https://docs.splunk.com/Documentation/Splunk/latest/Installation/Systemrequirements",
-      "${var.SPLUNK_USER} soft nofile 65536",
-      "${var.SPLUNK_USER} hard nofile 65536",
-      "${var.SPLUNK_USER} soft nproc 65536",
-      "${var.SPLUNK_USER} hard nproc 65536",
-      "LIMITS",
-      "echo 'Configuring systemd service limits...'",
-      "sudo mkdir -p /etc/systemd/system/splunk.service.d",
-      "sudo tee /etc/systemd/system/splunk.service.d/limits.conf > /dev/null <<'SYSTEMD'",
-      "[Service]",
-      "LimitNOFILE=65536",
-      "LimitNPROC=65536",
-      "SYSTEMD",
-      "sudo systemctl daemon-reload",
-      "echo 'ulimits configuration complete'"
+    script = "${path.root}/scripts/configure-systemd.sh"
+    environment_vars = [
+      "SPLUNK_USER=${var.SPLUNK_USER}",
+      "SPLUNK_GROUP=${var.SPLUNK_GROUP}"
     ]
   }
 
   # Validation: Ensure all files in SPLUNK_HOME are owned by splunk:splunk
   provisioner "shell" {
-    inline = [
-      "echo 'Validating Splunk file ownership...'",
-      "NON_SPLUNK_FILES=$(sudo find ${var.SPLUNK_HOME} \\( ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} \\) 2>/dev/null | wc -l)",
-      "if [ \"$NON_SPLUNK_FILES\" -ne 0 ]; then",
-      "  echo \"ERROR: Found $NON_SPLUNK_FILES files not owned by ${var.SPLUNK_USER}:${var.SPLUNK_GROUP}\"",
-      "  sudo find ${var.SPLUNK_HOME} \\( ! -user ${var.SPLUNK_USER} -o ! -group ${var.SPLUNK_GROUP} \\) 2>/dev/null | head -20",
-      "  exit 1",
-      "fi",
-      "echo 'Validation passed: All files in ${var.SPLUNK_HOME} owned by ${var.SPLUNK_USER}:${var.SPLUNK_GROUP}'"
+    script = "${path.root}/scripts/validate-ownership.sh"
+    environment_vars = [
+      "SPLUNK_HOME=${var.SPLUNK_HOME}",
+      "SPLUNK_USER=${var.SPLUNK_USER}",
+      "SPLUNK_GROUP=${var.SPLUNK_GROUP}"
     ]
   }
 }

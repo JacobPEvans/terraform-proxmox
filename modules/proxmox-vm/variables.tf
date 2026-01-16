@@ -70,8 +70,6 @@ variable "vms" {
 
     # Cloud-init user data
     cloud_init_user_data = optional(string)
-    # Display
-    vga_type = optional(string, "std")
 
     # Agent and features
     agent_enabled = optional(bool, true)
