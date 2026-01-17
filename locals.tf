@@ -84,4 +84,64 @@ locals {
   # Splunk network gateway - derived from network_prefix (DRY)
   # This replaces the explicit splunk_network_gateway variable
   splunk_network_gateway = local.network_gateway
+
+  # VM Disk defaults - single source of truth for all disk configurations
+  vm_disk_defaults = {
+    datastore_id = "local-zfs"
+    interface    = "virtio0"
+    file_format  = "raw"
+    iothread     = true
+    ssd          = false
+    discard      = "ignore"
+  }
+
+  # Container root disk defaults
+  container_disk_defaults = {
+    datastore_id = "local-zfs"
+    size         = 8
+  }
+
+  # Additional disk defaults (shared between VMs and containers)
+  additional_disk_defaults = {
+    file_format = "raw"
+    iothread    = true
+    ssd         = false
+    discard     = "ignore"
+  }
+
+  # Agent configuration defaults - used by VMs
+  agent_defaults = {
+    timeout = "15m"
+    trim    = true
+    type    = "virtio"
+  }
+
+  # Operation timeout configuration - single source of truth
+  # These are operation-level timeouts, not HTTP client timeouts
+  operation_timeouts = {
+    clone       = 1800  # 30 min - disk copy can be slow
+    create      = 1800  # 30 min - cloud-init execution
+    migrate     = 900   # 15 min - standard
+    reboot      = 900   # 15 min - standard
+    shutdown_vm = 900   # 15 min - standard
+    start_vm    = 900   # 15 min - standard
+    stop_vm     = 900   # 15 min - standard
+  }
+
+  # VGA type validation helper
+  valid_vga_types = ["std", "cirrus", "vmware", "qxl"]
+
+  # Splunk VM defaults
+  splunk_vm_defaults = {
+    cpu_cores       = 6
+    cpu_type        = "host"
+    memory_dedicated = 6144
+    memory_floating = 6144
+    disk_size       = 200
+    os_type         = "l26"
+    on_boot         = true
+    protection      = false
+    agent_enabled   = true
+    vga_type        = "std"
+  }
 }

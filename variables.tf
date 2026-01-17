@@ -244,9 +244,9 @@ variable "vms" {
 
   validation {
     condition = alltrue([
-      for k, v in var.vms : contains(["std", "cirrus", "vmware", "qxl"], v.vga_type)
+      for k, v in var.vms : contains(local.valid_vga_types, v.vga_type)
     ])
-    error_message = "The vga_type for each VM must be one of: std, cirrus, vmware, qxl."
+    error_message = "The vga_type for each VM must be one of: ${join(", ", local.valid_vga_types)}."
   }
 }
 
@@ -399,6 +399,117 @@ variable "splunk_vm_pool_id" {
   description = "Resource pool ID for the Splunk VM (optional)"
   type        = string
   default     = ""
+}
+
+# Splunk VM compute resource configuration
+variable "splunk_vm_cpu_cores" {
+  description = "Number of CPU cores for the Splunk VM"
+  type        = number
+  default     = 6
+
+  validation {
+    condition     = var.splunk_vm_cpu_cores >= 1 && var.splunk_vm_cpu_cores <= 32
+    error_message = "CPU cores must be between 1 and 32."
+  }
+}
+
+variable "splunk_vm_cpu_type" {
+  description = "CPU type for the Splunk VM"
+  type        = string
+  default     = "host"
+}
+
+variable "splunk_vm_memory_dedicated" {
+  description = "Dedicated memory in MB for the Splunk VM"
+  type        = number
+  default     = 6144
+
+  validation {
+    condition     = var.splunk_vm_memory_dedicated >= 256 && var.splunk_vm_memory_dedicated <= 65536
+    error_message = "Memory must be between 256 MB and 64 GB."
+  }
+}
+
+variable "splunk_vm_memory_floating" {
+  description = "Floating memory in MB for the Splunk VM"
+  type        = number
+  default     = 6144
+
+  validation {
+    condition     = var.splunk_vm_memory_floating >= 256 && var.splunk_vm_memory_floating <= 65536
+    error_message = "Floating memory must be between 256 MB and 64 GB."
+  }
+}
+
+variable "splunk_vm_disk_interface" {
+  description = "Disk interface type for the Splunk VM"
+  type        = string
+  default     = "virtio0"
+}
+
+variable "splunk_vm_disk_size" {
+  description = "Disk size in GB for the Splunk VM"
+  type        = number
+  default     = 200
+
+  validation {
+    condition     = var.splunk_vm_disk_size >= 20 && var.splunk_vm_disk_size <= 2000
+    error_message = "Disk size must be between 20 GB and 2000 GB."
+  }
+}
+
+variable "splunk_vm_disk_file_format" {
+  description = "Disk file format for the Splunk VM"
+  type        = string
+  default     = "raw"
+}
+
+variable "splunk_vm_disk_iothread" {
+  description = "Enable IO threading for the Splunk VM disk"
+  type        = bool
+  default     = true
+}
+
+variable "splunk_vm_disk_ssd" {
+  description = "Mark Splunk VM disk as SSD"
+  type        = bool
+  default     = false
+}
+
+variable "splunk_vm_disk_discard" {
+  description = "Discard strategy for the Splunk VM disk"
+  type        = string
+  default     = "ignore"
+}
+
+variable "splunk_vm_os_type" {
+  description = "Operating system type for the Splunk VM"
+  type        = string
+  default     = "l26"
+}
+
+variable "splunk_vm_agent_enabled" {
+  description = "Enable QEMU agent for the Splunk VM"
+  type        = bool
+  default     = true
+}
+
+variable "splunk_vm_agent_timeout" {
+  description = "Agent timeout for the Splunk VM"
+  type        = string
+  default     = "15m"
+}
+
+variable "splunk_vm_agent_trim" {
+  description = "Enable agent trim for the Splunk VM"
+  type        = bool
+  default     = true
+}
+
+variable "splunk_vm_agent_type" {
+  description = "Agent type for the Splunk VM"
+  type        = string
+  default     = "virtio"
 }
 
 # ACME Certificate Configuration

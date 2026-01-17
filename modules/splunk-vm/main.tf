@@ -13,39 +13,38 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   name        = var.name
   description = "Splunk Enterprise All-in-One - ${var.name}"
 
-  tags = [
-    "terraform",
-    "splunk",
-    "enterprise"
-  ]
+  tags = concat(
+    ["terraform", "splunk", "enterprise"],
+    [var.environment]
+  )
 
   pool_id    = var.pool_id
-  protection = false
+  protection = var.protection
 
   # Startup configuration
-  on_boot = true
+  on_boot = var.on_boot
 
   agent {
-    enabled = true
-    timeout = "15m"
-    trim    = true
-    type    = "virtio"
+    enabled = var.agent_enabled
+    timeout = var.agent_timeout
+    trim    = var.agent_trim
+    type    = var.agent_type
   }
 
   # CPU configuration: "host" exposes all host CPU features directly
   # to the VM with zero emulation overhead. This provides maximum stability and
   # performance on a single-node homelab. VMs will only run on identical/similar
   # CPUs, but that's acceptable for homelab use.
-  # CRITICAL: Must match Packer template's cpu_type="host" setting.
+  # CRITICAL: Must match Packer template's cpu_type setting.
   cpu {
-    cores      = 6
-    type       = "host"
+    cores      = var.cpu_cores
+    type       = var.cpu_type
     hotplugged = 0
   }
 
   memory {
-    dedicated = 6144
-    floating  = 6144
+    dedicated = var.memory_dedicated
+    floating  = var.memory_floating
   }
 
   # Disk configuration: virtio0 interface uses VirtIO SCSI controller (virtio-scsi-pci)
@@ -54,12 +53,12 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   # DO NOT use IDE or LSI Logic controllers - they are legacy and cause performance issues.
   disk {
     datastore_id = var.datastore_id
-    interface    = "virtio0"
-    size         = 200
-    file_format  = "raw"
-    iothread     = true
-    ssd          = false
-    discard      = "ignore"
+    interface    = var.disk_interface
+    size         = var.disk_size
+    file_format  = var.disk_file_format
+    iothread     = var.disk_iothread
+    ssd          = var.disk_ssd
+    discard      = var.disk_discard
   }
 
   network_device {
@@ -89,7 +88,7 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   }
 
   operating_system {
-    type = "l26"
+    type = var.os_type
   }
 
   # Timeout configurations - 30 min for clone/create, 15 min standard for others

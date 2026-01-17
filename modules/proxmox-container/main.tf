@@ -74,8 +74,8 @@ resource "proxmox_virtual_environment_container" "containers" {
 
   # Root disk
   disk {
-    datastore_id = each.value.root_disk.datastore_id != null ? each.value.root_disk.datastore_id : var.default_datastore
-    size         = each.value.root_disk.size != null ? each.value.root_disk.size : 8
+    datastore_id = coalesce(each.value.root_disk.datastore_id, var.default_datastore)
+    size         = coalesce(each.value.root_disk.size, 8)
   }
 
   # Additional mount points
