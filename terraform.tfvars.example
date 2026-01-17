@@ -132,7 +132,7 @@ containers = {
     description      = "Pi-Hole DNS server and ad blocker"
     cpu_cores        = 1
     memory_dedicated = 512
-    memory_swap      = 512
+    memory_swap      = 1536
     tags             = ["terraform", "infrastructure", "dns", "ad-blocker", "container"]
     pool_id          = "infrastructure"
 
