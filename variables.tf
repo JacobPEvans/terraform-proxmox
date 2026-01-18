@@ -466,7 +466,6 @@ variable "splunk_hec_token" {
     error_message = "Splunk HEC token cannot be empty."
   }
 }
-
 # ACME Certificate Configuration
 
 variable "acme_accounts" {

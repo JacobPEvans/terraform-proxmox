@@ -58,13 +58,16 @@ resource "proxmox_virtual_environment_vm" "vms" {
   }
 
   disk {
-    datastore_id = each.value.boot_disk.datastore_id != null ? each.value.boot_disk.datastore_id : var.default_datastore
-    interface    = each.value.boot_disk.interface != null ? each.value.boot_disk.interface : "virtio0"
-    size         = each.value.boot_disk.size != null ? each.value.boot_disk.size : 32
-    file_format  = each.value.boot_disk.file_format != null ? each.value.boot_disk.file_format : "raw"
-    iothread     = each.value.boot_disk.iothread != null ? each.value.boot_disk.iothread : true
-    ssd          = each.value.boot_disk.ssd != null ? each.value.boot_disk.ssd : false
-    discard      = each.value.boot_disk.discard != null ? each.value.boot_disk.discard : "ignore"
+    datastore_id = coalesce(
+      each.value.boot_disk.datastore_id,
+      var.default_datastore
+    )
+    interface   = coalesce(each.value.boot_disk.interface, "scsi0")
+    size        = coalesce(each.value.boot_disk.size, 32)
+    file_format = coalesce(each.value.boot_disk.file_format, "raw")
+    iothread    = coalesce(each.value.boot_disk.iothread, true)
+    ssd         = coalesce(each.value.boot_disk.ssd, false)
+    discard     = coalesce(each.value.boot_disk.discard, "ignore")
   }
 
   dynamic "disk" {
@@ -73,10 +76,10 @@ resource "proxmox_virtual_environment_vm" "vms" {
       datastore_id = disk.value.datastore_id
       interface    = disk.value.interface
       size         = disk.value.size
-      file_format  = disk.value.file_format != null ? disk.value.file_format : "raw"
+      file_format  = coalesce(disk.value.file_format, "raw")
       iothread     = disk.value.iothread != null ? disk.value.iothread : true
       ssd          = disk.value.ssd != null ? disk.value.ssd : false
-      discard      = disk.value.discard != null ? disk.value.discard : "ignore"
+      discard      = coalesce(disk.value.discard, "ignore")
     }
   }
 
@@ -84,7 +87,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
     for_each = each.value.network_interfaces
     content {
       bridge      = network_device.value.bridge
-      model       = network_device.value.model != null ? network_device.value.model : "virtio"
+      model       = coalesce(network_device.value.model, "virtio")
       vlan_id     = network_device.value.vlan_id
       firewall    = network_device.value.firewall != null ? network_device.value.firewall : false
       mac_address = network_device.value.mac_address
@@ -137,8 +140,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
     type = each.value.os_type
   }
 
-  # Timeout configurations - 30 min for clone/create, 15 min standard for others
-  # These are operation-level timeouts, not HTTP client timeouts
+  # Timeout configurations - operation-level timeouts
   timeout_clone       = 1800  # 30 min - disk copy can be slow
   timeout_create      = 1800  # 30 min - cloud-init execution
   timeout_migrate     = 900   # 15 min - standard

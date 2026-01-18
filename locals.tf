@@ -84,4 +84,7 @@ locals {
   # Splunk network gateway - derived from network_prefix (DRY)
   # This replaces the explicit splunk_network_gateway variable
   splunk_network_gateway = local.network_gateway
+
+  # VGA type validation helper
+  valid_vga_types = ["std", "cirrus", "vmware", "qxl"]
 }
