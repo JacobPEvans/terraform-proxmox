@@ -217,8 +217,8 @@ Splunk Enterprise VM (200) uses separate boot and data disks:
 Configuration in `terraform.tfvars.example`:
 
 ```hcl
-splunk_boot_disk_size = 25    # Boot disk: 25GB
-splunk_data_disk_size  = 200   # Data disk: 200GB for indexes
+splunk_boot_disk_size = 25   # Boot disk: 25GB
+splunk_data_disk_size  = 200 # Data disk: 200GB for indexes
 ```
 
 **Note**: Ansible configuration mounts the data disk to `/opt/splunk/var` for index storage. See `ansible/roles/splunk-enterprise/` for disk mount details.

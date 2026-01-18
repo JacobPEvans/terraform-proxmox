@@ -459,7 +459,7 @@ containers = {
     }
   }
 
-  # Splunk Management (190-199)
+  # Load Balancer & Syslog / Splunk Management (190-199)
   "splunk-mgmt" = {
     vm_id            = 199
     hostname         = "splunk-mgmt"
