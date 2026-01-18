@@ -4,7 +4,7 @@
 
 services:
   splunk:
-    image: splunk/splunk:10.2
+    image: splunk/splunk:10.0.2
     hostname: splunk-aio
     # No explicit user - container entrypoint handles ownership via SPLUNK_HOME_OWNERSHIP_ENFORCEMENT
     environment:

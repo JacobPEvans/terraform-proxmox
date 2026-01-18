@@ -76,7 +76,7 @@ build {
   # Pre-pull Splunk Docker image (pinned version for reproducibility)
   provisioner "shell" {
     inline = [
-      "sudo docker pull splunk/splunk:10.2"
+      "sudo docker pull splunk/splunk:10.0.2"
     ]
   }
 
