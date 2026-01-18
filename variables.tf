@@ -244,9 +244,9 @@ variable "vms" {
 
   validation {
     condition = alltrue([
-      for k, v in var.vms : contains(local.valid_vga_types, v.vga_type)
+      for k, v in var.vms : contains(["std", "cirrus", "vmware", "qxl"], v.vga_type)
     ])
-    error_message = "The vga_type for each VM must be one of: ${join(", ", local.valid_vga_types)}."
+    error_message = "The vga_type for each VM must be one of: std, cirrus, vmware, qxl."
   }
 }
 

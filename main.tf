@@ -142,10 +142,8 @@ module "splunk_vm" {
   splunk_hec_token = var.splunk_hec_token
 
   # Pass variables for all previously hardcoded Splunk VM values
-  environment         = var.environment
-  protection          = false
-  on_boot             = true
-  cpu_cores           = var.splunk_vm_cpu_cores
+  environment = var.environment
+  cpu_cores   = var.splunk_vm_cpu_cores
   cpu_type            = var.splunk_vm_cpu_type
   memory_dedicated    = var.splunk_vm_memory_dedicated
   memory_floating     = var.splunk_vm_memory_floating

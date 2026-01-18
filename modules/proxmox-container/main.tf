@@ -74,7 +74,7 @@ resource "proxmox_virtual_environment_container" "containers" {
 
   # Root disk
   disk {
-    datastore_id = coalesce(each.value.root_disk.datastore_id, var.default_datastore)
+    datastore_id = each.value.root_disk.datastore_id
     size         = coalesce(each.value.root_disk.size, 8)
   }
 

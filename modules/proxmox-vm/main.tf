@@ -62,11 +62,11 @@ resource "proxmox_virtual_environment_vm" "vms" {
       each.value.boot_disk.datastore_id,
       var.default_datastore
     )
-    interface   = coalesce(each.value.boot_disk.interface, "virtio0")
+    interface   = coalesce(each.value.boot_disk.interface, "scsi0")
     size        = coalesce(each.value.boot_disk.size, 32)
     file_format = coalesce(each.value.boot_disk.file_format, "raw")
-    iothread    = each.value.boot_disk.iothread != null ? each.value.boot_disk.iothread : true
-    ssd         = each.value.boot_disk.ssd != null ? each.value.boot_disk.ssd : false
+    iothread    = coalesce(each.value.boot_disk.iothread, true)
+    ssd         = coalesce(each.value.boot_disk.ssd, false)
     discard     = coalesce(each.value.boot_disk.discard, "ignore")
   }
 
@@ -140,7 +140,7 @@ resource "proxmox_virtual_environment_vm" "vms" {
     type = each.value.os_type
   }
 
-  # Timeout configurations reference shared operation_timeouts from locals
+  # Timeout configurations - operation-level timeouts
   timeout_clone       = 1800  # 30 min - disk copy can be slow
   timeout_create      = 1800  # 30 min - cloud-init execution
   timeout_migrate     = 900   # 15 min - standard
