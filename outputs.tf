@@ -75,10 +75,10 @@ output "ansible_inventory" {
   value = {
     # LXC Containers - using proxmox_pct_remote connection
     containers = {
-      for k, v in(length(var.containers) > 0 ? module.containers[0].container_details : {}) : k => {
+      for k, v in (length(var.containers) > 0 ? module.containers[0].container_details : {}) : k => {
         vmid     = v.id
-        hostname = k
-        ip       = local.derive_ip[v.id] # IP derived from vm_id: network_prefix.vm_id/mask
+        hostname = var.containers[k].hostname
+        ip       = split("/", local.derive_ip[v.id])[0] # IP derived from vm_id: network_prefix.vm_id/mask; strip CIDR for Ansible
         node     = v.node_name
         # Connection settings for proxmox_pct_remote (community.general)
         ansible_connection = "community.general.proxmox_pct_remote"
@@ -107,7 +107,7 @@ output "ansible_inventory" {
       splunk = {
         vmid     = module.splunk_vm.vm_id
         hostname = module.splunk_vm.name
-        ip       = module.splunk_vm.ip_address
+        ip       = module.splunk_vm.ip_address != null ? split("/", module.splunk_vm.ip_address)[0] : null
         node     = var.proxmox_node
         ansible_connection = "ssh"
       }
