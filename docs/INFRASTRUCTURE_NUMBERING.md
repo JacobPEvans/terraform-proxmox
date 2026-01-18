@@ -91,11 +91,11 @@ Heavy I/O workloads run as full VMs:
 |----------------|-------|-------|---------|
 | Infrastructure | 5     | 4.5GB | 136GB   |
 | AI Development | 8     | 8GB   | 256GB   |
-| Cribl Stream   | 4     | 4GB   | 164GB   |
-| Cribl Edge     | 4     | 4GB   | 164GB   |
+| Cribl Stream   | 4     | 4GB   | 264GB   |
+| Cribl Edge     | 4     | 4GB   | 264GB   |
 | HAProxy/Syslog | 1     | 512MB | 16GB    |
 | Splunk Mgmt    | 3     | 3GB   | 100GB   |
-| **Subtotal**   | 25    | 23.5GB| 836GB   |
+| **Subtotal**   | 25    | 24GB  | 1036GB  |
 
 ### VMs (1 total)
 
@@ -106,8 +106,8 @@ Heavy I/O workloads run as full VMs:
 ### Grand Total
 
 - **Cores**: 31 (oversubscribed)
-- **RAM**: 29.5GB
-- **Storage**: 1036GB
+- **RAM**: 30GB
+- **Storage**: 1261GB
 
 ---
 
