@@ -76,6 +76,17 @@ variable "datastore_id" {
   }
 }
 
+variable "snippets_datastore_id" {
+  description = "Datastore ID for cloud-init snippets (must support snippets content type)"
+  type        = string
+  default     = "local"
+
+  validation {
+    condition     = length(var.snippets_datastore_id) > 0
+    error_message = "Snippets datastore ID cannot be empty."
+  }
+}
+
 variable "bridge" {
   description = "Network bridge for VM network interface"
   type        = string
@@ -150,7 +161,7 @@ variable "splunk_password" {
 
   validation {
     condition     = length(var.splunk_password) >= 8
-    error_message = "Splunk password must be at least 8 characters."
+    error_message = "Splunk password must be at least 8 characters long. Note that your Splunk instance may also enforce additional complexity requirements (such as numbers or special characters)."
   }
 }
 
@@ -160,7 +171,7 @@ variable "splunk_hec_token" {
   sensitive   = true
 
   validation {
-    condition     = length(var.splunk_hec_token) > 0
-    error_message = "Splunk HEC token cannot be empty."
+    condition     = length(var.splunk_hec_token) >= 20 && can(regex("^[a-fA-F0-9-]+$", var.splunk_hec_token))
+    error_message = "Splunk HEC token must be at least 20 characters and contain only hex characters and dashes (UUID format expected)."
   }
 }

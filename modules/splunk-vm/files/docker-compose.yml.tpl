@@ -4,12 +4,14 @@
 
 services:
   splunk:
-    image: splunk/splunk:latest
+    image: splunk/splunk:9.2.1
     hostname: splunk-aio
-    user: root
+    user: "41812"
     environment:
       SPLUNK_START_ARGS: "--accept-license"
       SPLUNK_PASSWORD: "${splunk_password}"
+      # SPLUNK_HEC_TOKEN: Configures HTTP Event Collector (HEC) input in the official image
+      # The image automatically creates an HEC input listening on port 8088 with this token
       SPLUNK_HEC_TOKEN: "${splunk_hec_token}"
     ports:
       - "8000:8000"

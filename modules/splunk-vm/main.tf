@@ -135,7 +135,7 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
 # Cloud-init configuration file stored in Proxmox
 resource "proxmox_virtual_environment_file" "cloud_init" {
   content_type = "snippets"
-  datastore_id = var.datastore_id
+  datastore_id = var.snippets_datastore_id
   node_name    = var.node_name
 
   source_raw {

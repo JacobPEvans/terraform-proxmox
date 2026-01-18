@@ -7,8 +7,12 @@ packer {
   }
 }
 
+# NOTE: variables.pkr.hcl is required locally but not committed to version control.
+# It defines: proxmox_url, PKR_PVE_USERNAME, PROXMOX_TOKEN, PROXMOX_VE_NODE, PROXMOX_VE_INSECURE
+# These values are environment-specific and retrieved from Doppler/aws-vault.
+
 source "proxmox-clone" "splunk-docker" {
-  proxmox_url              = local.proxmox_url
+  proxmox_url              = var.proxmox_url
   username                 = var.PKR_PVE_USERNAME
   token                    = var.PROXMOX_TOKEN
   node                     = var.PROXMOX_VE_NODE
@@ -69,10 +73,10 @@ build {
     ]
   }
 
-  # Pre-pull Splunk Docker image
+  # Pre-pull Splunk Docker image (pinned version for reproducibility)
   provisioner "shell" {
     inline = [
-      "sudo docker pull splunk/splunk:latest"
+      "sudo docker pull splunk/splunk:9.2.1"
     ]
   }
 

@@ -29,9 +29,9 @@ variable "proxmox_node" {
 }
 
 variable "template_id" {
-  description = "VM ID of the Packer-built Splunk template to clone from"
+  description = "VM ID of the Packer-built Splunk Docker template to clone from (default: splunk-docker-template ID 9201)"
   type        = number
-  default     = 9200
+  default     = 9201
   validation {
     condition     = var.template_id > 0 && var.template_id < 10000
     error_message = "Template ID must be between 1 and 9999."
@@ -423,6 +423,28 @@ variable "splunk_data_disk_size" {
   }
 }
 
+variable "splunk_cpu_cores" {
+  description = "Number of CPU cores for the Splunk VM"
+  type        = number
+  default     = 6
+
+  validation {
+    condition     = var.splunk_cpu_cores >= 1 && var.splunk_cpu_cores <= 32
+    error_message = "CPU cores must be between 1 and 32."
+  }
+}
+
+variable "splunk_memory" {
+  description = "Memory in MB for the Splunk VM"
+  type        = number
+  default     = 6144
+
+  validation {
+    condition     = var.splunk_memory >= 1024 && var.splunk_memory <= 65536
+    error_message = "Memory must be between 1024 MB and 65536 MB."
+  }
+}
+
 variable "splunk_password" {
   description = "Splunk admin password (from Doppler: SPLUNK_PASSWORD)"
   type        = string
@@ -430,7 +452,7 @@ variable "splunk_password" {
 
   validation {
     condition     = length(var.splunk_password) >= 8
-    error_message = "Splunk password must be at least 8 characters."
+    error_message = "Splunk password must be at least 8 characters long. Note that your Splunk instance may also enforce additional complexity requirements (such as numbers or special characters)."
   }
 }
 

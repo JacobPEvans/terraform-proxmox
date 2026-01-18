@@ -134,6 +134,8 @@ module "splunk_vm" {
   ssh_public_key = var.ssh_public_key != "" ? var.ssh_public_key : trimspace(data.local_file.vm_ssh_public_key.content)
   boot_disk_size = var.splunk_boot_disk_size
   data_disk_size = var.splunk_data_disk_size
+  cpu_cores      = var.splunk_cpu_cores
+  memory         = var.splunk_memory
 
   # Splunk secrets from Doppler
   splunk_password  = var.splunk_password

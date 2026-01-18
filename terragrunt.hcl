@@ -1,5 +1,12 @@
 # Terragrunt configuration for Proxmox infrastructure
 
+locals {
+  # SSH configuration for BPG provider (used in generated provider block)
+  # Note: Use "root" for SSH, not "root@pam" (which is Proxmox auth format)
+  proxmox_ssh_user        = "root"
+  proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
+}
+
 terraform {
   source = "."
 
@@ -58,6 +65,10 @@ inputs = {
   # SSH credentials for provisioners (not BPG provider vars)
   proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
   proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "~/.ssh/id_rsa")
+
+  # Splunk secrets (from Doppler)
+  splunk_password  = get_env("SPLUNK_PASSWORD", "")
+  splunk_hec_token = get_env("SPLUNK_HEC_TOKEN", "")
 }
 
 # Terragrunt will generate provider.tf with these settings
@@ -93,7 +104,15 @@ terraform {
 #   - PROXMOX_VE_INSECURE   (optional, default false)
 # See: https://registry.terraform.io/providers/bpg/proxmox/latest/docs
 provider "proxmox" {
-  # Authentication is read from environment variables - no config needed here
+  # Authentication is read from environment variables
+  # SSH config needed for file uploads (snippets)
+  ssh {
+    agent       = false
+    username    = "${local.proxmox_ssh_user}"
+    private_key = <<-SSHKEY
+${local.proxmox_ssh_private_key}
+SSHKEY
+  }
 }
 EOF
 }

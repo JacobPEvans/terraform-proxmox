@@ -10,7 +10,7 @@ disk_setup:
   /dev/vdb:
     table_type: gpt
     layout: true
-    overwrite: false
+    overwrite: true
 
 fs_setup:
   - label: splunk-data
@@ -26,7 +26,11 @@ runcmd:
   # Ensure Splunk directories exist after mount
   - mkdir -p /opt/splunk/var
   - mkdir -p /opt/splunk/etc
-  - chown -R 1000:1000 /opt/splunk
+  - chown -R 41812:41812 /opt/splunk
+
+  # Create config directory on root filesystem (not data disk)
+  - mkdir -p /opt/splunk-config
+  - chown -R root:root /opt/splunk-config
 
   # Write Splunk configuration files
   - |
@@ -45,8 +49,15 @@ INPUTS_EOF
 ${docker_compose}
 COMPOSE_EOF
 
+  # Wait for Docker daemon to be fully initialized
+  - |
+    while ! docker info >/dev/null 2>&1; do
+      echo "Waiting for Docker daemon to be ready..."
+      sleep 1
+    done
+
   # Start Splunk container
-  - cd /opt/splunk-config && docker compose up -d
+  - cd /opt/splunk-config && /usr/bin/docker compose up -d
 
   # Create systemd service for docker-compose
   - |
