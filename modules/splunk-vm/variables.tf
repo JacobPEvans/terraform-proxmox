@@ -55,9 +55,9 @@ variable "gateway" {
 }
 
 variable "template_id" {
-  description = "VM ID of the template to clone from"
+  description = "VM ID of the Docker template to clone from (splunk-docker-template)"
   type        = number
-  default     = 9001
+  default     = 9201
 
   validation {
     condition     = var.template_id > 0 && var.template_id < 10000
@@ -99,13 +99,6 @@ variable "ssh_public_key" {
   }
 }
 
-variable "vm_password" {
-  description = "Password for the VM user account"
-  type        = string
-  default     = "packer123"
-  sensitive   = true
-}
-
 variable "boot_disk_size" {
   description = "Size of the boot disk in GB"
   type        = number
@@ -125,5 +118,49 @@ variable "data_disk_size" {
   validation {
     condition     = var.data_disk_size >= 0 && var.data_disk_size <= 1000
     error_message = "Data disk size must be between 0 and 1000 GB."
+  }
+}
+
+variable "cpu_cores" {
+  description = "Number of CPU cores for the Splunk VM"
+  type        = number
+  default     = 6
+
+  validation {
+    condition     = var.cpu_cores >= 1 && var.cpu_cores <= 32
+    error_message = "CPU cores must be between 1 and 32."
+  }
+}
+
+variable "memory" {
+  description = "Memory in MB for the Splunk VM"
+  type        = number
+  default     = 6144
+
+  validation {
+    condition     = var.memory >= 1024 && var.memory <= 65536
+    error_message = "Memory must be between 1024 MB and 65536 MB."
+  }
+}
+
+variable "splunk_password" {
+  description = "Splunk admin password (from Doppler: SPLUNK_PASSWORD)"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.splunk_password) >= 8
+    error_message = "Splunk password must be at least 8 characters."
+  }
+}
+
+variable "splunk_hec_token" {
+  description = "Splunk HEC token for data ingestion (from Doppler: SPLUNK_HEC_TOKEN)"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.splunk_hec_token) > 0
+    error_message = "Splunk HEC token cannot be empty."
   }
 }

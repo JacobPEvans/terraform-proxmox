@@ -423,6 +423,28 @@ variable "splunk_data_disk_size" {
   }
 }
 
+variable "splunk_password" {
+  description = "Splunk admin password (from Doppler: SPLUNK_PASSWORD)"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.splunk_password) >= 8
+    error_message = "Splunk password must be at least 8 characters."
+  }
+}
+
+variable "splunk_hec_token" {
+  description = "Splunk HEC token for data ingestion (from Doppler: SPLUNK_HEC_TOKEN)"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.splunk_hec_token) > 0
+    error_message = "Splunk HEC token cannot be empty."
+  }
+}
+
 # ACME Certificate Configuration
 
 variable "acme_accounts" {
