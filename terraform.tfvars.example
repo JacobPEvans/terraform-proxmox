@@ -52,13 +52,20 @@ pools = {
   }
 }
 
-# Splunk VM Module Configuration - Single All-in-One (200+)
-splunk_vm_id            = 200
-splunk_vm_name          = "splunk-vm"
-splunk_vm_pool_id       = "logging"
-template_id             = 9200  # Packer-built Splunk template
-splunk_boot_disk_size   = 25    # Boot disk: 25GB for OS and Splunk application
-splunk_data_disk_size   = 200   # Data disk: 200GB for index storage
+# Splunk VM Module Configuration - Docker-based All-in-One (200+)
+# SECURITY: VM is network-isolated (no outbound internet, RFC1918 only)
+splunk_vm_id          = 200
+splunk_vm_name        = "splunk-vm"
+splunk_vm_pool_id     = "logging"
+template_id           = 9201      # Packer-built Docker template (splunk-docker-template)
+splunk_boot_disk_size = 25        # Boot disk: 25GB for OS and Docker
+splunk_data_disk_size = 200       # Data disk: 200GB for Splunk index storage
+
+# Splunk Secrets - Injected from Doppler as environment variables
+# These variables are required but should NOT be defined in tfvars files.
+# Configure in Doppler under project "iac-conf-mgmt" config "prd":
+#   SPLUNK_PASSWORD  - Splunk admin password (min 8 chars)
+#   SPLUNK_HEC_TOKEN - Splunk HEC token (UUID format)
 
 # VM Definitions - Generic VMs (empty, Splunk uses dedicated module above)
 vms = {}
