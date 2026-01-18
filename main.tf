@@ -141,24 +141,6 @@ module "splunk_vm" {
   splunk_password  = var.splunk_password
   splunk_hec_token = var.splunk_hec_token
 
-  # Pass variables for all previously hardcoded Splunk VM values
-  environment = var.environment
-  cpu_cores   = var.splunk_vm_cpu_cores
-  cpu_type            = var.splunk_vm_cpu_type
-  memory_dedicated    = var.splunk_vm_memory_dedicated
-  memory_floating     = var.splunk_vm_memory_floating
-  disk_interface      = var.splunk_vm_disk_interface
-  disk_size           = var.splunk_vm_disk_size
-  disk_file_format    = var.splunk_vm_disk_file_format
-  disk_iothread       = var.splunk_vm_disk_iothread
-  disk_ssd            = var.splunk_vm_disk_ssd
-  disk_discard        = var.splunk_vm_disk_discard
-  os_type             = var.splunk_vm_os_type
-  agent_enabled       = var.splunk_vm_agent_enabled
-  agent_timeout       = var.splunk_vm_agent_timeout
-  agent_trim          = var.splunk_vm_agent_trim
-  agent_type          = var.splunk_vm_agent_type
-
   depends_on = [module.pools]
 }
 
