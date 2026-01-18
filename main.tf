@@ -90,23 +90,21 @@ module "containers" {
     for k, v in var.containers : k => merge(v, {
       node_name        = var.proxmox_node
       template_file_id = "${var.datastore_iso}:vztmpl/${var.proxmox_ct_template_debian}"
-      # DRY: Derive IP from vm_id if not explicitly specified
+      # DRY: IP is ALWAYS derived from vm_id (no override possible)
       # Format: network_prefix.vm_id/mask (e.g., 192.168.0.100/24 for vm_id 100)
       ip_config = {
-        ipv4_address = try(v.ip_config.ipv4_address, local.derive_ip[v.vm_id])
-        ipv4_gateway = try(v.ip_config.ipv4_gateway, local.network_gateway)
+        ipv4_address = local.derive_ip[v.vm_id]
+        ipv4_gateway = local.network_gateway
       }
-      # Only set user_account if explicitly provided or if we have SSH keys to add
-      # For imported containers, this allows keeping their existing config
-      user_account = lookup(v, "user_account", null) != null ? merge(
-        v.user_account,
-        {
-          keys = concat(
-            lookup(v.user_account, "keys", []),
-            [trimspace(data.local_file.vm_ssh_public_key.content)]
-          )
-        }
-      ) : {}
+      # DRY: Always inject SSH key for Ansible access
+      # Uses container's password/keys if specified, otherwise empty password with SSH key only
+      user_account = {
+        password = try(v.user_account.password, "")
+        keys = concat(
+          try(v.user_account.keys, []),
+          [trimspace(data.local_file.vm_ssh_public_key.content)]
+        )
+      }
     })
   }
 
