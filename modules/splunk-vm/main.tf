@@ -55,11 +55,25 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   disk {
     datastore_id = var.datastore_id
     interface    = "virtio0"
-    size         = 200
+    size         = var.boot_disk_size
     file_format  = "raw"
     iothread     = true
     ssd          = false
     discard      = "ignore"
+  }
+
+  # Additional data disk for Splunk index storage (optional)
+  dynamic "disk" {
+    for_each = var.data_disk_size > 0 ? [1] : []
+    content {
+      datastore_id = var.datastore_id
+      interface    = "virtio1"
+      size         = var.data_disk_size
+      file_format  = "raw"
+      iothread     = true
+      ssd          = false
+      discard      = "ignore"
+    }
   }
 
   network_device {

@@ -121,16 +121,18 @@ module "containers" {
 module "splunk_vm" {
   source = "./modules/splunk-vm"
 
-  vm_id          = var.splunk_vm_id
-  name           = var.splunk_vm_name
-  ip_address     = local.splunk_derived_ip # DRY: derived from splunk_vm_id
-  gateway        = local.splunk_network_gateway
-  node_name      = var.proxmox_node
-  pool_id        = var.splunk_vm_pool_id
-  template_id    = var.template_id
-  datastore_id   = var.datastore_id
-  bridge         = var.bridge
-  ssh_public_key = var.ssh_public_key != "" ? var.ssh_public_key : trimspace(data.local_file.vm_ssh_public_key.content)
+  vm_id              = var.splunk_vm_id
+  name               = var.splunk_vm_name
+  ip_address         = local.splunk_derived_ip # DRY: derived from splunk_vm_id
+  gateway            = local.splunk_network_gateway
+  node_name          = var.proxmox_node
+  pool_id            = var.splunk_vm_pool_id
+  template_id        = var.template_id
+  datastore_id       = var.datastore_id
+  bridge             = var.bridge
+  ssh_public_key     = var.ssh_public_key != "" ? var.ssh_public_key : trimspace(data.local_file.vm_ssh_public_key.content)
+  boot_disk_size     = var.splunk_boot_disk_size
+  data_disk_size     = var.splunk_data_disk_size
 
   depends_on = [module.pools]
 }

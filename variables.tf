@@ -401,6 +401,28 @@ variable "splunk_vm_pool_id" {
   default     = ""
 }
 
+variable "splunk_boot_disk_size" {
+  description = "Size of Splunk VM boot disk in GB"
+  type        = number
+  default     = 25
+
+  validation {
+    condition     = var.splunk_boot_disk_size > 0 && var.splunk_boot_disk_size <= 1000
+    error_message = "Splunk boot disk size must be between 1 and 1000 GB."
+  }
+}
+
+variable "splunk_data_disk_size" {
+  description = "Size of Splunk VM additional data disk in GB (0 = no additional disk)"
+  type        = number
+  default     = 200
+
+  validation {
+    condition     = var.splunk_data_disk_size >= 0 && var.splunk_data_disk_size <= 1000
+    error_message = "Splunk data disk size must be between 0 and 1000 GB."
+  }
+}
+
 # ACME Certificate Configuration
 
 variable "acme_accounts" {
