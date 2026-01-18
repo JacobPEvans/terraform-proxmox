@@ -24,9 +24,11 @@ mounts:
 # Create necessary directories after mount
 runcmd:
   # Ensure Splunk directories exist after mount
+  # Permissions set to allow container entrypoint to chown to splunk user
+  # (SPLUNK_HOME_OWNERSHIP_ENFORCEMENT=true handles this dynamically)
   - mkdir -p /opt/splunk/var
   - mkdir -p /opt/splunk/etc
-  - chown -R 41812:41812 /opt/splunk
+  - chmod 777 /opt/splunk /opt/splunk/var /opt/splunk/etc
 
   # Create config directory on root filesystem (not data disk)
   - mkdir -p /opt/splunk-config

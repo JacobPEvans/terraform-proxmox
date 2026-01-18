@@ -4,15 +4,17 @@
 
 services:
   splunk:
-    image: splunk/splunk:9.2.1
+    image: splunk/splunk:10.2
     hostname: splunk-aio
-    user: "41812"
+    # No explicit user - container entrypoint handles ownership via SPLUNK_HOME_OWNERSHIP_ENFORCEMENT
     environment:
       SPLUNK_START_ARGS: "--accept-license"
       SPLUNK_PASSWORD: "${splunk_password}"
       # SPLUNK_HEC_TOKEN: Configures HTTP Event Collector (HEC) input in the official image
       # The image automatically creates an HEC input listening on port 8088 with this token
       SPLUNK_HEC_TOKEN: "${splunk_hec_token}"
+      # Let container entrypoint chown mounted volumes to splunk user at startup
+      SPLUNK_HOME_OWNERSHIP_ENFORCEMENT: "true"
     ports:
       - "8000:8000"
       - "8088:8088"
