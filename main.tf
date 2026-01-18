@@ -90,12 +90,11 @@ module "containers" {
     for k, v in var.containers : k => merge(v, {
       node_name        = var.proxmox_node
       template_file_id = "${var.datastore_iso}:vztmpl/${var.proxmox_ct_template_debian}"
-      # DRY: Derive IP from vm_id if not explicitly specified
+      # DRY: IP is ALWAYS derived from vm_id (no override possible)
       # Format: network_prefix.vm_id/mask (e.g., 192.168.0.100/24 for vm_id 100)
-      # Note: coalesce() is needed because try() returns null if attribute exists but is null
       ip_config = {
-        ipv4_address = coalesce(try(v.ip_config.ipv4_address, null), local.derive_ip[v.vm_id])
-        ipv4_gateway = coalesce(try(v.ip_config.ipv4_gateway, null), local.network_gateway)
+        ipv4_address = local.derive_ip[v.vm_id]
+        ipv4_gateway = local.network_gateway
       }
       # DRY: Always inject SSH key for Ansible access
       # Uses container's password/keys if specified, otherwise empty password with SSH key only
