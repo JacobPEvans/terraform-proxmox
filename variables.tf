@@ -29,9 +29,9 @@ variable "proxmox_node" {
 }
 
 variable "template_id" {
-  description = "VM ID of the Packer-built Splunk template to clone from"
+  description = "VM ID of the Packer-built Splunk Docker template to clone from (default: splunk-docker-template ID 9201)"
   type        = number
-  default     = 9200
+  default     = 9201
   validation {
     condition     = var.template_id > 0 && var.template_id < 10000
     error_message = "Template ID must be between 1 and 9999."
@@ -401,117 +401,71 @@ variable "splunk_vm_pool_id" {
   default     = ""
 }
 
-# Splunk VM compute resource configuration
-variable "splunk_vm_cpu_cores" {
+variable "splunk_boot_disk_size" {
+  description = "Size of Splunk VM boot disk in GB"
+  type        = number
+  default     = 25
+
+  validation {
+    condition     = var.splunk_boot_disk_size > 0 && var.splunk_boot_disk_size <= 1000
+    error_message = "Splunk boot disk size must be between 1 and 1000 GB."
+  }
+}
+
+variable "splunk_data_disk_size" {
+  description = "Size of Splunk VM additional data disk in GB (0 = no additional disk)"
+  type        = number
+  default     = 200
+
+  validation {
+    condition     = var.splunk_data_disk_size >= 0 && var.splunk_data_disk_size <= 1000
+    error_message = "Splunk data disk size must be between 0 and 1000 GB."
+  }
+}
+
+variable "splunk_cpu_cores" {
   description = "Number of CPU cores for the Splunk VM"
   type        = number
   default     = 6
 
   validation {
-    condition     = var.splunk_vm_cpu_cores >= 1 && var.splunk_vm_cpu_cores <= 32
+    condition     = var.splunk_cpu_cores >= 1 && var.splunk_cpu_cores <= 32
     error_message = "CPU cores must be between 1 and 32."
   }
 }
 
-variable "splunk_vm_cpu_type" {
-  description = "CPU type for the Splunk VM"
-  type        = string
-  default     = "host"
-}
-
-variable "splunk_vm_memory_dedicated" {
-  description = "Dedicated memory in MB for the Splunk VM"
+variable "splunk_memory" {
+  description = "Memory in MB for the Splunk VM"
   type        = number
   default     = 6144
 
   validation {
-    condition     = var.splunk_vm_memory_dedicated >= 256 && var.splunk_vm_memory_dedicated <= 65536
-    error_message = "Memory must be between 256 MB and 64 GB."
+    condition     = var.splunk_memory >= 1024 && var.splunk_memory <= 65536
+    error_message = "Memory must be between 1024 MB and 65536 MB."
   }
 }
 
-variable "splunk_vm_memory_floating" {
-  description = "Floating memory in MB for the Splunk VM"
-  type        = number
-  default     = 6144
+variable "splunk_password" {
+  description = "Splunk admin password (from Doppler: SPLUNK_PASSWORD)"
+  type        = string
+  sensitive   = true
 
   validation {
-    condition     = var.splunk_vm_memory_floating >= 256 && var.splunk_vm_memory_floating <= 65536
-    error_message = "Floating memory must be between 256 MB and 64 GB."
+    condition     = length(var.splunk_password) >= 8
+    error_message = "Splunk password must be at least 8 characters long. Note that your Splunk instance may also enforce additional complexity requirements (such as numbers or special characters)."
   }
 }
 
-variable "splunk_vm_disk_interface" {
-  description = "Disk interface type for the Splunk VM"
+variable "splunk_hec_token" {
+  description = "Splunk HEC token for data ingestion (from Doppler: SPLUNK_HEC_TOKEN)"
   type        = string
-  default     = "virtio0"
-}
-
-variable "splunk_vm_disk_size" {
-  description = "Disk size in GB for the Splunk VM"
-  type        = number
-  default     = 200
+  sensitive   = true
 
   validation {
-    condition     = var.splunk_vm_disk_size >= 20 && var.splunk_vm_disk_size <= 2000
-    error_message = "Disk size must be between 20 GB and 2000 GB."
+    condition     = length(var.splunk_hec_token) > 0
+    error_message = "Splunk HEC token cannot be empty."
   }
 }
-
-variable "splunk_vm_disk_file_format" {
-  description = "Disk file format for the Splunk VM"
-  type        = string
-  default     = "raw"
-}
-
-variable "splunk_vm_disk_iothread" {
-  description = "Enable IO threading for the Splunk VM disk"
-  type        = bool
-  default     = true
-}
-
-variable "splunk_vm_disk_ssd" {
-  description = "Mark Splunk VM disk as SSD"
-  type        = bool
-  default     = false
-}
-
-variable "splunk_vm_disk_discard" {
-  description = "Discard strategy for the Splunk VM disk"
-  type        = string
-  default     = "ignore"
-}
-
-variable "splunk_vm_os_type" {
-  description = "Operating system type for the Splunk VM"
-  type        = string
-  default     = "l26"
-}
-
-variable "splunk_vm_agent_enabled" {
-  description = "Enable QEMU agent for the Splunk VM"
-  type        = bool
-  default     = true
-}
-
-variable "splunk_vm_agent_timeout" {
-  description = "Agent timeout for the Splunk VM"
-  type        = string
-  default     = "15m"
-}
-
-variable "splunk_vm_agent_trim" {
-  description = "Enable agent trim for the Splunk VM"
-  type        = bool
-  default     = true
-}
-
-variable "splunk_vm_agent_type" {
-  description = "Agent type for the Splunk VM"
-  type        = string
-  default     = "virtio"
-}
-
 # ACME Certificate Configuration
 
 variable "acme_accounts" {

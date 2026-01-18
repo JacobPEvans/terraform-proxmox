@@ -116,8 +116,9 @@ module "containers" {
   depends_on = [module.pools, module.storage]
 }
 
-# Splunk VM module - All-in-One Splunk Enterprise
+# Splunk VM module - Docker-based Splunk Enterprise
 # DRY: IP is derived from vm_id using local.splunk_derived_ip
+# SECURITY: VM is network-isolated (no internet access, RFC1918 only)
 module "splunk_vm" {
   source = "./modules/splunk-vm"
 
@@ -131,6 +132,14 @@ module "splunk_vm" {
   datastore_id   = var.datastore_id
   bridge         = var.bridge
   ssh_public_key = var.ssh_public_key != "" ? var.ssh_public_key : trimspace(data.local_file.vm_ssh_public_key.content)
+  boot_disk_size = var.splunk_boot_disk_size
+  data_disk_size = var.splunk_data_disk_size
+  cpu_cores      = var.splunk_cpu_cores
+  memory         = var.splunk_memory
+
+  # Splunk secrets from Doppler
+  splunk_password  = var.splunk_password
+  splunk_hec_token = var.splunk_hec_token
 
   # Pass variables for all previously hardcoded Splunk VM values
   environment         = var.environment
