@@ -105,3 +105,25 @@ variable "vm_password" {
   default     = "packer123"
   sensitive   = true
 }
+
+variable "boot_disk_size" {
+  description = "Size of the boot disk in GB"
+  type        = number
+  default     = 25
+
+  validation {
+    condition     = var.boot_disk_size > 0 && var.boot_disk_size <= 1000
+    error_message = "Boot disk size must be between 1 and 1000 GB."
+  }
+}
+
+variable "data_disk_size" {
+  description = "Size of the additional data disk in GB (0 = no additional disk)"
+  type        = number
+  default     = 200
+
+  validation {
+    condition     = var.data_disk_size >= 0 && var.data_disk_size <= 1000
+    error_message = "Data disk size must be between 0 and 1000 GB."
+  }
+}

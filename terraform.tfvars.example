@@ -53,11 +53,12 @@ pools = {
 }
 
 # Splunk VM Module Configuration - Single All-in-One (200+)
-splunk_vm_id         = 200
-splunk_vm_name       = "splunk-vm"
-splunk_vm_ip_address = "192.168.1.200/24"
-splunk_vm_pool_id    = "logging"
-template_id          = 9200  # Packer-built Splunk template
+splunk_vm_id            = 200
+splunk_vm_name          = "splunk-vm"
+splunk_vm_pool_id       = "logging"
+template_id             = 9200  # Packer-built Splunk template
+splunk_boot_disk_size   = 25    # Boot disk: 25GB for OS and Splunk application
+splunk_data_disk_size   = 200   # Data disk: 200GB for index storage
 
 # VM Definitions - Generic VMs (empty, Splunk uses dedicated module above)
 vms = {}
@@ -308,6 +309,13 @@ containers = {
       size         = 32
     }
 
+    # Persistent queue storage for Cribl data
+    mount_points = [{
+      volume = "local-zfs"
+      size   = "100G"
+      path   = "/opt/cribl/data"
+    }]
+
     network_interfaces = [{
       name     = "eth0"
       bridge   = "vmbr0"
@@ -334,6 +342,13 @@ containers = {
       datastore_id = "local-zfs"
       size         = 32
     }
+
+    # Persistent queue storage for Cribl data
+    mount_points = [{
+      volume = "local-zfs"
+      size   = "100G"
+      path   = "/opt/cribl/data"
+    }]
 
     network_interfaces = [{
       name     = "eth0"
@@ -363,6 +378,13 @@ containers = {
       size         = 32
     }
 
+    # Persistent queue storage for Cribl data
+    mount_points = [{
+      volume = "local-zfs"
+      size   = "100G"
+      path   = "/opt/cribl/data"
+    }]
+
     network_interfaces = [{
       name     = "eth0"
       bridge   = "vmbr0"
@@ -390,6 +412,13 @@ containers = {
       size         = 32
     }
 
+    # Persistent queue storage for Cribl data
+    mount_points = [{
+      volume = "local-zfs"
+      size   = "100G"
+      path   = "/opt/cribl/data"
+    }]
+
     network_interfaces = [{
       name     = "eth0"
       bridge   = "vmbr0"
@@ -398,6 +427,34 @@ containers = {
 
     ip_config = {
       ipv4_address = "192.168.1.182/24"
+      ipv4_gateway = "192.168.1.1"
+    }
+  }
+
+  # Load Balancer & Syslog (190-199)
+  "haproxy-syslog" = {
+    vm_id            = 190
+    hostname         = "haproxy-syslog"
+    description      = "HAProxy load balancer and syslog server"
+    cpu_cores        = 1
+    memory_dedicated = 512
+    memory_swap      = 512
+    tags             = ["terraform", "haproxy", "load-balancer", "syslog", "container"]
+    pool_id          = "logging"
+
+    root_disk = {
+      datastore_id = "local-zfs"
+      size         = 16
+    }
+
+    network_interfaces = [{
+      name     = "eth0"
+      bridge   = "vmbr0"
+      firewall = true
+    }]
+
+    ip_config = {
+      ipv4_address = "192.168.1.190/24"
       ipv4_gateway = "192.168.1.1"
     }
   }

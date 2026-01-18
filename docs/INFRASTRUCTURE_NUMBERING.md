@@ -58,11 +58,12 @@ Heavy I/O workloads run as full VMs:
 | 181 | cribl-edge-01  | LXC  | 2     | 2GB  | 32GB    | logging | Cribl Edge log forwarder 1           |
 | 182 | cribl-edge-02  | LXC  | 2     | 2GB  | 32GB    | logging | Cribl Edge log forwarder 2           |
 
-### LXC Containers - Splunk Management (190-199)
+### LXC Containers - Load Balancer & Syslog (190-199)
 
-| ID  | Name        | Type | Cores | RAM  | Storage | Pool    | Purpose                              |
-|-----|-------------|------|-------|------|---------|---------|--------------------------------------|
-| 199 | splunk-mgmt | LXC  | 3     | 3GB  | 100GB   | logging | Splunk SH, DS, LM, MC, CM            |
+| ID  | Name            | Type | Cores | RAM  | Storage | Pool    | Purpose                              |
+|-----|-----------------|------|-------|------|---------|---------|--------------------------------------|
+| 190 | haproxy-syslog  | LXC  | 1     | 512MB| 16GB    | logging | HAProxy load balancer + syslog       |
+| 199 | splunk-mgmt     | LXC  | 3     | 3GB  | 100GB   | logging | Splunk SH, DS, LM, MC, CM            |
 
 ### VMs - Splunk Enterprise (200+)
 
@@ -84,16 +85,17 @@ Heavy I/O workloads run as full VMs:
 
 ## Resource Totals
 
-### Containers (12 total)
+### Containers (13 total)
 
 | Category       | Cores | RAM   | Storage |
 |----------------|-------|-------|---------|
 | Infrastructure | 5     | 4.5GB | 136GB   |
 | AI Development | 8     | 8GB   | 256GB   |
-| Cribl Stream   | 4     | 4GB   | 64GB    |
-| Cribl Edge     | 4     | 4GB   | 64GB    |
+| Cribl Stream   | 4     | 4GB   | 164GB   |
+| Cribl Edge     | 4     | 4GB   | 164GB   |
+| HAProxy/Syslog | 1     | 512MB | 16GB    |
 | Splunk Mgmt    | 3     | 3GB   | 100GB   |
-| **Subtotal**   | 24    | 23.5GB| 620GB   |
+| **Subtotal**   | 25    | 23.5GB| 836GB   |
 
 ### VMs (1 total)
 
@@ -103,9 +105,9 @@ Heavy I/O workloads run as full VMs:
 
 ### Grand Total
 
-- **Cores**: 30 (oversubscribed)
+- **Cores**: 31 (oversubscribed)
 - **RAM**: 29.5GB
-- **Storage**: 820GB
+- **Storage**: 1036GB
 
 ---
 
@@ -138,8 +140,9 @@ Example configuration uses 192.168.1.0/24:
 - 192.168.1.181/24 - cribl-edge-01
 - 192.168.1.182/24 - cribl-edge-02
 
-### Splunk Management (190-199)
+### Load Balancer & Syslog (190-199)
 
+- 192.168.1.190/24 - haproxy-syslog
 - 192.168.1.199/24 - splunk-mgmt
 
 ### VMs (200+)
@@ -176,13 +179,59 @@ Single all-in-one Splunk Enterprise deployment:
 
 ---
 
+## Storage Configuration
+
+### Cribl Persistent Queue Disks
+
+Cribl Stream and Cribl Edge containers include 100GB persistent queue storage mounted at `/opt/cribl/data`:
+
+**Cribl Stream (171-172)**:
+
+- Root disk: 32GB (OS + application)
+- Data disk: 100GB (persistent queue, on-disk persistence)
+
+**Cribl Edge (181-182)**:
+
+- Root disk: 32GB (OS + application)
+- Data disk: 100GB (persistent queue, buffer storage)
+
+Configuration in `terraform.tfvars.example`:
+
+```hcl
+mount_points = [{
+  volume = "local-zfs"
+  size   = "100G"
+  path   = "/opt/cribl/data"
+}]
+```
+
+**Note**: Ansible configuration is responsible for formatting and mounting the volume. See `ansible/roles/` for implementation details.
+
+### Splunk VM Disk Layout
+
+Splunk Enterprise VM (200) uses separate boot and data disks:
+
+- **Boot disk (virtio0)**: 25GB - OS, Splunk application, configuration
+- **Data disk (virtio1)**: 200GB - Splunk index storage and event data
+
+Configuration in `terraform.tfvars.example`:
+
+```hcl
+splunk_boot_disk_size = 25    # Boot disk: 25GB
+splunk_data_disk_size  = 200   # Data disk: 200GB for indexes
+```
+
+**Note**: Ansible configuration mounts the data disk to `/opt/splunk/var` for index storage. See `ansible/roles/splunk-enterprise/` for disk mount details.
+
+---
+
 ## Terraform Management
 
 ### State
 
 All resources are 100% Terraform-managed:
 
-- 12 LXC containers
+- 13 LXC containers
 - 1 VM (Splunk)
 - 3 resource pools
 - Firewall rules
@@ -214,6 +263,6 @@ This will create all 19 resources from the configuration.
 | 171-179   | Cribl Stream containers              |
 | 180       | Reserved                             |
 | 181-189   | Cribl Edge containers                |
-| 190-199   | Splunk management containers         |
+| 190-199   | Load balancer, HAProxy, Splunk mgmt  |
 | 200       | Splunk Enterprise VM                 |
 | 201-299   | Reserved for future VMs              |
