@@ -34,6 +34,31 @@ Network devices and hosts configured to send syslog to `haproxy.jacobpevans.com`
 | Linux hosts      | 1517 | UDP/TCP  | os       |
 | Windows hosts    | 1518 | UDP/TCP  | os       |
 
+#### UniFi Dream Wall Configuration
+
+**Location**: Settings > CyberSecure > Traffic Logging
+
+**Syslog Settings**:
+
+- Activity Logging: SIEM Server
+- Server Address: 10.0.1.175 (HAProxy)
+- Port: 1514
+
+**Log Categories Enabled (12)**:
+
+- Gateway, Access Points, Switches
+- Admin Activity, Clients, Critical
+- Devices, Security Detections, Triggers
+- Updates, VPN, Firewall Default Policy
+
+**Additional Settings**:
+
+- Flow Logging: All Traffic (includes Gateway DNS, UniFi Services)
+- Data Retention: 365 days
+- Collect Historical Client Data: Enabled
+- Debug Logs: Disabled
+- NetFlow (IPFIX): Disabled
+
 ### 2. HAProxy Load Balancer
 
 - **Host**: haproxy (VMID 175, LXC container)
