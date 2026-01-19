@@ -59,6 +59,25 @@ Network devices and hosts configured to send syslog to `haproxy.jacobpevans.com`
 - Debug Logs: Disabled
 - NetFlow (IPFIX): Disabled
 
+#### UniFi Log Format (CEF)
+
+UniFi exports logs using **Common Event Format (CEF)**, an industry-standard structure
+compatible with most SIEM platforms.
+
+**CEF Version Timeline**:
+
+| Version  | CEF Support                          |
+| -------- | ------------------------------------ |
+| < 8.5.1  | No CEF support                       |
+| 8.5.1    | IDS/IPS and firewall logs            |
+| 9.3.43   | Full system log export               |
+| 9.4.x    | Timestamp fixes (UNIFIutcTime field) |
+
+**Architecture Note**: UniFi devices send syslog directly to the collector.
+The UniFi Network Application only configures settings; it does not forward logs.
+
+**Reference**: [UniFi System Logs & SIEM Integration](https://help.ui.com/hc/en-us/articles/33349041044119-UniFi-System-Logs-SIEM-Integration)
+
 ### 2. HAProxy Load Balancer
 
 - **Host**: haproxy (VMID 175, LXC container)
