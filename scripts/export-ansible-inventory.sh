@@ -23,7 +23,7 @@ Arguments:
 Formats:
   json     Raw JSON output from Terraform
   yaml     YAML format (requires yq)
-  ansible  Ansible inventory YAML format for dynamic inventory plugin
+  ansible  Ansible inventory YAML format for dynamic inventory plugin (requires yq)
 
 Examples:
   $(basename "$0")                           # JSON to stdout
@@ -70,12 +70,18 @@ if [[ "$FORMAT" == "yaml" ]] || [[ "$FORMAT" == "ansible" ]]; then
   fi
 fi
 
+# Preserve caller's working directory for OUTPUT_FILE resolution
+ORIGINAL_CWD="$(pwd)"
+if [[ -n "$OUTPUT_FILE" && "$OUTPUT_FILE" != /* ]]; then
+  OUTPUT_FILE="${ORIGINAL_CWD}/${OUTPUT_FILE}"
+fi
+
 cd "$REPO_ROOT"
 
 echo "Exporting ansible_inventory from Terraform state..." >&2
 
 # Get raw JSON output
-RAW_JSON=$(terragrunt output -json ansible_inventory 2>/dev/null)
+RAW_JSON=$(terragrunt output -json ansible_inventory)
 
 if [[ -z "$RAW_JSON" ]] || [[ "$RAW_JSON" == "null" ]]; then
   echo "ERROR: ansible_inventory output is empty or not found" >&2
@@ -93,56 +99,7 @@ case "$FORMAT" in
     ;;
   ansible)
     # Transform to Ansible inventory YAML format
-    OUTPUT=$(echo "$RAW_JSON" | jq -r '
-      # Build groups from resource types
-      {
-        "all": {
-          "children": {
-            "lxc_containers": {
-              "hosts": (
-                .containers // {} | to_entries | map({
-                  (.key): {
-                    "ansible_host": .value.ip,
-                    "ansible_connection": .value.ansible_connection,
-                    "ansible_pct_vmid": .value.ansible_pct_vmid,
-                    "vmid": .value.vmid,
-                    "proxmox_node": .value.node,
-                    "tags": .value.tags,
-                    "pool_id": .value.pool_id
-                  }
-                }) | add // {}
-              )
-            },
-            "vms": {
-              "hosts": (
-                .vms // {} | to_entries | map({
-                  (.key): {
-                    "ansible_host": .value.ip,
-                    "ansible_connection": .value.ansible_connection,
-                    "vmid": .value.vmid,
-                    "proxmox_node": .value.node,
-                    "tags": .value.tags,
-                    "pool_id": .value.pool_id
-                  }
-                }) | add // {}
-              )
-            },
-            "splunk_vms": {
-              "hosts": (
-                .splunk_vm // {} | to_entries | map({
-                  (.key): {
-                    "ansible_host": .value.ip,
-                    "ansible_connection": .value.ansible_connection,
-                    "vmid": .value.vmid,
-                    "proxmox_node": .value.node
-                  }
-                }) | add // {}
-              )
-            }
-          }
-        }
-      }
-    ' | yq -P -)
+    OUTPUT=$(echo "$RAW_JSON" | jq -r -f "${SCRIPT_DIR}/ansible-inventory.jq" | yq -P -)
     ;;
 esac
 
