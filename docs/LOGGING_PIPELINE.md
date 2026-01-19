@@ -94,10 +94,10 @@ The UniFi Network Application only configures settings; it does not forward logs
 
 Two-node cluster for high availability and horizontal scaling.
 
-| Node          | IP                |
-| ------------- | ----------------- |
-| cribl-edge-01 | `<cribl-edge-ip>` |
-| cribl-edge-02 | `<cribl-edge-ip>` |
+| Node          | IP                   |
+| ------------- | -------------------- |
+| cribl-edge-01 | `<cribl-edge-01-ip>` |
+| cribl-edge-02 | `<cribl-edge-02-ip>` |
 
 **Features**:
 
