@@ -6,12 +6,12 @@ This document defines the Splunk indexes used in the logging pipeline, their pur
 
 ## Index Definitions
 
-| Index    | Purpose                   | Sources                     | Retention |
-| -------- | ------------------------- | --------------------------- | --------- |
-| unifi    | UniFi network device logs | Dream Wall, switches, APs   | 365 days  |
-| os       | Operating system logs     | Linux, macOS, Windows hosts | 365 days  |
-| firewall | Firewall logs             | Palo Alto, Cisco ASA        | 365 days  |
-| network  | General network logs      | Switches, routers, other    | 365 days  |
+| Index    | Purpose                   | Sources                        | Retention |
+| -------- | ------------------------- | ------------------------------ | --------- |
+| unifi    | UniFi network device logs | Network devices, switches, APs | 365 days  |
+| os       | Operating system logs     | Linux, macOS, Windows hosts    | 365 days  |
+| firewall | Firewall logs             | Palo Alto, Cisco ASA           | 365 days  |
+| network  | General network logs      | Switches, routers, other       | 365 days  |
 
 ## Index Configuration
 

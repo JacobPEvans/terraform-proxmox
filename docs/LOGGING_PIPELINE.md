@@ -10,7 +10,7 @@ This document describes the syslog logging pipeline from network devices through
 Syslog Sources              Load Balancer       Syslog Collectors      Processing         Destination
 +----------------+          +----------+        +---------------+      +-----------+      +--------+
 | UniFi (1514)   |          |          |        | cribl-edge-01 |      |           |      |        |
-| Palo Alto(1515)|   --->   | HAProxy  |  --->  |               | ---> | Cribl     | ---> | Splunk |
+| Palo Alto (1515) |   --->   | HAProxy  |  --->  |               | ---> | Cribl     | ---> | Splunk |
 | Cisco (1516)   |          | :1514-18 |        | cribl-edge-02 |      | Stream    |      | HEC    |
 | Linux (1517)   |          +----------+        +---------------+      +-----------+      +--------+
 | Windows (1518) |                                   |                       |
@@ -24,24 +24,28 @@ Syslog Sources              Load Balancer       Syslog Collectors      Processin
 
 ### 1. Syslog Sources
 
-Network devices and hosts configured to send syslog to `haproxy.jacobpevans.com`.
+Network devices and hosts configured to send syslog to `<internal-domain>`.
 
-| Source           | Port | Protocol | Index    |
-| ---------------- | ---- | -------- | -------- |
-| UniFi Dream Wall | 1514 | UDP/TCP  | unifi    |
-| Palo Alto        | 1515 | UDP/TCP  | firewall |
-| Cisco ASA        | 1516 | UDP/TCP  | firewall |
-| Linux hosts      | 1517 | UDP/TCP  | os       |
-| Windows hosts    | 1518 | UDP/TCP  | os       |
+| Source                 | Port | Protocol | Index    |
+| ---------------------- | ---- | -------- | -------- |
+| UniFi Network Device   | 1514 | UDP/TCP  | unifi    |
+| Palo Alto              | 1515 | UDP/TCP  | firewall |
+| Cisco ASA              | 1516 | UDP/TCP  | firewall |
+| Linux/macOS hosts      | 1517 | UDP/TCP  | os       |
+| Windows hosts          | 1518 | UDP/TCP  | os       |
 
-#### UniFi Dream Wall Configuration
+Note: The `network` index defined in `SPLUNK_INDEXES.md` is reserved for future use with
+network device logs (switches, routers). Currently, no sources are actively logging to this
+index, but it is configured and ready for integration.
+
+#### UniFi Network Device Configuration
 
 **Location**: Settings > CyberSecure > Traffic Logging
 
 **Syslog Settings**:
 
 - Activity Logging: SIEM Server
-- Server Address: 10.0.1.175 (HAProxy)
+- Server Address: `<internal-domain>` (HAProxy)
 - Port: 1514
 
 **Log Categories Enabled (12)**:
@@ -80,8 +84,8 @@ The UniFi Network Application only configures settings; it does not forward logs
 
 ### 2. HAProxy Load Balancer
 
-- **Host**: haproxy (VMID 175, LXC container)
-- **IP**: 10.0.1.175
+- **Host**: haproxy (LXC container)
+- **IP**: `<haproxy-ip>`
 - **Function**: Round-robin load balancing to Cribl Edge nodes
 - **Health checks**: Every 5 seconds
 - **Stats**: Port 8404
@@ -90,10 +94,10 @@ The UniFi Network Application only configures settings; it does not forward logs
 
 Two-node cluster for high availability and horizontal scaling.
 
-| Node          | VMID | IP         |
-| ------------- | ---- | ---------- |
-| cribl-edge-01 | 180  | 10.0.1.180 |
-| cribl-edge-02 | 181  | 10.0.1.181 |
+| Node          | IP                |
+| ------------- | ----------------- |
+| cribl-edge-01 | `<cribl-edge-ip>` |
+| cribl-edge-02 | `<cribl-edge-ip>` |
 
 **Features**:
 
@@ -103,15 +107,15 @@ Two-node cluster for high availability and horizontal scaling.
 
 ### 4. Cribl Stream (Central Processor)
 
-- **Host**: cribl-stream-01 (VMID 182, LXC container)
-- **IP**: 10.0.1.182
+- **Host**: cribl-stream (LXC container)
+- **IP**: `<cribl-stream-ip>`
 - **Function**: Central log processing, routing, and enrichment
 - **Output**: Splunk HEC over HTTPS
 
 ### 5. Splunk Enterprise
 
-- **Host**: splunk (VMID 200, VM)
-- **IP**: 10.0.1.200
+- **Host**: splunk (VM)
+- **IP**: `<splunk-ip>`
 - **Web UI**: Port 8000
 - **HEC Endpoint**: Port 8088 (TLS)
 
@@ -147,10 +151,10 @@ doppler run -- ansible-playbook playbooks/site.yml
 
 ```bash
 # Test syslog delivery
-logger -n haproxy.jacobpevans.com -P 1514 "Test message $(date +%s)"
+logger -n <internal-domain> -P 1514 "Test message $(date +%s)"
 
 # Check HAProxy stats
-curl http://10.0.1.175:8404/stats
+curl http://<haproxy-ip>:8404/stats
 
 # Verify Splunk received event
 splunk search 'index=unifi earliest=-5m'
