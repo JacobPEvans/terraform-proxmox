@@ -14,10 +14,12 @@ source "proxmox-clone" "splunk" {
   node                     = var.PROXMOX_VE_NODE
   insecure_skip_tls_verify = var.PROXMOX_VE_INSECURE == "true"
 
+  # DEPRECATED: Use splunk-docker.pkr.hcl instead (Docker-based at ID 9200)
+  # This native installation template is kept for reference but not actively used
   clone_vm      = "debian-12-base"
-  vm_id         = 9200
-  vm_name       = "splunk-aio-template"
-  template_name = "splunk-aio-template"
+  vm_id         = 9199
+  vm_name       = "splunk-native-template-deprecated"
+  template_name = "splunk-native-template-deprecated"
   full_clone    = true
 
   # CRITICAL: CPU and hardware configuration to prevent system freezes
