@@ -57,7 +57,7 @@ variable "gateway" {
 variable "template_id" {
   description = "VM ID of the Docker template to clone from (splunk-docker-template)"
   type        = number
-  default     = 9201
+  default     = 9200
 
   validation {
     condition     = var.template_id > 0 && var.template_id < 10000
