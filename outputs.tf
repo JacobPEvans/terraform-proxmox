@@ -92,9 +92,10 @@ output "ansible_inventory" {
       for k, v in module.vms.vm_details : k => {
         vmid     = v.id
         hostname = v.name
-        # Extract first IPv4 address from vm_network_interfaces
-        ip = length(module.vms.vm_network_interfaces[k].ipv4_addresses) > 0 ? (
-          split("/", module.vms.vm_network_interfaces[k].ipv4_addresses[0])[0]
+        # Extract first IPv4 address from vm_network_interfaces (skip loopback at index 0)
+        ip = length(module.vms.vm_network_interfaces[k].ipv4_addresses) > 1 ? (
+          length(module.vms.vm_network_interfaces[k].ipv4_addresses[1]) > 0 ?
+          split("/", module.vms.vm_network_interfaces[k].ipv4_addresses[1][0])[0] : null
         ) : null
         node                = v.node_name
         ansible_connection  = "ssh"
@@ -107,7 +108,7 @@ output "ansible_inventory" {
       splunk = {
         vmid     = module.splunk_vm.vm_id
         hostname = module.splunk_vm.name
-        ip       = module.splunk_vm.ip_address != null ? split("/", module.splunk_vm.ip_address)[0] : null
+        ip       = module.splunk_vm.ip_address
         node     = var.proxmox_node
         ansible_connection = "ssh"
       }
