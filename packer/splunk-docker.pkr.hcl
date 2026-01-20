@@ -19,7 +19,7 @@ source "proxmox-clone" "splunk-docker" {
   insecure_skip_tls_verify = var.PROXMOX_VE_INSECURE == "true"
 
   clone_vm      = "debian-12-base"
-  vm_id         = 9201
+  vm_id         = 9200
   vm_name       = "splunk-docker-template"
   template_name = "splunk-docker-template"
   full_clone    = true
