@@ -12,7 +12,7 @@ output "ip_address" {
   description = "The IPv4 address of the Splunk VM (first non-loopback interface)"
   value = length(proxmox_virtual_environment_vm.splunk_vm.ipv4_addresses) > 1 ? (
     length(proxmox_virtual_environment_vm.splunk_vm.ipv4_addresses[1]) > 0 ?
-    proxmox_virtual_environment_vm.splunk_vm.ipv4_addresses[1][0] : null
+    split("/", proxmox_virtual_environment_vm.splunk_vm.ipv4_addresses[1][0])[0] : null
   ) : null
 }
 

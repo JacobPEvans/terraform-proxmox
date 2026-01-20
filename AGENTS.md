@@ -39,9 +39,11 @@ configuration management.
 All commands require the complete toolchain wrapper:
 
 ```bash
-nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+nix develop <path-to-nix-config>/main/shells/terraform --command bash -c \
   "aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>"
 ```
+
+Replace `<path-to-nix-config>` with the absolute path to your nix-config repository.
 
 Common operations:
 
@@ -53,7 +55,7 @@ Common operations:
 
 ```bash
 terragrunt output -json ansible_inventory > \
-  ~/git/ansible-splunk/inventory/terraform_inventory.json
+  <path-to-ansible-repo>/inventory/terraform_inventory.json
 ```
 
 ## Ansible Inventory Output
