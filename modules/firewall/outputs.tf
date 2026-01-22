@@ -1,3 +1,8 @@
+output "cluster_firewall_enabled" {
+  description = "Whether the cluster-level firewall is enabled"
+  value       = proxmox_virtual_environment_cluster_firewall.main.enabled
+}
+
 output "vm_firewall_enabled" {
   description = "Map of VM IDs with firewall enabled"
   value       = { for k, v in proxmox_virtual_environment_firewall_options.splunk_vm : k => v.enabled }
