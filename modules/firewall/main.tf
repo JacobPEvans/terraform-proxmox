@@ -139,6 +139,24 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "syslog" 
   }
 }
 
+# Security group for NetFlow/IPFIX ingestion
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "netflow" {
+  name    = "netflow"
+  comment = "NetFlow/IPFIX UDP port 2055 from internal networks"
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "udp"
+      dport   = "2055"
+      source  = rule.value
+      comment = "NetFlow UDP from ${rule.value}"
+    }
+  }
+}
+
 # Security group for Splunk cluster communication (internal only)
 resource "proxmox_virtual_environment_cluster_firewall_security_group" "splunk_cluster" {
   name    = "splunk-cluster"
