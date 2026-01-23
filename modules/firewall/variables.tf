@@ -15,6 +15,12 @@ variable "splunk_container_ids" {
   default     = {}
 }
 
+variable "pipeline_container_ids" {
+  description = "Map of pipeline container names to their IDs (HAProxy, Cribl Edge - receive NetFlow/syslog)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string

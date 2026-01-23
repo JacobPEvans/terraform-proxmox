@@ -142,8 +142,8 @@ module "splunk_vm" {
   depends_on = [module.pools]
 }
 
-# Firewall module - manages Proxmox firewall rules for Splunk
-# Configured to enforce network policies on Splunk resources
+# Firewall module - manages Proxmox firewall rules for Splunk and pipeline containers
+# Configured to enforce network policies on Splunk resources and log pipeline
 module "firewall" {
   source = "./modules/firewall"
 
@@ -162,6 +162,15 @@ module "firewall" {
   splunk_container_ids = {
     for k, v in var.containers : k => v.vm_id
     if contains(try(v.tags, []), "splunk")
+  }
+
+  # Pipeline containers: HAProxy (haproxy tag) and Cribl Edge (cribl + edge tags)
+  # These receive syslog and NetFlow data from network devices
+  pipeline_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(try(v.tags, []), "haproxy") || (
+      contains(try(v.tags, []), "cribl") && contains(try(v.tags, []), "edge")
+    )
   }
 
   management_network = var.management_network

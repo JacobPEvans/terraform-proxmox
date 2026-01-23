@@ -80,8 +80,8 @@ output "ansible_inventory" {
         hostname = var.containers[k].hostname
         ip       = split("/", local.derive_ip[v.id])[0] # IP derived from vm_id: network_prefix.vm_id/mask; strip CIDR for Ansible
         node     = v.node_name
-        # Connection settings for proxmox_pct_remote (community.general)
-        ansible_connection = "community.general.proxmox_pct_remote"
+        # Connection settings for proxmox_pct_remote (community.proxmox)
+        ansible_connection = "community.proxmox.proxmox_pct_remote"
         ansible_pct_vmid  = v.id
         tags              = v.tags
         pool_id           = v.pool_id

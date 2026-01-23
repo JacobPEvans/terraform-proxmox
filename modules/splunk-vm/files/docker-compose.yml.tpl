@@ -1,6 +1,10 @@
 # Splunk Docker Compose Configuration
 # Managed by Terraform - do not edit directly
 # Rendered from template with secrets injected via cloud-init
+#
+# IMPORTANT: The splunk/splunk image runs its entrypoint as 'ansible' user,
+# which then uses gosu to run Splunk processes as 'splunk' user (UID 41812).
+# This is the intended design - do NOT change the container user.
 
 services:
   splunk:
@@ -26,3 +30,11 @@ services:
       - /opt/splunk-config/indexes.conf:/opt/splunk/etc/system/local/indexes.conf:ro
       - /opt/splunk-config/inputs.conf:/opt/splunk/etc/system/local/inputs.conf:ro
     restart: unless-stopped
+    # Healthcheck uses curl to avoid permission issues with splunk CLI
+    # The CLI runs as 'ansible' user but needs to read files owned by 'splunk'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/en-US/account/login >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s
