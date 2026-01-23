@@ -352,3 +352,51 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
 
   depends_on = [proxmox_virtual_environment_firewall_options.splunk_container]
 }
+
+# =============================================================================
+# Pipeline Container Firewall Configuration (HAProxy, Cribl Edge)
+# These containers receive syslog and NetFlow data from network devices
+# =============================================================================
+
+resource "proxmox_virtual_environment_firewall_options" "pipeline_container" {
+  for_each = var.pipeline_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = true
+  input_policy  = "DROP"
+  output_policy = "DROP"
+  log_level_in  = "warning"
+  log_level_out = "warning"
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "pipeline_container" {
+  for_each = var.pipeline_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.syslog.name
+    comment        = "Syslog ingestion"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.netflow.name
+    comment        = "NetFlow/IPFIX ingestion"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
+    comment        = "Outbound to internal only"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.pipeline_container]
+}
