@@ -67,7 +67,7 @@ inputs = {
   proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "~/.ssh/id_rsa")
 
   # Splunk secrets (from Doppler)
-  splunk_password  = get_env("SPLUNK_PASSWORD", "")
+  splunk_password  = get_env("SPLUNK_ADMIN_PASSWORD", "")
   splunk_hec_token = get_env("SPLUNK_HEC_TOKEN", "")
 }
 
