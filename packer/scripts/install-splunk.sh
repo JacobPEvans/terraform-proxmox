@@ -32,7 +32,7 @@ sudo "${SPLUNK_HOME}/bin/splunk" enable boot-start \
   --accept-license \
   --answer-yes \
   --no-prompt \
-  --seed-passwd "${SPLUNK_ADMIN_PASSWORD}"
+  --seed-passwd "${SPLUNK_PASSWORD}"
 
 # Set proper ownership
 sudo chown -R "${SPLUNK_USER}:${SPLUNK_GROUP}" "${SPLUNK_HOME}"

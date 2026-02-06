@@ -43,7 +43,7 @@ validate_secrets() {
 
     local optional_secrets=(
         "PROXMOX_VE_INSECURE"
-        "SPLUNK_ADMIN_PASSWORD"
+        "SPLUNK_PASSWORD"
         "SPLUNK_DOWNLOAD_SHA512"
     )
 
@@ -86,7 +86,7 @@ run_packer_with_secrets() {
 
     doppler run -- bash -c '
         # Transform secrets to PKR_VAR_* format for Packer
-        for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_ADMIN_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
+        for var in PROXMOX_VE_ENDPOINT PKR_PVE_USERNAME PROXMOX_TOKEN PROXMOX_VE_NODE PROXMOX_VE_INSECURE SPLUNK_PASSWORD SPLUNK_DOWNLOAD_SHA512; do
             if [[ -n "${!var:-}" ]]; then
                 export PKR_VAR_${var}="${!var}"
             fi

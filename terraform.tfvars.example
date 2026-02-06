@@ -64,7 +64,7 @@ splunk_data_disk_size = 200       # Data disk: 200GB for Splunk index storage
 # Splunk Secrets - Injected from Doppler as environment variables
 # These variables are required but should NOT be defined in tfvars files.
 # Configure in Doppler under project "iac-conf-mgmt" config "prd":
-#   SPLUNK_PASSWORD  - Splunk admin password (min 8 chars)
+#   SPLUNK_PASSWORD  - Splunk password (min 8 chars)
 #   SPLUNK_HEC_TOKEN - Splunk HEC token (UUID format)
 
 # VM Definitions - Generic VMs (empty, Splunk uses dedicated module above)

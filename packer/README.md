@@ -58,7 +58,7 @@ Variables are injected from two sources:
    - `PROXMOX_TOKEN` - Proxmox API token secret (the secret portion of the token)
    - `PROXMOX_VE_NODE` - Target Proxmox node name
    - `PROXMOX_VE_INSECURE` (optional) - Set to "true" to skip TLS verification
-   - `SPLUNK_ADMIN_PASSWORD` (optional) - Initial Splunk admin password
+   - `SPLUNK_PASSWORD` (optional) - Initial Splunk password
    - `SPLUNK_DOWNLOAD_SHA512` (optional) - SHA512 checksum for Splunk package validation
 
 2. **Committed Config File** (`variables.pkrvars.hcl`):
