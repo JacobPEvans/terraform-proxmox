@@ -446,7 +446,7 @@ variable "splunk_memory" {
 }
 
 variable "splunk_password" {
-  description = "Splunk admin password (from Doppler: SPLUNK_ADMIN_PASSWORD)"
+  description = "Splunk password (from Doppler: SPLUNK_PASSWORD)"
   type        = string
   sensitive   = true
 

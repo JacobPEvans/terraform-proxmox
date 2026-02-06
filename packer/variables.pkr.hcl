@@ -42,9 +42,9 @@ variable "PROXMOX_VE_INSECURE" {
   sensitive   = false
 }
 
-variable "SPLUNK_ADMIN_PASSWORD" {
+variable "SPLUNK_PASSWORD" {
   type        = string
-  description = "Splunk admin password"
+  description = "Splunk password"
   sensitive   = true
 }
 

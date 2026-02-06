@@ -71,7 +71,7 @@ build {
       "SPLUNK_HOME=${var.SPLUNK_HOME}",
       "SPLUNK_USER=${var.SPLUNK_USER}",
       "SPLUNK_GROUP=${var.SPLUNK_GROUP}",
-      "SPLUNK_ADMIN_PASSWORD=${var.SPLUNK_ADMIN_PASSWORD}"
+      "SPLUNK_PASSWORD=${var.SPLUNK_PASSWORD}"
     ]
   }
 
