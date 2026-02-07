@@ -14,7 +14,7 @@ configuration management.
 
 - **Doppler**: Proxmox API credentials (PROXMOX_VE_*)
 - **aws-vault**: AWS credentials for S3 state backend
-- **Nix**: Provides Terraform/Terragrunt toolchain
+- **Nix + direnv**: Provides Terraform/Terragrunt toolchain (auto-activated via `.envrc`)
 
 ### State Backend
 
@@ -36,14 +36,11 @@ configuration management.
 
 ### Running Terraform
 
-All commands require the complete toolchain wrapper:
+The Nix shell is activated automatically via direnv (`.envrc`). All commands use the toolchain wrapper:
 
 ```bash
-nix develop <path-to-nix-config>/main/shells/terraform --command bash -c \
-  "aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>"
+aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
 ```
-
-Replace `<path-to-nix-config>` with the absolute path to your nix-config repository.
 
 Common operations:
 

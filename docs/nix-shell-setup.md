@@ -1,10 +1,13 @@
 # Using Nix Shells with Terraform Proxmox Repository
 
-This guide provides step-by-step instructions for Claude Code (and developers) to use Nix shells for local Terraform/Terragrunt development and testing in this repository.
+This guide provides step-by-step instructions for Claude Code (and developers)
+to use Nix shells for local Terraform/Terragrunt development and testing.
 
 ## Overview
 
-This repository leverages a pre-configured Nix development shell located at `~/git/nix-config/main/shells/terraform` that provides all necessary tools for infrastructure-as-code development, including:
+This repository leverages a pre-configured Nix development shell located at
+`~/git/nix-config/main/shells/terraform` that provides all necessary tools
+for infrastructure-as-code development, including:
 
 - **Infrastructure Tools**: Terraform, Terragrunt, OpenTofu
 - **Security Scanners**: checkov, terrascan, tfsec, trivy
@@ -18,9 +21,9 @@ Before starting, ensure you have:
 
 1. **Nix Package Manager** installed on your system
    - Check: `nix --version`
-   - If not installed, visit: https://nixos.org/download.html
+   - If not installed, visit: [nixos.org/download](https://nixos.org/download.html)
 
-2. **direnv** (optional, but recommended for automatic shell activation)
+2. **direnv** (recommended for automatic shell activation)
    - Check: `direnv --version`
    - Install via Nix: `nix profile install nixpkgs#direnv`
 
@@ -36,26 +39,23 @@ Before starting, ensure you have:
 ### Step 1: Navigate to Repository
 
 ```bash
-cd ~/git/terraform-proxmox/feat/initial-splunk
+cd ~/git/terraform-proxmox/main
 ```
 
 ### Step 2: Enter Nix Shell
 
-**Option A - Using direnv (Recommended)**
+#### direnv (Recommended)
 
-If you have direnv installed:
+The repository ships an `.envrc` file that auto-activates the Nix shell.
+On first use, allow direnv to load it:
 
 ```bash
-# Create .envrc file
-echo "use flake ~/git/nix-config/main/shells/terraform" > .envrc
-
-# Allow direnv to load the shell
 direnv allow
 
-# The shell will auto-activate whenever you cd into this directory
+# The shell auto-activates whenever you cd into the directory
 ```
 
-**Option B - Manual Activation**
+#### Manual Activation
 
 ```bash
 # Enter the Nix shell manually
@@ -222,10 +222,9 @@ aws configure
 
 # Option 2: Use aws-vault (RECOMMENDED for this repository)
 # Combine aws-vault with nix develop using nested commands
-aws-vault exec PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+aws-vault exec PROFILE_NAME -- terragrunt plan
 
 # Option 3: Enter nix shell first, then use aws-vault for each command
-nix develop ~/git/nix-config/main/shells/terraform
 aws-vault exec PROFILE_NAME -- terragrunt plan
 aws-vault exec PROFILE_NAME -- terragrunt apply
 
@@ -235,7 +234,8 @@ export AWS_SECRET_ACCESS_KEY="your-secret-key"
 export AWS_REGION="us-east-2"
 ```
 
-**Note**: This repository uses `aws-vault` to securely manage AWS credentials from the macOS Keychain. See "Using aws-vault with Nix Shell" section below for detailed examples.
+**Note**: This repository uses `aws-vault` to securely manage AWS credentials
+from the macOS Keychain. See "Using aws-vault with Nix Shell" section below.
 
 ### SSH Keys
 
@@ -253,12 +253,9 @@ export TF_VAR_proxmox_ssh_private_key="$(cat ~/.ssh/proxmox_key)"
 
 ```bash
 # Option 1: Single command (no AWS credentials needed for validation)
-nix develop ~/git/nix-config/main/shells/terraform --command terraform validate
+terraform validate
 
 # Option 2: Interactive session
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Inside Nix shell
 terraform validate
 terraform fmt -check -recursive
 tflint --recursive
@@ -267,15 +264,10 @@ tflint --recursive
 ### Task: Test Infrastructure Changes Locally
 
 ```bash
-# Option 1: Single command approach (with aws-vault)
-cd ~/git/terraform-proxmox/feat/initial-splunk
-aws-vault exec default -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+# With direnv active, aws-vault is all you need
+aws-vault exec default -- terragrunt plan
 
-# Option 2: Interactive session
-cd ~/git/terraform-proxmox/feat/initial-splunk
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Inside Nix shell (use aws-vault for commands that access state)
+# For interactive sessions
 aws-vault exec default -- terragrunt init
 aws-vault exec default -- terragrunt plan -out=tfplan
 aws-vault exec default -- terragrunt show -json tfplan | jq '.'
@@ -288,123 +280,69 @@ checkov --directory . --quiet
 ### Task: Refresh Terraform State (Provider Upgrade)
 
 ```bash
-# After updating provider versions, refresh state to sync with infrastructure
-cd ~/git/terraform-proxmox/feat/initial-splunk
-
-# Option 1: Single command
-aws-vault exec default -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt refresh
-
-# Option 2: Long session
-aws-vault exec default -- bash
-nix develop ~/git/nix-config/main/shells/terraform
-terragrunt refresh
-terragrunt plan  # Verify no changes needed
-exit  # Exit Nix shell
-exit  # Exit aws-vault shell
+# After updating provider versions, refresh state
+aws-vault exec default -- terragrunt refresh
+aws-vault exec default -- terragrunt plan  # Verify no changes needed
 ```
 
 ### Task: Generate Module Documentation
 
 ```bash
-# Step 1: Enter Nix shell
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Step 2: Generate docs for a module
 cd modules/proxmox-vm
 terraform-docs markdown table --output-file README.md .
-
-# Step 3: Generate docs for all modules
-for dir in modules/*/; do
-  cd "$dir"
-  terraform-docs markdown table --output-file README.md .
-  cd ../..
-done
 ```
 
 ### Task: Run Pre-commit Hooks
 
 ```bash
-# Step 1: Enter Nix shell
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Step 2: Install pre-commit hooks
+# Install pre-commit hooks
 pre-commit install
 
-# Step 3: Run hooks on all files
+# Run hooks on all files
 pre-commit run --all-files
 
-# Step 4: Run specific hook
+# Run specific hook
 pre-commit run terraform_validate --all-files
 ```
 
 ### Task: Test Ansible Playbook Syntax
 
 ```bash
-# Step 1: Enter Nix shell
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Step 2: Run ansible-lint
+# Run ansible-lint
 ansible-lint ansible/playbooks/site.yml
 
-# Step 3: Check playbook syntax
+# Check playbook syntax
 ansible-playbook --syntax-check ansible/playbooks/site.yml
 
-# Step 4: Run molecule test for role
+# Run molecule test for role
 cd ansible/roles/common && molecule test
 ```
 
 ## Using aws-vault with Nix Shell
 
-This repository uses `aws-vault` to securely manage AWS credentials from the macOS Keychain for accessing the S3 state backend. Here's how to combine it with the Nix development shell.
+This repository uses `aws-vault` to securely manage AWS credentials from
+the macOS Keychain for accessing the S3 state backend. With direnv handling
+the Nix shell, the command patterns are simplified.
 
-### Understanding the Two Environments
+### Understanding the Environments
 
 You need **both** environments active simultaneously:
-1. **Nix Shell**: Provides Terraform/Terragrunt CLI tools
+
+1. **Nix Shell**: Provides Terraform/Terragrunt CLI tools (handled by direnv)
 2. **aws-vault**: Provides temporary AWS credentials via environment variables
 
-### Method 1: Nested Commands (Recommended for Single Operations)
+### Method 1: Direct Commands (Recommended)
 
-Execute Terragrunt commands with both environments in a single command:
-
-```bash
-# General pattern
-aws-vault exec PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command COMMAND
-
-# Common examples
-aws-vault exec PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt init
-aws-vault exec PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
-aws-vault exec PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt apply
-aws-vault exec PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt refresh
-```
-
-**How it works:**
-- `aws-vault exec` sets temporary AWS credential environment variables
-- `--` passes those environment variables to the next command
-- `nix develop` enters the shell with those credentials available
-- `--command` runs the specified command and exits
-
-### Method 2: Enter Nix Shell, Then Use aws-vault (Recommended for Interactive Sessions)
-
-For multiple commands or interactive work, enter the Nix shell first:
+With direnv active, simply prefix commands with aws-vault:
 
 ```bash
-# Step 1: Enter the Nix development shell
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Step 2: Inside the Nix shell, prefix each Terragrunt command with aws-vault
 aws-vault exec PROFILE_NAME -- terragrunt init
 aws-vault exec PROFILE_NAME -- terragrunt plan
 aws-vault exec PROFILE_NAME -- terragrunt apply
 aws-vault exec PROFILE_NAME -- terragrunt refresh
 ```
 
-**How it works:**
-- You stay in the Nix shell environment (tools available)
-- Each `aws-vault exec` command gets temporary AWS credentials
-- Credentials are valid for the duration of that single command
-
-### Method 3: aws-vault Shell (Longest Sessions)
+### Method 2: aws-vault Shell (Longest Sessions)
 
 For extended work sessions, use `aws-vault exec` to spawn a subshell:
 
@@ -412,25 +350,29 @@ For extended work sessions, use `aws-vault exec` to spawn a subshell:
 # Step 1: Start aws-vault session (credentials valid for duration of shell)
 aws-vault exec PROFILE_NAME -- bash
 
-# Step 2: Inside aws-vault shell, enter Nix shell
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Step 3: Now run Terragrunt commands directly (credentials available)
+# Step 2: Run Terragrunt commands directly (credentials available)
 terragrunt init
 terragrunt plan
 terragrunt apply
 terragrunt refresh
 
-# Step 4: Exit when done
-exit  # Exit Nix shell
+# Step 3: Exit when done
 exit  # Exit aws-vault shell
 ```
 
-**How it works:**
-- aws-vault spawns a bash subshell with credentials
-- Credentials remain valid for the entire session (typically 1 hour)
-- You enter Nix shell within that credential-enabled environment
-- All commands have access to AWS credentials without prefixing
+### Method 3: Manual Nix Shell (Fallback)
+
+If direnv is not available, use the manual nix develop wrapper:
+
+```bash
+# General pattern
+aws-vault exec PROFILE_NAME -- \
+  nix develop ~/git/nix-config/main/shells/terraform --command COMMAND
+
+# Common examples
+aws-vault exec PROFILE_NAME -- \
+  nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+```
 
 ### Finding Your AWS Profile Name
 
@@ -446,29 +388,19 @@ aws-vault list
 
 ### Complete Workflow Example
 
-Here's a complete workflow for refreshing Terraform state with the provider upgrade:
+Here's a complete workflow for refreshing Terraform state:
 
 ```bash
-# Method 1: Single command approach
-cd ~/git/terraform-proxmox/feat/initial-splunk
-aws-vault exec default -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt refresh
-
-# Method 2: Interactive session approach
-cd ~/git/terraform-proxmox/feat/initial-splunk
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Now inside Nix shell
+# Method 1: Direct commands (direnv handles nix shell)
+cd ~/git/terraform-proxmox/main
 aws-vault exec default -- terragrunt refresh
 aws-vault exec default -- terragrunt plan
 
-# Method 3: Long session approach
-cd ~/git/terraform-proxmox/feat/initial-splunk
+# Method 2: Long session approach
+cd ~/git/terraform-proxmox/main
 aws-vault exec default -- bash
 
-# Now inside aws-vault bash session
-nix develop ~/git/nix-config/main/shells/terraform
-
-# Now inside both environments
+# Now inside aws-vault bash session with direnv-activated nix shell
 terragrunt refresh
 terragrunt plan
 terraform validate
@@ -476,9 +408,11 @@ terraform validate
 
 ### Troubleshooting aws-vault + Nix Shell
 
-**Issue**: `aws-vault: error: exec: aws-vault sessions should be nested with care, unset $AWS_VAULT to force`
+**Issue**: `aws-vault: error: exec: sessions should be nested with care`
 
-**Solution**: You're already inside an aws-vault session. Either exit and start fresh, or:
+**Solution**: You're already inside an aws-vault session.
+Either exit and start fresh, or:
+
 ```bash
 unset AWS_VAULT
 aws-vault exec PROFILE_NAME -- terragrunt plan
@@ -487,23 +421,28 @@ aws-vault exec PROFILE_NAME -- terragrunt plan
 **Issue**: `NoCredentialProviders: no valid providers in chain`
 
 **Solution**:
+
 ```bash
 # Verify aws-vault has credentials
 aws-vault list
 
 # Try running with --debug to see what's happening
-aws-vault exec --debug PROFILE_NAME -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+aws-vault exec --debug PROFILE_NAME -- terragrunt plan
 ```
 
 **Issue**: Commands work with aws-vault but not in Nix shell
 
-**Solution**: Make sure you're nesting the commands correctly. The Nix shell must inherit the AWS environment variables:
+**Solution**: Ensure direnv is allowed (`direnv allow`). If not using
+direnv, make sure you nest commands correctly:
+
 ```bash
 # CORRECT - aws-vault wraps nix develop
-aws-vault exec default -- nix develop ~/path/to/shell --command terragrunt plan
+aws-vault exec default -- \
+  nix develop ~/path/to/shell --command terragrunt plan
 
 # INCORRECT - nix develop doesn't have AWS credentials
-nix develop ~/path/to/shell --command aws-vault exec default -- terragrunt plan
+nix develop ~/path/to/shell --command \
+  aws-vault exec default -- terragrunt plan
 ```
 
 ## Troubleshooting
@@ -513,6 +452,7 @@ nix develop ~/path/to/shell --command aws-vault exec default -- terragrunt plan
 **Symptom**: `error: getting status of '/nix/store/...': No such file or directory`
 
 **Solution**:
+
 ```bash
 # Update nix flake inputs
 nix flake update ~/git/nix-config/main/shells/terraform
@@ -526,6 +466,7 @@ nix develop ~/git/nix-config/main/shells/terraform --rebuild
 **Symptom**: `Cannot connect to the Docker daemon`
 
 **Solution**:
+
 ```bash
 # Docker must be running on the host system
 # The Nix shell provides the Docker CLI client only
@@ -539,23 +480,19 @@ sudo systemctl start docker
 
 ### Issue: AWS credentials not found
 
-**Symptom**: `Error: No valid credential sources found` or `NoCredentialProviders: no valid providers in chain`
+**Symptom**: `Error: No valid credential sources found`
 
 **Solution** (This repository uses aws-vault):
+
 ```bash
 # Step 1: Verify aws-vault has credentials
 aws-vault list
 
-# Step 2: Use the correct nesting order
-# CORRECT - aws-vault wraps the entire command
-aws-vault exec default -- nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
-
-# INCORRECT - nix shell doesn't inherit AWS credentials
-nix develop ~/git/nix-config/main/shells/terraform --command aws-vault exec default -- terragrunt plan
+# Step 2: Use aws-vault to provide credentials
+aws-vault exec default -- terragrunt plan
 
 # Step 3: For interactive sessions, enter aws-vault shell first
 aws-vault exec default -- bash
-nix develop ~/git/nix-config/main/shells/terraform
 terragrunt plan  # Now has credentials
 ```
 
@@ -564,6 +501,7 @@ terragrunt plan  # Now has credentials
 **Symptom**: `Failed to install provider from shared cache`
 
 **Solution**:
+
 ```bash
 # Clear provider cache
 rm -rf ~/.terraform.d/plugin-cache
@@ -578,6 +516,7 @@ terragrunt init
 **Symptom**: `Error acquiring the state lock`
 
 **Solution**:
+
 ```bash
 # List active locks
 aws dynamodb scan --table-name terraform-state-lock
@@ -594,12 +533,12 @@ terragrunt force-unlock <lock-id>
 
 ```bash
 # Terminal 1: Main development
-cd ~/git/terraform-proxmox/feat/initial-splunk
-nix develop ~/git/nix-config/main/shells/terraform
+cd ~/git/terraform-proxmox/main
+# direnv auto-activates
 
 # Terminal 2: Parallel testing
-cd ~/git/terraform-proxmox/feat/initial-splunk
-nix develop ~/git/nix-config/main/shells/terraform
+cd ~/git/terraform-proxmox/main
+# direnv auto-activates
 ```
 
 ### Customizing the Shell
@@ -670,11 +609,14 @@ jobs:
 ## Additional Resources
 
 - **Nix Shell Documentation**: `~/git/nix-config/main/shells/terraform/flake.nix`
-- **Terraform Documentation**: https://developer.hashicorp.com/terraform/docs
-- **Terragrunt Documentation**: https://terragrunt.gruntwork.io/docs/
-- **Proxmox Provider**: https://registry.terraform.io/providers/bpg/proxmox/latest/docs
-- **This Repository's README**: `~/git/terraform-proxmox/feat/initial-splunk/README.md`
-- **Troubleshooting Guide**: `~/git/terraform-proxmox/feat/initial-splunk/TROUBLESHOOTING.md`
+- **Terraform Documentation**:
+  [developer.hashicorp.com/terraform](https://developer.hashicorp.com/terraform/docs)
+- **Terragrunt Documentation**:
+  [terragrunt.gruntwork.io](https://terragrunt.gruntwork.io/docs/)
+- **Proxmox Provider**:
+  [registry.terraform.io/providers/bpg/proxmox](https://registry.terraform.io/providers/bpg/proxmox/latest/docs)
+- **This Repository's README**: `~/git/terraform-proxmox/main/README.md`
+- **Troubleshooting Guide**: `~/git/terraform-proxmox/main/TROUBLESHOOTING.md`
 
 ## Summary Checklist
 
@@ -682,11 +624,8 @@ When starting work on this repository, Claude should:
 
 - [ ] Verify Nix is installed (`nix --version`)
 - [ ] Verify aws-vault is configured (`aws-vault list`)
-- [ ] Navigate to repository (`cd ~/git/terraform-proxmox/feat/initial-splunk`)
-- [ ] Enter Nix shell with AWS credentials:
-  - **Option A**: `aws-vault exec default -- nix develop ~/git/nix-config/main/shells/terraform --command COMMAND`
-  - **Option B**: Enter Nix shell first, then prefix commands with `aws-vault exec default --`
-  - **Option C**: `aws-vault exec default -- bash`, then `nix develop ~/git/nix-config/main/shells/terraform`
+- [ ] Navigate to repository (`cd ~/git/terraform-proxmox/main`)
+- [ ] Ensure direnv is allowed (`direnv allow`)
 - [ ] Verify all tools are available (terraform, terragrunt, ansible, etc.)
 - [ ] Initialize Terragrunt (`aws-vault exec default -- terragrunt init`)
 - [ ] Validate configuration (`terraform validate` - no AWS creds needed)
@@ -695,8 +634,9 @@ When starting work on this repository, Claude should:
 - [ ] Review plan before applying changes
 
 **Key Points:**
-- Use `aws-vault` for any command that accesses the S3 state backend (init, plan, apply, refresh)
+
+- Use `aws-vault` for any command that accesses the S3 state backend
 - Security validation and linting don't need AWS credentials
-- Always nest commands correctly: `aws-vault exec PROFILE -- nix develop PATH --command COMMAND`
+- direnv handles Nix shell activation automatically via `.envrc`
 
 This ensures a consistent, reproducible development environment across all sessions.
