@@ -110,8 +110,7 @@ output "ansible_inventory" {
         ansible_connection = "ssh"
         tags               = v.tags
         pool_id            = v.pool_id
-      }
-      if contains(try(v.tags, []), "docker")
+      } if contains(try(v.tags, []), "docker")
     }
     # Splunk VM - dedicated Docker host with SSH connection
     splunk_vm = {
