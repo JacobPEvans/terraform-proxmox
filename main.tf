@@ -60,6 +60,12 @@ module "vms" {
       node_name      = var.proxmox_node
       cdrom_file_id  = v.cdrom_file_id != null ? "${var.datastore_iso}:iso/${var.proxmox_iso_debian}" : null
       clone_template = v.clone_template
+      # DRY: IP is ALWAYS derived from vm_id (consistent with containers)
+      # Format: network_prefix.vm_id/mask (e.g., 192.168.0.250/24 for vm_id 250)
+      ip_config = {
+        ipv4_address = local.derive_ip[v.vm_id]
+        ipv4_gateway = local.network_gateway
+      }
       user_account = {
         username = v.user_account.username
         password = v.user_account.password

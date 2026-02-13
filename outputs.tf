@@ -88,17 +88,30 @@ output "ansible_inventory" {
       }
     }
     # Regular VMs - using SSH connection
+    # DRY: IP derived from vm_id (consistent with containers and cloud-init config)
     vms = {
       for k, v in module.vms.vm_details : k => {
-        vmid     = v.id
-        hostname = v.name
-        # Extract first IPv4 address from vm_network_interfaces (skip loopback at index 0)
-        ip = try(split("/", module.vms.vm_network_interfaces[k].ipv4_addresses[1][0])[0], null)
-        node                = v.node_name
-        ansible_connection  = "ssh"
-        tags                = v.tags
-        pool_id             = v.pool_id
+        vmid               = v.id
+        hostname           = v.name
+        ip                 = split("/", local.derive_ip[v.id])[0]
+        node               = v.node_name
+        ansible_connection = "ssh"
+        tags               = v.tags
+        pool_id            = v.pool_id
       }
+    }
+    # Docker VMs - filtered subset of VMs with "docker" tag
+    docker_vms = {
+      for k, v in module.vms.vm_details : k => {
+        vmid               = v.id
+        hostname           = v.name
+        ip                 = split("/", local.derive_ip[v.id])[0]
+        node               = v.node_name
+        ansible_connection = "ssh"
+        tags               = v.tags
+        pool_id            = v.pool_id
+      }
+      if contains(try(v.tags, []), "docker")
     }
     # Splunk VM - dedicated Docker host with SSH connection
     splunk_vm = {
@@ -110,5 +123,7 @@ output "ansible_inventory" {
         ansible_connection = "ssh"
       }
     }
+    # Pipeline constants - service and syslog port definitions
+    constants = local.pipeline_constants
   }
 }
