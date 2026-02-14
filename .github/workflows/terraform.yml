@@ -18,21 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
 
-      - name: Terraform Format
+      - name: OpenTofu Format
         id: fmt
-        run: terraform fmt -check
+        run: tofu fmt -check
         continue-on-error: true
 
-      - name: Terraform Init
+      - name: OpenTofu Init
         id: init
-        run: terraform init
+        run: tofu init -backend=false
 
-      - name: Terraform Validate
+      - name: OpenTofu Validate
         id: validate
-        run: terraform validate -no-color
+        run: tofu validate -no-color
+
+      - name: OpenTofu Test
+        id: test
+        run: tofu test -no-color
 
       # - name: Terraform Plan
       #   id: plan
