@@ -99,3 +99,6 @@ ansible/roles/*/.molecule/
 
 # Timing script results (don't commit execution measurements)
 scripts/timing-results.txt
+
+# direnv cache (nix-direnv)
+.direnv/
