@@ -88,6 +88,40 @@ Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
 - Real infrastructure details in separate private repository
 - This repo contains placeholder/example values only
 
+## Pipeline Architecture (This Repo's Role)
+
+This repo is the **single source of truth** for infrastructure: VMs, containers, IPs, ports, and firewall rules.
+
+### IP Derivation
+
+All IPs are derived from VM/container ID: `network_prefix.vm_id` (e.g., VM 250 = `192.168.0.250`).
+Never hardcode IPs in any repo - they come from terraform output.
+
+### Pipeline Constants
+
+`locals.tf` defines `pipeline_constants` with service and syslog port mappings.
+These are exposed via `ansible_inventory.constants` in `outputs.tf` for downstream Ansible repos.
+
+### Downstream Repos
+
+| Repo | Consumes | Purpose |
+| --- | --- | --- |
+| ansible-proxmox | N/A | Proxmox host config (kernel, ZFS, monitoring) |
+| ansible-proxmox-apps | `ansible_inventory` (containers, docker_vms, constants) | Cribl, HAProxy, DNS |
+| ansible-splunk | `ansible_inventory` (splunk_vm) | Splunk Enterprise (Docker) |
+
+### Regenerating Inventory
+
+After `terragrunt apply`, regenerate inventory for downstream repos:
+
+```bash
+# For ansible-proxmox-apps
+terragrunt output -json ansible_inventory > ~/git/ansible-proxmox-apps/main/inventory/terraform_inventory.json
+
+# For ansible-splunk
+terragrunt output -json ansible_inventory > ~/git/ansible-splunk/main/inventory/terraform_inventory.json
+```
+
 ## Development Workflow
 
 ### Terraform/Terragrunt

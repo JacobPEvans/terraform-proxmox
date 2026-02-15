@@ -10,7 +10,7 @@ output "cloud_init_file_id" {
 output "datastores_available" {
   description = "Available datastores on the target node"
   value = {
-    for ds in data.proxmox_virtual_environment_datastores.available.datastores : ds.id => {
+    for ds in coalesce(data.proxmox_virtual_environment_datastores.available.datastores, []) : ds.id => {
       type          = ds.type
       content_types = ds.content_types
     }

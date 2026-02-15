@@ -110,10 +110,12 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "splunk_s
 }
 
 # Security group for syslog ingestion
+# Includes standard syslog (514) and per-source pipeline ports (1514-1518)
 resource "proxmox_virtual_environment_cluster_firewall_security_group" "syslog" {
   name    = "syslog"
-  comment = "Syslog UDP/TCP port 514 from internal networks"
+  comment = "Syslog ports: 514 (standard) and 1514-1518 (pipeline per-source) from internal networks"
 
+  # Standard syslog port 514
   dynamic "rule" {
     for_each = var.internal_networks
     content {
@@ -135,6 +137,32 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "syslog" 
       dport   = "514"
       source  = rule.value
       comment = "Syslog TCP from ${rule.value}"
+    }
+  }
+
+  # Pipeline per-source syslog ports 1514-1518
+  # 1514=UniFi, 1515=Palo Alto, 1516=Cisco ASA, 1517=Linux, 1518=Windows
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "udp"
+      dport   = "1514:1518"
+      source  = rule.value
+      comment = "Pipeline syslog UDP from ${rule.value}"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "1514:1518"
+      source  = rule.value
+      comment = "Pipeline syslog TCP from ${rule.value}"
     }
   }
 }

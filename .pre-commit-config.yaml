@@ -51,3 +51,21 @@ repos:
   #   hooks:
   #     - id: terraform-pre-commit
   #       args: ['scan', '-i', 'terraform', '-t', 'all']
+
+  # Local hooks using the full nix+aws-vault+doppler toolchain
+  - repo: local
+    hooks:
+      - id: terragrunt-validate
+        name: terragrunt validate
+        entry: bash -c 'nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"'
+        language: system
+        files: '\.(tf|hcl)$'
+        pass_filenames: false
+
+      - id: terragrunt-plan
+        name: terragrunt plan
+        entry: bash -c 'nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt plan -detailed-exitcode"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
+        language: system
+        files: '\.(tf|hcl)$'
+        pass_filenames: false
+        stages: [pre-push]

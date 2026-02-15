@@ -88,3 +88,25 @@ locals {
   # VGA type validation helper
   valid_vga_types = ["std", "cirrus", "vmware", "qxl"]
 }
+
+# Pipeline constants - single source of truth for service and syslog ports
+# Referenced by ansible_inventory output for downstream consumption
+locals {
+  pipeline_constants = {
+    service_ports = {
+      haproxy_stats    = 8404
+      splunk_web       = 8000
+      splunk_hec       = 8088
+      splunk_mgmt      = 8089
+      cribl_edge_api   = 9000
+      cribl_stream_api = 9100
+    }
+    syslog_ports = {
+      unifi     = 1514
+      palo_alto = 1515
+      cisco_asa = 1516
+      linux     = 1517
+      windows   = 1518
+    }
+  }
+}
