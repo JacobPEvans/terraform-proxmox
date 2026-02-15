@@ -1,3 +1,4 @@
 # Copy to .envrc and run: direnv allow
-export SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
-use flake ~/git/nix-config/main/shells/terraform
+export NIX_CONFIG_PATH=${NIX_CONFIG_PATH:-$HOME/git/nix-config/main}
+export SOPS_AGE_KEY_FILE=${SOPS_AGE_KEY_FILE:-$HOME/.config/sops/age/keys.txt}
+use flake ${NIX_CONFIG_PATH}/shells/terraform

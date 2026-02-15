@@ -90,7 +90,7 @@ SOPS with age encryption provides git-committed encrypted secrets.
 See [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md) for setup and usage.
 
 - `.sops.yaml` - Age public key configuration (safe to commit)
-- `secrets.enc.yaml` - Encrypted secrets template (safe to commit once encrypted)
+- `secrets.enc.yaml.example` - Secrets template (copy, fill in, encrypt)
 
 ## Repository Context
 

@@ -35,9 +35,10 @@ Note the public key printed to stdout (starts with `age1...`).
        age: "age1your-actual-public-key"
    ```
 
-2. Fill in real values in `secrets.enc.yaml` and encrypt:
+2. Copy the template, fill in real values, and encrypt:
 
    ```bash
+   cp secrets.enc.yaml.example secrets.enc.yaml
    sops --encrypt --in-place secrets.enc.yaml
    ```
 
@@ -89,7 +90,7 @@ To re-encrypt with a new age key:
 1. Decrypt with old key: `sops --decrypt secrets.enc.yaml > secrets.plain.yaml`
 2. Update `.sops.yaml` with new public key
 3. Re-encrypt: `sops --encrypt secrets.plain.yaml > secrets.enc.yaml`
-4. Securely delete plaintext: `rm -P secrets.plain.yaml`
+4. Securely delete plaintext: `shred -u secrets.plain.yaml` (Linux) or `rm -P secrets.plain.yaml` (macOS)
 
 ## Security Notes
 

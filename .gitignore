@@ -59,6 +59,11 @@ SECRETS_SETUP.md
 *.age
 keys.txt
 
+# SOPS plaintext/decrypted files (never commit)
+secrets.enc.yaml
+secrets.plain.yaml
+secrets.dec.yaml
+
 # Environment-specific documentation (contains sensitive setup info)
 docs/DOPPLER.md
 docs/secrets-management.md
