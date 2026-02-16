@@ -4,8 +4,14 @@
 
 ## Setup
 
-The repository ships an `.envrc` file that auto-activates the Nix shell via direnv.
-On first use, run `direnv allow`. As a fallback, use:
+The repository includes an `.envrc.example` template. Copy it to `.envrc` and run `direnv allow`:
+
+```bash
+cp .envrc.example .envrc
+direnv allow
+```
+
+As a fallback, use:
 
 ```bash
 nix develop "${NIX_CONFIG_PATH:-$HOME/git/nix-config/main}/shells/terraform"
