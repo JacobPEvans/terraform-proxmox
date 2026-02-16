@@ -91,11 +91,21 @@ terraform-proxmox/
 
 #### Option A: Using Nix Shell (Recommended)
 
-All tools are provided via a pre-configured Nix development shell:
+All tools are provided via a pre-configured Nix development shell.
+The repository ships an `.envrc` file that auto-activates the shell
+via direnv when you enter the directory.
+
+**Requirements:**
+
+- `nix-direnv` (not just plain direnv) - Install via: `nix profile install nixpkgs#nix-direnv`
+- Shell hook setup for direnv (see [direnv setup](https://direnv.net/docs/hook.html))
 
 ```bash
-# Enter the Nix shell (provides all tools below)
-nix develop ~/git/nix-config/main/shells/terraform
+# Automatic activation (requires direnv + nix-direnv)
+direnv allow    # one-time setup
+
+# Manual fallback
+nix develop "${NIX_CONFIG_PATH:-$HOME/git/nix-config/main}/shells/terraform"
 ```
 
 See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
@@ -209,6 +219,7 @@ All VMs are configured with:
 - SSH key authentication from configured SSH key
 
 **Infrastructure Summary**:
+
 - 1 VM (Splunk Enterprise all-in-one): ID 100
 - 5 LXC Containers: IDs 200, 205, 210-211, 220
 - See [INFRASTRUCTURE_NUMBERING.md](./docs/INFRASTRUCTURE_NUMBERING.md) for complete details
@@ -218,9 +229,11 @@ All VMs are configured with:
 ### Setup & Configuration
 
 - **[DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)** - **START HERE**: Complete deployment walkthrough
-- **[Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)** - **CRITICAL**: How to safely maintain real IPs/hostnames separate from committed code
+- **[Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)** -
+  **CRITICAL**: How to safely maintain real IPs/hostnames separate from committed code
 - **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** - Comprehensive guide to using Nix shells for development
-- **[OpenHands Integration](./docs/openhands-integration.md)** - Guide for integrating OpenHands autonomous AI software engineer with Nix, OrbStack, Terraform, and Kubernetes
+- **[OpenHands Integration](./docs/openhands-integration.md)** -
+  Guide for integrating OpenHands AI software engineer with Nix, OrbStack, Terraform, and Kubernetes
 
 ### Infrastructure Reference
 
