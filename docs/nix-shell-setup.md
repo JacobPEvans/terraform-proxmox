@@ -264,15 +264,15 @@ tflint --recursive
 ### Task: Test Infrastructure Changes Locally
 
 ```bash
-# With direnv active, aws-vault is all you need
-aws-vault exec default -- terragrunt plan
+# With direnv active, you still need aws-vault (AWS) and doppler (Proxmox)
+aws-vault exec default -- doppler run -- terragrunt plan
 
 # For interactive sessions
-aws-vault exec default -- terragrunt init
-aws-vault exec default -- terragrunt plan -out=tfplan
-aws-vault exec default -- terragrunt show -json tfplan | jq '.'
+aws-vault exec default -- doppler run -- terragrunt init
+aws-vault exec default -- doppler run -- terragrunt plan -out=tfplan
+aws-vault exec default -- doppler run -- terragrunt show -json tfplan | jq '.'
 
-# Security scans don't need AWS credentials
+# Security scans don't need AWS or Proxmox credentials
 tfsec --concise-output .
 checkov --directory . --quiet
 ```
@@ -281,8 +281,8 @@ checkov --directory . --quiet
 
 ```bash
 # After updating provider versions, refresh state
-aws-vault exec default -- terragrunt refresh
-aws-vault exec default -- terragrunt plan  # Verify no changes needed
+aws-vault exec default -- doppler run -- terragrunt refresh
+aws-vault exec default -- doppler run -- terragrunt plan  # Verify no changes needed
 ```
 
 ### Task: Generate Module Documentation

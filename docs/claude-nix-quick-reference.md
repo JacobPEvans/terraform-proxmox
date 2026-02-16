@@ -8,17 +8,23 @@ The repository ships an `.envrc` file that auto-activates the Nix shell via dire
 On first use, run `direnv allow`. As a fallback, use:
 
 ```bash
-nix develop ~/git/nix-config/main/shells/terraform
+nix develop "${NIX_CONFIG_PATH:-$HOME/git/nix-config/main}/shells/terraform"
 ```
 
 This provides: terraform, terragrunt, ansible, tfsec, checkov, trivy,
 aws-cli, docker, and all other required tools.
+
+**Important**: Direnv handles the Nix shell activation, but **terragrunt commands still require wrappers**:
+
+- `aws-vault exec default --` for AWS credentials (remote state)
+- `doppler run --` for Proxmox credentials (PROXMOX_VE_* env vars)
 
 ## Essential Workflows
 
 ### 1. Validate Configuration (Most Common)
 
 ```bash
+# Validation only - no credentials needed for syntax check
 terragrunt validate && \
   tflint && \
   echo 'Validation complete'
@@ -27,8 +33,9 @@ terragrunt validate && \
 ### 2. Plan Infrastructure Changes
 
 ```bash
-terragrunt init && \
-  terragrunt plan
+# Requires both aws-vault (AWS) and doppler (Proxmox)
+aws-vault exec default -- doppler run -- terragrunt init && \
+  aws-vault exec default -- doppler run -- terragrunt plan
 ```
 
 ### 3. Security Scan
@@ -42,6 +49,7 @@ tfsec --concise-output . && \
 ### 4. Full Pre-Commit Check
 
 ```bash
+# Syntax and security checks - no credentials needed
 terragrunt validate && \
   terraform fmt -check -recursive && \
   tflint && \

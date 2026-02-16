@@ -95,12 +95,17 @@ All tools are provided via a pre-configured Nix development shell.
 The repository ships an `.envrc` file that auto-activates the shell
 via direnv when you enter the directory.
 
+**Requirements:**
+
+- `nix-direnv` (not just plain direnv) - Install via: `nix profile install nixpkgs#nix-direnv`
+- Shell hook setup for direnv (see [direnv setup](https://direnv.net/docs/hook.html))
+
 ```bash
-# Automatic activation (requires direnv)
+# Automatic activation (requires direnv + nix-direnv)
 direnv allow    # one-time setup
 
 # Manual fallback
-nix develop ~/git/nix-config/main/shells/terraform
+nix develop "${NIX_CONFIG_PATH:-$HOME/git/nix-config/main}/shells/terraform"
 ```
 
 See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
