@@ -22,6 +22,7 @@ This repo uses:
 - **Nix Shell** - Provides Terraform/Terragrunt/Ansible tooling
 - **aws-vault** - Securely manages AWS credentials for S3 backend
 - **Doppler** - Manages Proxmox API secrets as environment variables
+- **SOPS/age** - Git-committed encrypted secrets (alternative to Doppler)
 
 ## Running Terraform Commands
 
@@ -82,6 +83,14 @@ Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
 - **Nix + direnv**: Provides consistent tool versions (Terraform, Terragrunt, Ansible) via `.envrc` auto-activation
 - **aws-vault**: Secures AWS credentials for S3 backend (never stored in files)
 - **Doppler**: Manages Proxmox API credentials using `PROXMOX_VE_*` naming (never stored in tfvars or git)
+
+### SOPS Secrets (Alternative to Doppler)
+
+SOPS with age encryption provides git-committed encrypted secrets.
+See [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md) for setup and usage.
+
+- `.sops.yaml` - Age public key configuration (safe to commit)
+- `secrets.enc.yaml.example` - Secrets template (copy, fill in, encrypt)
 
 ## Repository Context
 

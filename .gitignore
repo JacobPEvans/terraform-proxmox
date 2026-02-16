@@ -49,10 +49,20 @@ aws-credentials
 .env
 .env.*
 !.env.example
+.envrc
 
 # Doppler configuration (contains project/config names)
 .doppler.yaml
 SECRETS_SETUP.md
+
+# SOPS age private keys (never commit)
+*.age
+keys.txt
+
+# SOPS plaintext/decrypted files (never commit)
+secrets.enc.yaml
+secrets.plain.yaml
+secrets.dec.yaml
 
 # Environment-specific documentation (contains sensitive setup info)
 docs/DOPPLER.md
