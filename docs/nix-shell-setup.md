@@ -46,10 +46,10 @@ cd ~/git/terraform-proxmox/main
 
 #### direnv (Recommended)
 
-The repository ships an `.envrc` file that auto-activates the Nix shell.
-On first use, allow direnv to load it:
+The repository includes an `.envrc.example` template. Copy it to create your local `.envrc`:
 
 ```bash
+cp .envrc.example .envrc
 direnv allow
 
 # The shell auto-activates whenever you cd into the directory
