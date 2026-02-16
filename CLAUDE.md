@@ -228,6 +228,8 @@ See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for detailed timeout analysis.
 
 | Need | Location |
 | ---- | -------- |
+| Architecture (canonical) | docs/ARCHITECTURE.md |
+| Secrets roadmap | docs/SECRETS_ROADMAP.md |
 | General docs | README.md |
 | Troubleshooting | TROUBLESHOOTING.md |
 | Planning | GitHub Issues |
