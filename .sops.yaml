@@ -8,4 +8,4 @@
 
 creation_rules:
   - path_regex: secrets\.enc\.yaml$
-    age: "age1your-public-key-here"
+    age: "age1y0jvtlp2ac8fwwvh2nzm88ehye74jlseywjrjcjqll7u8vycsedq788tp9"
