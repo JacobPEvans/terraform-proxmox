@@ -69,6 +69,10 @@ inputs = {
   # Splunk secrets (from Doppler)
   splunk_password  = get_env("SPLUNK_PASSWORD", "")
   splunk_hec_token = get_env("SPLUNK_HEC_TOKEN", "")
+
+  # Network configuration (from Doppler or SOPS)
+  management_network = get_env("MANAGEMENT_NETWORK", "192.168.0.0/24")
+  splunk_network     = jsondecode(get_env("SPLUNK_NETWORK", "[\"192.168.0.200\"]"))
 }
 
 # Terragrunt will generate provider.tf with these settings
