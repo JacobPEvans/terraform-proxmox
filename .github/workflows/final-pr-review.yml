@@ -36,7 +36,7 @@ jobs:
           sparse-checkout: .github/scripts
       - name: Check gate conditions
         id: gate
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const run = require('./.github/scripts/final-pr-review/check-gate.js');
@@ -101,7 +101,7 @@ jobs:
         with:
           sparse-checkout: .github/scripts
       - name: Add claude-reviewed label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           PR_NUMBER: ${{ needs.gate-check.outputs.pr_number }}
         with:
