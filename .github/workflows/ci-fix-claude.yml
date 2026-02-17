@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
+      issues: read
     outputs:
       pr_number: ${{ steps.find-pr.outputs.pr_number }}
       should_run: ${{ steps.check-attempts.outputs.should_run }}
@@ -82,6 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
     steps:
       - name: Post tracking comment
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -162,7 +164,7 @@ jobs:
             Terraform/OpenTofu project managing Proxmox VE infrastructure.
 
             ### CI Structure
-            - `terraform.yml` ("Terraform CI") - Runs tofu init, validate, fmt check, and plan
+            - `terraform.yml` ("Terraform CI") - Runs tofu fmt -check, init, validate, and test
             - `markdown-lint.yml` ("Markdown Lint") - Lints markdown files with markdownlint
 
             ### Failure Logs
