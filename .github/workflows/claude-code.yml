@@ -1,147 +1,81 @@
-name: Claude Code Setup Check
+# Claude Code - Automatic PR review and interactive assistant
+#
+# Follows Anthropic's recommended configuration:
+# https://github.com/anthropics/claude-code-action/blob/main/docs/solutions.md
+#
+# Skip review by adding label: 'skip-claude' or 'dependencies'
+# Summon manually: @claude in a PR comment
 
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
+name: Claude Code
 
 on:
   pull_request:
     types: [opened, synchronize]
   issue_comment:
     types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  claude-setup-check:
-    name: "Claude Code Setup Check"
+  review:
+    name: Claude Code Review
+    if: >-
+      github.event_name == 'pull_request' &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-claude') &&
+      !contains(github.event.pull_request.labels.*.name, 'dependencies')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Check Claude Code Integration Setup
-        env:
-          HAS_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
-          EVENT_NAME: ${{ github.event_name }}
-          COMMENT_BODY: ${{ github.event.comment.body }}
-        run: |
-          echo "🔍 Checking Claude Code GitHub integration setup..."
-          echo ""
-          echo "Current status:"
-          if [ "$HAS_API_KEY" = "true" ]; then
-            echo "✅ ANTHROPIC_API_KEY secret is configured"
-            echo "✅ Ready to test Claude Code integration"
-          else
-            echo "❌ ANTHROPIC_API_KEY secret is missing"
-            echo "   Add it in: Settings > Secrets and variables > Actions"
-          fi
-          echo ""
-          echo "Event: $EVENT_NAME"
-          if [ "$EVENT_NAME" = "issue_comment" ]; then
-            echo "Comment received (checking for @claude mention)"
-            if [[ "$COMMENT_BODY" == *"@claude"* ]]; then
-              echo "🤖 @claude mention detected!"
-            fi
-          fi
-
-      - name: Comment on PR about Claude setup
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/checkout@v4
         with:
-          script: |
-            const hasApiKey = '${{ secrets.ANTHROPIC_API_KEY }}' !== '';
-            const setupStatus = hasApiKey ? '✅' : '❌';
+          fetch-depth: 1
 
-            const comment = `## 🤖 Claude Code Integration Status - Updated
-
-            ${setupStatus} **Setup Status**: ${hasApiKey ? '✅ API Key Configured' : 'Not configured'}
-
-            ### Setup Requirements:
-            1. **Claude GitHub App**: ${hasApiKey ? 'Should be installed' : 'Install at https://github.com/apps/claude-code'}
-            2. **API Key**: ${hasApiKey ? '✅ ANTHROPIC_API_KEY configured' : '❌ Missing - add ANTHROPIC_API_KEY to repository secrets'}
-            3. **Integration**: ${hasApiKey ? '🔄 Testing Claude Code responses...' : 'Pending setup completion'}
-
-            ${hasApiKey ? '**Next Step**: Try commenting `@claude` to test integration!' : 'Complete setup above, then comment `@claude` to test.'}
-
-            ### Current PR Analysis (Manual):
-            This PR enhances infrastructure security by:
-            - ✅ Removing hardcoded SSH key references
-            - ✅ Adding secure variable-based SSH key management
-            - ✅ Implementing cloud-init automation support
-            - ✅ Following Infrastructure as Code best practices
-
-            **Security Impact**: 🔒 Improved - all SSH keys now configurable via variables
-            `;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-
-      - name: Handle @claude mention
-        if: github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')
-        uses: actions/github-script@v8
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
         with:
-          script: |
-            const hasApiKey = '${{ secrets.ANTHROPIC_API_KEY }}' !== '';
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          use_bedrock: false
+          model: claude-sonnet-4-5-20250929
+          prompt: |
+            Review this Terraform/OpenTofu PR for the proxmox infrastructure repo.
+            Focus on:
+            - Terraform best practices and style
+            - Security implications (secrets exposure, network rules)
+            - Resource naming and variable conventions
+            - Provider version constraints
+            - SOPS/age secrets handling patterns
 
-            if (hasApiKey) {
-              // If API key is configured, attempt to use Claude Code or provide detailed analysis
-              const comment = `## 🤖 Claude Code Response
+  interactive:
+    name: Claude Interactive
+    if: >-
+      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
+      contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-              **@claude mention detected!** ✅
-
-              ### PR Security & Infrastructure Review:
-
-              **🔒 Security Analysis:**
-              - ✅ **SSH Key Management**: Excellent improvement! All hardcoded SSH key paths removed
-              - ✅ **Variable Security**: SSH key paths now use secure, validated variables
-              - ✅ **Secrets Protection**: Private key paths marked as sensitive variables
-              - ✅ **Environment Isolation**: SSH keys can be configured per environment
-
-              **🏗️ Infrastructure Best Practices:**
-              - ✅ **Cloud-init Support**: Proper automation for VM provisioning
-              - ✅ **Null Provider**: Secure SSH key provisioning via Terraform
-              - ✅ **Modular Design**: Clean separation of concerns in VM module
-              - ✅ **Documentation**: Comprehensive examples and documentation updates
-
-              **🚀 Technical Implementation:**
-              - ✅ **Variable Validation**: Proper regex validation for SSH key paths
-              - ✅ **Provider Integration**: Correct null provider version constraints
-              - ✅ **Terraform Syntax**: All validation checks pass
-              - ✅ **Example Configuration**: Complete terraform.tfvars.example with secure patterns
-
-              **Recommendation: ✅ APPROVE** - This PR significantly improves security posture while maintaining Infrastructure as Code best practices.
-
-              *Note: This is an enhanced manual review. Full Claude Code integration may require additional configuration.*`;
-
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } else {
-              // If no API key, explain what's needed
-              const comment = `## 🤖 Claude Code Setup Required
-
-              **@claude mention detected**, but Claude Code integration is not fully configured.
-
-              **Missing**: ANTHROPIC_API_KEY secret not found in repository.
-
-              **To enable full Claude Code integration:**
-              1. Add \`ANTHROPIC_API_KEY\` to repository secrets
-              2. Ensure Claude GitHub App is installed
-              3. Try \`@claude\` mention again
-
-              **Current Status**: Providing manual analysis instead of AI-powered review.`;
-
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            }
+      - name: Run Claude Interactive
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          use_bedrock: false
+          model: claude-sonnet-4-5-20250929
