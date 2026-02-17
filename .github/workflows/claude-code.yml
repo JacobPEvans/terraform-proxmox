@@ -3,8 +3,8 @@
 # Follows Anthropic's recommended configuration:
 # https://github.com/anthropics/claude-code-action/blob/main/docs/solutions.md
 #
-# Skip review by adding label: 'skip-claude' or 'dependencies'
-# Summon manually: @claude in a PR comment
+# Skip review by adding label: 'ai:skip-review'
+# Summon manually: @claude in a PR conversation comment
 
 name: Claude Code
 
@@ -12,8 +12,6 @@ on:
   pull_request:
     types: [opened, synchronize]
   issue_comment:
-    types: [created]
-  pull_request_review_comment:
     types: [created]
 
 concurrency:
@@ -25,8 +23,7 @@ jobs:
     name: Claude Code Review
     if: >-
       github.event_name == 'pull_request' &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-claude') &&
-      !contains(github.event.pull_request.labels.*.name, 'dependencies')
+      !contains(github.event.pull_request.labels.*.name, 'ai:skip-review')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,7 +55,7 @@ jobs:
   interactive:
     name: Claude Interactive
     if: >-
-      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
+      github.event_name == 'issue_comment' &&
       contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     permissions:
