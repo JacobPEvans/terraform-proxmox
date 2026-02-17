@@ -31,50 +31,29 @@ jobs:
       should_run: ${{ steps.check-attempts.outputs.should_run }}
       attempt: ${{ steps.check-attempts.outputs.attempt }}
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+
       - name: Find associated PR
         id: find-pr
         uses: actions/github-script@v7
         with:
           script: |
-            const branch = context.payload.workflow_run.head_branch;
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: 'open'
-            });
-            if (prs.length === 0) {
-              core.info(`No open PR for branch ${branch}`);
-              core.setOutput('pr_number', '');
-              return;
-            }
-            core.setOutput('pr_number', prs[0].number.toString());
+            const run = require('./.github/scripts/ci-fix/find-pr.js');
+            await run({ github, context, core });
 
       - name: Check attempt count
         id: check-attempts
         if: steps.find-pr.outputs.pr_number != ''
         uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
         with:
           script: |
-            const prNumber = parseInt('${{ steps.find-pr.outputs.pr_number }}');
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              per_page: 100
-            });
-            const attempts = comments.filter(c =>
-              c.body.includes('<!-- claude-ci-fix-attempt -->')
-            ).length;
-            core.info(`Found ${attempts} previous fix attempts`);
-            if (attempts >= 2) {
-              core.info('Max attempts reached, skipping');
-              core.setOutput('should_run', 'false');
-              core.setOutput('attempt', attempts.toString());
-            } else {
-              core.setOutput('should_run', 'true');
-              core.setOutput('attempt', (attempts + 1).toString());
-            }
+            const run = require('./.github/scripts/ci-fix/check-attempts.js');
+            await run({ github, context, core });
 
   post-attempt-comment:
     name: Post attempt marker
@@ -85,18 +64,20 @@ jobs:
       pull-requests: write
       issues: write
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+
       - name: Post tracking comment
         uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ needs.should-fix.outputs.pr_number }}
+          ATTEMPT: ${{ needs.should-fix.outputs.attempt }}
         with:
           script: |
-            const prNumber = parseInt('${{ needs.should-fix.outputs.pr_number }}');
-            const attempt = '${{ needs.should-fix.outputs.attempt }}';
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: `<!-- claude-ci-fix-attempt -->\n### CI Auto-Fix Attempt ${attempt}/2\n\nClaude is analyzing the CI failure and attempting a fix...`
-            });
+            const run = require('./.github/scripts/ci-fix/post-attempt-comment.js');
+            await run({ github, context, core });
 
   get-failure-details:
     name: Get failure logs
@@ -108,34 +89,18 @@ jobs:
     outputs:
       failure_logs: ${{ steps.get-logs.outputs.logs }}
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+
       - name: Download failure logs
         id: get-logs
         uses: actions/github-script@v7
         with:
           script: |
-            const runId = context.payload.workflow_run.id;
-            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: runId
-            });
-            let logs = '';
-            for (const job of jobs.jobs.filter(j => j.conclusion === 'failure')) {
-              logs += `\n=== FAILED JOB: ${job.name} ===\n`;
-              try {
-                const logData = await github.rest.actions.downloadJobLogsForWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  job_id: job.id
-                });
-                const logLines = logData.data.split('\n');
-                logs += logLines.slice(-200).join('\n');
-              } catch (e) {
-                logs += `(Could not download logs: ${e.message})\n`;
-              }
-            }
-            const truncated = logs.length > 60000 ? logs.slice(-60000) : logs;
-            core.setOutput('logs', truncated);
+            const run = require('./.github/scripts/ci-fix/get-failure-logs.js');
+            await run({ github, context, core });
 
   fix:
     name: Claude Fix
