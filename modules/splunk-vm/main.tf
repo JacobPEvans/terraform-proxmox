@@ -124,7 +124,13 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   lifecycle {
     prevent_destroy       = true
     create_before_destroy = false
-    ignore_changes        = [clone]
+    ignore_changes = [
+      clone,
+      # Cloud-init runs only at first boot; Ansible handles all post-boot config.
+      # Ignore changes to user_data_file_id so cloud-init template updates
+      # don't force VM replacement on an already-running VM.
+      initialization[0].user_data_file_id,
+    ]
   }
 }
 
