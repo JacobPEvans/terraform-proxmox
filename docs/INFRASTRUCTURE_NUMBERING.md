@@ -69,7 +69,7 @@ Heavy I/O workloads run as full VMs:
 
 | ID  | Name      | Type | Cores | RAM  | Storage | Pool    | Purpose                              |
 |-----|-----------|------|-------|------|---------|---------|--------------------------------------|
-| 200 | splunk-vm | VM   | 6     | 6GB  | 200GB   | logging | Splunk Enterprise all-in-one         |
+| 200 | splunk-vm | VM   | 8     | 12GB | 200GB   | logging | Splunk Enterprise all-in-one         |
 
 ---
 
@@ -101,12 +101,12 @@ Heavy I/O workloads run as full VMs:
 
 | Category       | Cores | RAM   | Storage |
 |----------------|-------|-------|---------|
-| Splunk VM      | 6     | 6GB   | 200GB   |
+| Splunk VM      | 8     | 12GB  | 200GB   |
 
 ### Grand Total
 
-- **Cores**: 31 (oversubscribed)
-- **RAM**: 30GB
+- **Cores**: 33 (oversubscribed)
+- **RAM**: 36GB
 - **Storage**: 1261GB
 
 ---
