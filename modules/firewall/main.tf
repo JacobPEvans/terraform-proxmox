@@ -167,6 +167,36 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "syslog" 
   }
 }
 
+# Security group for pipeline management services (HAProxy stats, Cribl Edge API)
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "pipeline_services" {
+  name    = "pipeline-services"
+  comment = "Pipeline management: HAProxy stats (8404) and Cribl Edge API (9000) from internal networks"
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "8404"
+      source  = rule.value
+      comment = "HAProxy stats from ${rule.value}"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "9000"
+      source  = rule.value
+      comment = "Cribl Edge API from ${rule.value}"
+    }
+  }
+}
+
 # Security group for NetFlow/IPFIX ingestion
 resource "proxmox_virtual_environment_cluster_firewall_security_group" "netflow" {
   name    = "netflow"
@@ -234,6 +264,17 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "outbound
       proto   = "tcp"
       dest    = rule.value
       comment = "Outbound TCP to ${rule.value}"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "out"
+      action  = "ACCEPT"
+      proto   = "udp"
+      dest    = rule.value
+      comment = "Outbound UDP to ${rule.value}"
     }
   }
 
@@ -409,6 +450,11 @@ resource "proxmox_virtual_environment_firewall_rules" "pipeline_container" {
   rule {
     security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
     comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.pipeline_services.name
+    comment        = "Pipeline management (HAProxy stats, Cribl Edge API)"
   }
 
   rule {
