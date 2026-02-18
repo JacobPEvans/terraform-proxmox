@@ -1,0 +1,15 @@
+name: Best Practices Recommender
+
+on:
+  schedule:
+    - cron: "0 3 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  recommend:
+    uses: JacobPEvans/ai-workflows/.github/workflows/best-practices.yml@v0.1.0
+    secrets: inherit

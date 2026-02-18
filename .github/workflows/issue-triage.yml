@@ -1,0 +1,14 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  triage:
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.1.0
+    secrets: inherit
