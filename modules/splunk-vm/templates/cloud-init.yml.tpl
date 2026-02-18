@@ -5,26 +5,35 @@
 
 hostname: ${hostname}
 
-# Ensure data disk is formatted and mounted
-disk_setup:
-  /dev/vdb:
-    table_type: gpt
-    layout: true
-    overwrite: true
-
-fs_setup:
-  - label: splunk-data
-    filesystem: ext4
-    device: /dev/vdb1
-    partition: auto
-
-mounts:
-  - ["/dev/vdb1", "/opt/splunk", "ext4", "defaults,nofail", "0", "2"]
-
-# Create necessary directories after mount
 runcmd:
-  # Ensure Splunk directories exist after mount
-  # Permissions set to allow container entrypoint to chown to splunk user
+  # --- Data disk setup (idempotent) ---
+  # disk_setup/fs_setup modules run before user-data is available in Proxmox NoCloud,
+  # causing them to be silently skipped. Disk initialization is handled here instead.
+  - |
+    if ! blkid /dev/vdb | grep -q ext4; then
+      parted /dev/vdb --script mklabel gpt mkpart primary ext4 0% 100%
+      sleep 1
+      mkfs.ext4 -L splunk-data /dev/vdb1
+    fi
+  - |
+    if ! grep -q '/dev/vdb1' /etc/fstab; then
+      echo '/dev/vdb1 /opt/splunk ext4 defaults,nofail 0 2' >> /etc/fstab
+    fi
+  - mkdir -p /opt/splunk
+  - mount -a
+
+  # --- Swap setup (8 GB) ---
+  - |
+    if [ ! -f /swapfile ]; then
+      fallocate -l 8G /swapfile
+      chmod 600 /swapfile
+      mkswap /swapfile
+      swapon /swapfile
+      echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    fi
+
+  # --- Splunk directories ---
+  # Permissions allow container entrypoint to chown to splunk user
   # (SPLUNK_HOME_OWNERSHIP_ENFORCEMENT=true handles this dynamically)
   - mkdir -p /opt/splunk/var
   - mkdir -p /opt/splunk/etc

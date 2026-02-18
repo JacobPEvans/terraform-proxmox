@@ -426,7 +426,7 @@ variable "splunk_data_disk_size" {
 variable "splunk_cpu_cores" {
   description = "Number of CPU cores for the Splunk VM"
   type        = number
-  default     = 6
+  default     = 8 # increased from 6: more indexing pipelines for high-volume ingest
 
   validation {
     condition     = var.splunk_cpu_cores >= 1 && var.splunk_cpu_cores <= 32
@@ -437,7 +437,7 @@ variable "splunk_cpu_cores" {
 variable "splunk_memory" {
   description = "Memory in MB for the Splunk VM"
   type        = number
-  default     = 6144
+  default     = 12288 # increased from 6144: Splunk Enterprise minimum is 12 GB; 6 GB caused OOM kills
 
   validation {
     condition     = var.splunk_memory >= 1024 && var.splunk_memory <= 65536
