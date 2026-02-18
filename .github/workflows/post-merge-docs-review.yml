@@ -1,0 +1,12 @@
+name: Post-Merge Docs Review
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  review:
+    uses: JacobPEvans/ai-workflows/.github/workflows/post-merge-docs-review.yml@v0.1.0
+    secrets: inherit

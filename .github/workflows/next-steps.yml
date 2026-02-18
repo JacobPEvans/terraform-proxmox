@@ -1,0 +1,13 @@
+name: Next Steps
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  analyze:
+    uses: JacobPEvans/ai-workflows/.github/workflows/next-steps.yml@v0.1.0
+    secrets: inherit

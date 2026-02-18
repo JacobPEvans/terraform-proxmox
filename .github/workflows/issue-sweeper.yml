@@ -1,0 +1,13 @@
+name: Issue Sweeper
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  sweep:
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-sweeper.yml@v0.1.0
+    secrets: inherit
