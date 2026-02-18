@@ -108,5 +108,8 @@ locals {
       linux     = 1517
       windows   = 1518
     }
+    netflow_ports = {
+      netflow = 2055
+    }
   }
 }

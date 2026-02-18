@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the syslog logging pipeline from network devices through to Splunk Enterprise for security monitoring and analysis.
+This document describes the syslog and NetFlow logging pipelines from network devices through to Splunk Enterprise for security monitoring and analysis.
 
 ## Data Flow
 
@@ -14,10 +14,16 @@ Syslog Sources              Load Balancer       Syslog Collectors      Processin
 | Cisco (1516)   |          | :1514-18 |        | cribl-edge-02 |      | Stream    |      | HEC    |
 | Linux (1517)   |          +----------+        +---------------+      +-----------+      +--------+
 | Windows (1518) |                                   |                       |
-+----------------+                                   |                       |
-                                                     v                       v
++----------------+                                   v                       v
                                               100GB queue disk         Persistent queue
                                               (survives outages)       for reliability
+
+NetFlow Sources             Load Balancer       Syslog Collectors      Processing         Destination
++----------------+          +----------+        +---------------+      +-----------+      +---------+
+| UniFi IPFIX    |          |          |        | cribl-edge-01 |      |           |      |         |
+| (2055 UDP)     |   --->   | HAProxy  |  --->  |               | ---> | Cribl     | ---> | Splunk  |
+|                |          | :2055 UDP|        | cribl-edge-02 |      | Stream    |      | network |
++----------------+          +----------+        +---------------+      +-----------+      +---------+
 ```
 
 ## Components
@@ -33,10 +39,10 @@ Network devices and hosts configured to send syslog to `<internal-domain>`.
 | Cisco ASA              | 1516 | UDP/TCP  | firewall |
 | Linux/macOS hosts      | 1517 | UDP/TCP  | os       |
 | Windows hosts          | 1518 | UDP/TCP  | os       |
+| UniFi IPFIX (NetFlow)  | 2055 | UDP      | network  |
 
-Note: The `network` index defined in `SPLUNK_INDEXES.md` is reserved for future use with
-network device logs (switches, routers). Currently, no sources are actively logging to this
-index, but it is configured and ready for integration.
+The `network` Splunk index receives NetFlow/IPFIX data from UniFi for traffic analysis.
+See `SPLUNK_INDEXES.md` for index retention settings.
 
 #### UniFi Network Device Configuration
 
@@ -61,7 +67,7 @@ index, but it is configured and ready for integration.
 - Data Retention: 365 days
 - Collect Historical Client Data: Enabled
 - Debug Logs: Disabled
-- NetFlow (IPFIX): Disabled
+- NetFlow (IPFIX): Enabled (UDP 2055 → HAProxy → Cribl Edge → `network` index)
 
 #### UniFi Log Format (CEF)
 
@@ -121,16 +127,17 @@ Two-node cluster for high availability and horizontal scaling.
 
 ## Network Ports
 
-| Port | Service       | Protocol | Purpose          |
-| ---- | ------------- | -------- | ---------------- |
-| 1514 | HAProxy/Cribl | UDP/TCP  | UniFi syslog     |
-| 1515 | HAProxy/Cribl | UDP/TCP  | Palo Alto syslog |
-| 1516 | HAProxy/Cribl | UDP/TCP  | Cisco ASA syslog |
-| 1517 | HAProxy/Cribl | UDP/TCP  | Linux syslog     |
-| 1518 | HAProxy/Cribl | UDP/TCP  | Windows syslog   |
-| 8000 | Splunk        | TCP      | Web interface    |
-| 8088 | Splunk        | TCP/TLS  | HEC endpoint     |
-| 8404 | HAProxy       | TCP      | Statistics page  |
+| Port | Service       | Protocol | Purpose              |
+| ---- | ------------- | -------- | -------------------- |
+| 1514 | HAProxy/Cribl | UDP/TCP  | UniFi syslog         |
+| 1515 | HAProxy/Cribl | UDP/TCP  | Palo Alto syslog     |
+| 1516 | HAProxy/Cribl | UDP/TCP  | Cisco ASA syslog     |
+| 1517 | HAProxy/Cribl | UDP/TCP  | Linux syslog         |
+| 1518 | HAProxy/Cribl | UDP/TCP  | Windows syslog       |
+| 2055 | HAProxy/Cribl | UDP      | NetFlow/IPFIX        |
+| 8000 | Splunk        | TCP      | Web interface        |
+| 8088 | Splunk        | TCP/TLS  | HEC endpoint         |
+| 8404 | HAProxy       | TCP      | Statistics page      |
 
 ## Reliability Features
 

@@ -61,8 +61,12 @@ flowchart LR
         WN[Windows :1518]
     end
 
+    subgraph NetFlow["NetFlow Sources"]
+        NF[UniFi IPFIX :2055 UDP]
+    end
+
     subgraph LB["Load Balancer"]
-        HAP[HAProxy LXC<br/>:1514-1518 UDP/TCP<br/>Stats :8404]
+        HAP[HAProxy LXC<br/>:1514-1518 UDP/TCP<br/>:2055 UDP<br/>Stats :8404]
     end
 
     subgraph Collectors["Docker Swarm Host"]
@@ -78,6 +82,7 @@ flowchart LR
     end
 
     Sources --> HAP
+    NetFlow --> HAP
     HAP -->|round-robin| CE1
     HAP -->|round-robin| CE2
     CE1 --> PQ
