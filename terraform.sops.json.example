@@ -1,23 +1,11 @@
 {
-  "_comment": "SOPS-encrypted secrets for terraform-proxmox. Copy to terraform.sops.json, fill in real values, then encrypt: sops --encrypt --in-place terraform.sops.json. See docs/SOPS_SETUP.md.",
-
-  "proxmox_ve_endpoint": "https://proxmox.example.local:8006",
-  "proxmox_ve_api_token": "user@realm!tokenid=your-token-here",
-  "proxmox_ve_insecure": "true",
+  "_comment": "SOPS-encrypted deployment config for terraform-proxmox. Replaces .env/terraform.tfvars with git-committed encrypted config. Copy to terraform.sops.json, fill in real values, then: sops --encrypt --in-place terraform.sops.json. See docs/SOPS_SETUP.md.",
 
   "proxmox_node": "pve",
-  "proxmox_username": "terraform@pve",
-  "proxmox_insecure": true,
-  "proxmox_ssh_username": "root",
-  "proxmox_ssh_private_key": "-----BEGIN OPENSSH PRIVATE KEY-----\n# Replace with actual key content or leave empty to use PROXMOX_SSH_PRIVATE_KEY env var\n-----END OPENSSH PRIVATE KEY-----",
-
   "environment": "homelab",
 
   "management_network": "192.168.0.0/24",
   "splunk_network": ["192.168.0.200"],
-
-  "splunk_password": "your-splunk-password-here",
-  "splunk_hec_token": "your-hec-token-here",
 
   "splunk_vm_id": 200,
   "splunk_vm_name": "splunk-vm",
@@ -32,8 +20,8 @@
     "infrastructure": { "comment": "Core infrastructure services" }
   },
 
-  "vms": {},
   "datastores": {},
+  "vms": {},
 
   "containers": {
     "ansible": {
@@ -51,11 +39,7 @@
       },
       "network_interfaces": [
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ],
-      "ip_config": {
-        "ipv4_address": "192.168.0.100/24",
-        "ipv4_gateway": "192.168.0.1"
-      }
+      ]
     }
   }
 }

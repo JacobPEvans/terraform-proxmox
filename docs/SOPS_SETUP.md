@@ -1,34 +1,53 @@
 # SOPS Secrets Management Setup
 
 This repository uses [SOPS](https://github.com/getsops/sops) with
-[age](https://github.com/FiloSottile/age) encryption to manage secrets
-natively through Terragrunt's `sops_decrypt_file()` function.
+[age](https://github.com/FiloSottile/age) encryption to commit deployment
+configuration alongside the code.
 
-## How It Works
+## What SOPS Is (and Isn't)
 
-`terragrunt.hcl` automatically reads `terraform.sops.json` if it exists:
+**SOPS replaces `.env/terraform.tfvars`** — it's the encrypted version of your
+deployment config committed to git. This includes:
 
-```hcl
-sops_secrets = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
+- Proxmox node name, environment name
+- Network ranges and IP addresses (management, Splunk, etc.)
+- Container and VM definitions
+- Pool and datastore configuration
+- Splunk VM sizing and IDs
+
+**SOPS does NOT replace Doppler.** Doppler continues to manage all credentials:
+
+| Secret | Provider | How Injected |
+|--------|----------|--------------|
+| `PROXMOX_VE_ENDPOINT` | Doppler | BPG provider reads from env var |
+| `PROXMOX_VE_API_TOKEN` | Doppler | BPG provider reads from env var |
+| `PROXMOX_VE_INSECURE` | Doppler | BPG provider reads from env var |
+| `PROXMOX_SSH_PRIVATE_KEY` | Doppler | Terragrunt injects into provider SSH block |
+| `SPLUNK_PASSWORD` | Doppler | Terragrunt passes as TF variable |
+| `SPLUNK_HEC_TOKEN` | Doppler | Terragrunt passes as TF variable |
+
+## The Run Command
+
+There is **one command**. Doppler and SOPS work together, not as alternatives:
+
+```bash
+aws-vault exec terraform -- doppler run -- terragrunt plan
 ```
 
-- **SOPS active**: Terragrunt decrypts the file and uses it for both provider auth
-  and all Terraform variable inputs.
-- **SOPS absent**: Falls back to Doppler environment variables (backward compatible).
+Terragrunt automatically decrypts `terraform.sops.json` if present. No extra flags needed.
 
 ## Prerequisites
 
 SOPS and age are provided by the Nix terraform shell. No manual installation needed:
 
 ```bash
-nix develop ~/git/nix-config/main/shells/terraform
-which sops  # should resolve
-which age   # should resolve
+which sops  # should resolve via direnv/nix
+which age   # should resolve via direnv/nix
 ```
 
 ## One-Time Key Setup
 
-Generate an age keypair (only done once per machine):
+Generate an age keypair (once per machine):
 
 ```bash
 mkdir -p ~/.config/sops/age
@@ -37,31 +56,24 @@ age-keygen -o ~/.config/sops/age/keys.txt
 
 Note the public key printed to stdout (starts with `age1...`).
 
-Update `.sops.yaml` with your age public key:
+Update `.sops.yaml` with your public key:
 
 ```yaml
 creation_rules:
   - path_regex: \.sops\.json$
     age: "age1your-actual-public-key"
-  - path_regex: secrets\.enc\.yaml$
-    age: "age1your-actual-public-key"
 ```
 
-## Creating Your Secrets File
-
-Copy the pre-filled template, fill in real values, and encrypt:
+## Creating Your Config File
 
 ```bash
-# Start from the pre-filled template (gitignored, has all containers pre-populated)
-cp .env/terraform.sops.json terraform.sops.json
-
-# Or start from the minimal example
+# Start from the example template
 cp terraform.sops.json.example terraform.sops.json
 
-# Edit real values
+# Fill in real values (node name, IPs, container definitions, etc.)
 $EDITOR terraform.sops.json
 
-# Encrypt in-place (safe to commit after this)
+# Encrypt in-place — safe to commit after this
 sops --encrypt --in-place terraform.sops.json
 
 # Add to git
@@ -70,21 +82,13 @@ git add terraform.sops.json
 
 ## Running Terraform
 
-With `terraform.sops.json` in the repo root:
-
 ```bash
-# Terragrunt decrypts automatically - no doppler run needed
-aws-vault exec terraform -- terragrunt plan
-aws-vault exec terraform -- terragrunt apply
-```
-
-Backward-compatible Doppler workflow (when no SOPS file exists):
-
-```bash
+# Doppler provides credentials, SOPS provides config — always together
 aws-vault exec terraform -- doppler run -- terragrunt plan
+aws-vault exec terraform -- doppler run -- terragrunt apply
 ```
 
-## Editing Encrypted Secrets
+## Editing Encrypted Config
 
 ```bash
 # Opens in $EDITOR, decrypts for editing, re-encrypts on save
@@ -93,21 +97,21 @@ sops terraform.sops.json
 
 ## JSON Structure
 
-`terraform.sops.json` contains two categories of keys:
+`terraform.sops.json` contains deployment config only — no credentials:
 
-**Provider auth** (used by Terragrunt, not passed to Terraform variables):
+```json
+{
+  "proxmox_node": "pve",
+  "environment": "homelab",
+  "management_network": "192.168.0.0/24",
+  "splunk_network": ["192.168.0.200"],
+  "pools": { ... },
+  "containers": { ... }
+}
+```
 
-| Key | Purpose |
-|-----|---------|
-| `proxmox_ve_endpoint` | API URL (e.g., `https://proxmox.example.local:8006`) |
-| `proxmox_ve_api_token` | API token (`user@realm!tokenid=secret`) |
-| `proxmox_ve_insecure` | Skip TLS verification (`"true"` or `"false"`) |
-
-**Terraform variables** (passed directly as Terragrunt inputs):
-
-All other keys map 1:1 to `variables.tf` — `proxmox_node`, `containers`,
-`pools`, `splunk_password`, etc. Complex types (objects, lists) use standard
-JSON notation and coerce to HCL types automatically.
+All keys map 1:1 to `variables.tf`. Complex types (objects, lists) use standard
+JSON notation and coerce to HCL types automatically via `jsondecode()`.
 
 ## Key Rotation
 
@@ -122,5 +126,4 @@ To re-encrypt with a new age key:
 - The age private key (`keys.txt`) must **never** be committed to git
 - The `.sops.yaml` file contains only the **public** key (safe to commit)
 - `terraform.sops.json` is safe to commit once encrypted (values are ciphertext)
-- The `.env/terraform.sops.json` pre-filled template is gitignored (contains plaintext)
-- Run `sops --decrypt terraform.sops.json` to verify decryption works before relying on it
+- Credentials (API tokens, passwords, SSH keys) live in Doppler — never in SOPS

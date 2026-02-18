@@ -69,23 +69,32 @@ API keys for Claude Code and AI agents stored in a dedicated keychain.
 
 ## Planned
 
-### ACTIVE: SOPS + Age (Git-Committed Encrypted Secrets)
+### ACTIVE: SOPS + Age (Git-Committed Encrypted Deployment Config)
 
-Encrypt secrets in git using SOPS with Age keys, read natively by Terragrunt.
+Replaces `.env/terraform.tfvars` with an age-encrypted JSON file committed to git.
+**SOPS is the encrypted equivalent of tfvars — deployment config, not credentials.**
+Doppler continues to manage all credentials. They work together, not as alternatives.
 
-**How it works:**
+**Division of responsibility:**
 
-- `terraform.sops.json` (encrypted) is committed to git alongside the code
-- Terragrunt's `sops_decrypt_file()` decrypts it automatically at plan/apply time
-- No `doppler run --` needed when SOPS file is present
-- Backward compatible: Doppler env vars still work when no SOPS file exists
+| What | Where | Examples |
+|------|-------|---------|
+| API tokens, passwords, SSH keys | Doppler | `PROXMOX_VE_API_TOKEN`, `SPLUNK_PASSWORD` |
+| Node name, IPs, topology, container/VM definitions | SOPS | `proxmox_node`, `management_network`, `containers` |
 
 **Integration pattern:**
 
 ```hcl
 # In terragrunt.hcl:
-sops_secrets = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
-inputs       = merge(local.env_var_defaults, local.sops_inputs)
+sops_config = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ?
+  jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
+inputs = merge(local.env_var_defaults, local.sops_inputs)
+```
+
+**Run command (always both together):**
+
+```bash
+aws-vault exec terraform -- doppler run -- terragrunt plan
 ```
 
 **Files:**
@@ -93,9 +102,8 @@ inputs       = merge(local.env_var_defaults, local.sops_inputs)
 | File | Status | Purpose |
 |------|--------|---------|
 | `.sops.yaml` | Committed | Age public key config |
-| `terraform.sops.json` | Committed (encrypted) | All secrets for Terragrunt |
+| `terraform.sops.json` | Committed (encrypted) | Deployment config for Terragrunt |
 | `terraform.sops.json.example` | Committed | Template with placeholder values |
-| `.env/terraform.sops.json` | Gitignored | Pre-filled plaintext template |
 
 **Repositories using SOPS:**
 
@@ -146,37 +154,39 @@ cloud-native workloads.
 ## Secrets Flow Summary
 
 ```text
-Doppler (SaaS)
-├── Runtime injection ──→ Terraform (fallback when no SOPS file)
-├── Runtime injection ──→ Ansible
+Doppler (SaaS) — credentials
+├── PROXMOX_VE_* ──────→ BPG provider (API auth)
+├── PROXMOX_SSH_* ─────→ Terragrunt → provider SSH block
+├── SPLUNK_* ──────────→ Terragrunt → Terraform variables
 ├── secrets-sync ──────→ GitHub Actions
-└── Age private key ───→ SOPS decryption
+└── Runtime injection ──→ Ansible
 
-aws-vault (local)
+aws-vault (local) — AWS auth
 └── STS sessions ──────→ Terraform S3 backend
 
-macOS Keychain (local)
+macOS Keychain (local) — AI keys
 └── ai-secrets ────────→ Claude Code / AI agents
 
-SOPS + Age (ACTIVE)
-└── terraform.sops.json (encrypted in git)
-    └── sops_decrypt_file() ──→ Terragrunt inputs + provider auth
+SOPS + Age (ACTIVE) — deployment config (not credentials)
+└── terraform.sops.json (encrypted, committed to git)
+    └── sops_decrypt_file() ──→ Terragrunt inputs
+        (proxmox_node, IPs, networks, container/VM definitions)
 
-Infisical (planned)
+Infisical (planned) — future replacement for Doppler
 └── Self-hosted ───────→ Replace/complement Doppler
 ```
 
 ## Migration Path
 
 ```text
-Current:  SOPS/Age (terraform-proxmox) → sops_decrypt_file() → Terragrunt
-          Doppler → env vars → Ansible, other Terraform repos
-                  → secrets-sync → GitHub Actions
+Current:  Doppler → credentials (API tokens, passwords, SSH keys)
+          SOPS    → deployment config (IPs, node, container defs) — replaces .env/terraform.tfvars
+          Both always used together: aws-vault exec terraform -- doppler run -- terragrunt plan
 
-Near-term: + Extend SOPS to ansible-proxmox-apps and ansible-splunk
+Near-term: + Extend SOPS pattern to ansible-proxmox-apps and ansible-splunk
            + Pre-commit guards against committing unencrypted secrets
 
-Future:    Infisical (self-hosted) as primary
+Future:    Infisical (self-hosted) as primary credential manager
            Doppler as fallback/migration source
-           SOPS/Age for offline/air-gapped scenarios
+           SOPS/Age continues for git-committed deployment config
 ```
