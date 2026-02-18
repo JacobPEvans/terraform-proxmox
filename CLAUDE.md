@@ -28,7 +28,18 @@ This repo uses:
 
 **CRITICAL**: All Terraform/Terragrunt commands require the complete toolchain wrapper.
 
-### The Complete Command Pattern
+### SOPS Mode (Recommended)
+
+When `terraform.sops.json` exists in the repo root, Terragrunt decrypts it
+automatically via `sops_decrypt_file()`. No `doppler run --` needed.
+
+```bash
+aws-vault exec terraform -- terragrunt <COMMAND>
+```
+
+### Doppler Mode (Backward Compatible)
+
+When no SOPS file is present, use Doppler to inject `PROXMOX_VE_*` env vars:
 
 ```bash
 aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
@@ -39,7 +50,7 @@ The Nix shell (providing Terraform/Terragrunt/Ansible) is activated automaticall
 ### Command Breakdown
 
 1. **`aws-vault exec terraform`** - Provides AWS credentials for S3 backend (profile: `terraform`)
-2. **`doppler run --`** - Injects Proxmox secrets as `PROXMOX_VE_*` environment variables
+2. **`doppler run --`** - (Doppler mode only) Injects Proxmox secrets as `PROXMOX_VE_*` environment variables
 3. **`terragrunt <COMMAND>`** - The actual Terraform command to run
 
 **Note**: The BPG Proxmox provider reads directly from `PROXMOX_VE_*` environment variables.
@@ -47,17 +58,21 @@ No `--name-transformer` is needed. See [BPG provider docs](https://registry.terr
 
 ### Common Commands
 
+**SOPS mode** (when `terraform.sops.json` exists):
+
 ```bash
-# Validate configuration
+aws-vault exec terraform -- terragrunt validate
+aws-vault exec terraform -- terragrunt plan
+aws-vault exec terraform -- terragrunt apply
+aws-vault exec terraform -- terragrunt show
+```
+
+**Doppler mode** (fallback):
+
+```bash
 aws-vault exec terraform -- doppler run -- terragrunt validate
-
-# Plan changes
 aws-vault exec terraform -- doppler run -- terragrunt plan
-
-# Apply changes
 aws-vault exec terraform -- doppler run -- terragrunt apply
-
-# Show state
 aws-vault exec terraform -- doppler run -- terragrunt show
 ```
 

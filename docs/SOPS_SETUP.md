@@ -2,7 +2,19 @@
 
 This repository uses [SOPS](https://github.com/getsops/sops) with
 [age](https://github.com/FiloSottile/age) encryption to manage secrets
-as an alternative to Doppler.
+natively through Terragrunt's `sops_decrypt_file()` function.
+
+## How It Works
+
+`terragrunt.hcl` automatically reads `terraform.sops.json` if it exists:
+
+```hcl
+sops_secrets = try(jsondecode(sops_decrypt_file("terraform.sops.json")), {})
+```
+
+- **SOPS active**: Terragrunt decrypts the file and uses it for both provider auth
+  and all Terraform variable inputs.
+- **SOPS absent**: Falls back to Doppler environment variables (backward compatible).
 
 ## Prerequisites
 
@@ -25,76 +37,91 @@ age-keygen -o ~/.config/sops/age/keys.txt
 
 Note the public key printed to stdout (starts with `age1...`).
 
-## Repository Configuration
+Update `.sops.yaml` with your age public key:
 
-1. Update `.sops.yaml` with your age public key:
-
-   ```yaml
-   creation_rules:
-     - path_regex: secrets\.enc\.yaml$
-       age: "age1your-actual-public-key"
-   ```
-
-2. Copy the template, fill in real values, and encrypt:
-
-   ```bash
-   cp secrets.enc.yaml.example secrets.enc.yaml
-   sops --encrypt --in-place secrets.enc.yaml
-   ```
-
-3. Set the age key file path in your `.envrc`:
-
-   ```bash
-   export SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
-   ```
-
-## Usage
-
-### Edit encrypted secrets
-
-```bash
-sops secrets.enc.yaml
+```yaml
+creation_rules:
+  - path_regex: \.sops\.json$
+    age: "age1your-actual-public-key"
+  - path_regex: secrets\.enc\.yaml$
+    age: "age1your-actual-public-key"
 ```
 
-This opens the file in your `$EDITOR`, decrypts for editing, and
-re-encrypts on save.
+## Creating Your Secrets File
 
-### Decrypt to stdout
+Copy the pre-filled template, fill in real values, and encrypt:
 
 ```bash
-sops --decrypt secrets.enc.yaml
+# Start from the pre-filled template (gitignored, has all containers pre-populated)
+cp .env/terraform.sops.json terraform.sops.json
+
+# Or start from the minimal example
+cp terraform.sops.json.example terraform.sops.json
+
+# Edit real values
+$EDITOR terraform.sops.json
+
+# Encrypt in-place (safe to commit after this)
+sops --encrypt --in-place terraform.sops.json
+
+# Add to git
+git add terraform.sops.json
 ```
 
-### Export as environment variables
+## Running Terraform
+
+With `terraform.sops.json` in the repo root:
 
 ```bash
-eval $(sops --decrypt --output-type dotenv secrets.enc.yaml | sed 's/^/export /')
-```
-
-## Integration with Terraform
-
-SOPS secrets can replace Doppler by exporting `PROXMOX_VE_*` environment
-variables before running Terragrunt:
-
-```bash
-# Instead of: doppler run -- terragrunt plan
-# Use:
-eval $(sops --decrypt --output-type dotenv secrets.enc.yaml | sed 's/^/export /')
+# Terragrunt decrypts automatically - no doppler run needed
 aws-vault exec terraform -- terragrunt plan
+aws-vault exec terraform -- terragrunt apply
 ```
+
+Backward-compatible Doppler workflow (when no SOPS file exists):
+
+```bash
+doppler run -- aws-vault exec terraform -- terragrunt plan
+```
+
+## Editing Encrypted Secrets
+
+```bash
+# Opens in $EDITOR, decrypts for editing, re-encrypts on save
+sops terraform.sops.json
+```
+
+## JSON Structure
+
+`terraform.sops.json` contains two categories of keys:
+
+**Provider auth** (used by Terragrunt, not passed to Terraform variables):
+
+| Key | Purpose |
+|-----|---------|
+| `proxmox_ve_endpoint` | API URL (e.g., `https://proxmox.example.local:8006`) |
+| `proxmox_ve_api_token` | API token (`user@realm!tokenid=secret`) |
+| `proxmox_ve_insecure` | Skip TLS verification (`"true"` or `"false"`) |
+
+**Terraform variables** (passed directly as Terragrunt inputs):
+
+All other keys map 1:1 to `variables.tf` — `proxmox_node`, `containers`,
+`pools`, `splunk_password`, etc. Complex types (objects, lists) use standard
+JSON notation and coerce to HCL types automatically.
 
 ## Key Rotation
 
 To re-encrypt with a new age key:
 
-1. Decrypt with old key: `sops --decrypt secrets.enc.yaml > secrets.plain.yaml`
-2. Update `.sops.yaml` with new public key
-3. Re-encrypt: `sops --encrypt secrets.plain.yaml > secrets.enc.yaml`
-4. Securely delete plaintext: `shred -u secrets.plain.yaml` (Linux) or `rm -P secrets.plain.yaml` (macOS)
+1. Edit the file with the old key: `sops terraform.sops.json`
+2. Update `.sops.yaml` with the new public key
+3. Re-encrypt: `sops updatekeys terraform.sops.json`
+4. Commit the re-encrypted file
 
 ## Security Notes
 
-- The age private key (`keys.txt`) must never be committed to git
-- The `.sops.yaml` file contains only the public key (safe to commit)
-- `secrets.enc.yaml` is safe to commit once encrypted (values are ciphertext)
-- The unencrypted template in this repo uses placeholder values only
+- The age private key (`keys.txt`) must **never** be committed to git
+- The `.sops.yaml` file contains only the **public** key (safe to commit)
+- `terraform.sops.json` is safe to commit once encrypted (values are ciphertext)
+- The `.env/terraform.sops.json` pre-filled template is gitignored (contains plaintext)
+- Run `sops --decrypt terraform.sops.json` to verify decryption works before relying on it

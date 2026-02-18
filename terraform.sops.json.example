@@ -1,0 +1,61 @@
+{
+  "_comment": "SOPS-encrypted secrets for terraform-proxmox. Copy to terraform.sops.json, fill in real values, then encrypt: sops --encrypt --in-place terraform.sops.json. See docs/SOPS_SETUP.md.",
+
+  "proxmox_ve_endpoint": "https://proxmox.example.local:8006",
+  "proxmox_ve_api_token": "user@realm!tokenid=your-token-here",
+  "proxmox_ve_insecure": "true",
+
+  "proxmox_node": "pve",
+  "proxmox_username": "terraform@pve",
+  "proxmox_insecure": true,
+  "proxmox_ssh_username": "root",
+  "proxmox_ssh_private_key": "-----BEGIN OPENSSH PRIVATE KEY-----\n# Replace with actual key content or leave empty to use PROXMOX_SSH_PRIVATE_KEY env var\n-----END OPENSSH PRIVATE KEY-----",
+
+  "environment": "homelab",
+
+  "management_network": "192.168.0.0/24",
+  "splunk_network": ["192.168.0.200"],
+
+  "splunk_password": "your-splunk-password-here",
+  "splunk_hec_token": "your-hec-token-here",
+
+  "splunk_vm_id": 200,
+  "splunk_vm_name": "splunk-vm",
+  "splunk_vm_pool_id": "logging",
+  "template_id": 9201,
+  "splunk_boot_disk_size": 25,
+  "splunk_data_disk_size": 200,
+
+  "pools": {
+    "logging": { "comment": "Logging and observability infrastructure" },
+    "ai": { "comment": "AI development environments" },
+    "infrastructure": { "comment": "Core infrastructure services" }
+  },
+
+  "vms": {},
+  "datastores": {},
+
+  "containers": {
+    "ansible": {
+      "vm_id": 100,
+      "hostname": "ansible",
+      "description": "Ansible control node - primary",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 512,
+      "tags": ["terraform", "ansible", "control-plane", "container"],
+      "pool_id": "infrastructure",
+      "root_disk": {
+        "datastore_id": "local-zfs",
+        "size": 64
+      },
+      "network_interfaces": [
+        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
+      ],
+      "ip_config": {
+        "ipv4_address": "192.168.0.100/24",
+        "ipv4_gateway": "192.168.0.1"
+      }
+    }
+  }
+}

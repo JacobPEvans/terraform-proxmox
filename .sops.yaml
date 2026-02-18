@@ -7,5 +7,7 @@
 # Replace the placeholder with your actual age public key.
 
 creation_rules:
+  - path_regex: \.sops\.json$
+    age: "age1y0jvtlp2ac8fwwvh2nzm88ehye74jlseywjrjcjqll7u8vycsedq788tp9"
   - path_regex: secrets\.enc\.yaml$
     age: "age1y0jvtlp2ac8fwwvh2nzm88ehye74jlseywjrjcjqll7u8vycsedq788tp9"

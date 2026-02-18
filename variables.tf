@@ -304,6 +304,13 @@ variable "containers" {
       size         = optional(number, 16)
     }), {})
 
+    # Mount points (additional volumes mounted into the container)
+    mount_points = optional(list(object({
+      volume = string
+      size   = string
+      path   = string
+    })), [])
+
     # Network
     network_interfaces = optional(list(object({
       name     = optional(string, "eth0")
