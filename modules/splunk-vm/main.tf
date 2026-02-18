@@ -11,13 +11,7 @@ terraform {
 # Firewall is managed by Proxmox firewall module, not guest-level iptables
 locals {
   cloud_init_config = templatefile("${path.module}/templates/cloud-init.yml.tpl", {
-    hostname     = var.name
-    indexes_conf = file("${path.module}/files/indexes.conf")
-    inputs_conf  = file("${path.module}/files/inputs.conf")
-    docker_compose = templatefile("${path.module}/files/docker-compose.yml.tpl", {
-      splunk_password  = var.splunk_password
-      splunk_hec_token = var.splunk_hec_token
-    })
+    hostname = var.name
   })
 }
 
