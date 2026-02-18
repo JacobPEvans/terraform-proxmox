@@ -9,7 +9,7 @@ natively through Terragrunt's `sops_decrypt_file()` function.
 `terragrunt.hcl` automatically reads `terraform.sops.json` if it exists:
 
 ```hcl
-sops_secrets = try(jsondecode(sops_decrypt_file("terraform.sops.json")), {})
+sops_secrets = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
 ```
 
 - **SOPS active**: Terragrunt decrypts the file and uses it for both provider auth
@@ -81,7 +81,7 @@ aws-vault exec terraform -- terragrunt apply
 Backward-compatible Doppler workflow (when no SOPS file exists):
 
 ```bash
-doppler run -- aws-vault exec terraform -- terragrunt plan
+aws-vault exec terraform -- doppler run -- terragrunt plan
 ```
 
 ## Editing Encrypted Secrets

@@ -84,8 +84,8 @@ Encrypt secrets in git using SOPS with Age keys, read natively by Terragrunt.
 
 ```hcl
 # In terragrunt.hcl:
-sops_secrets = try(jsondecode(sops_decrypt_file("terraform.sops.json")), {})
-inputs       = merge(env_var_defaults, local.sops_inputs)
+sops_secrets = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
+inputs       = merge(local.env_var_defaults, local.sops_inputs)
 ```
 
 **Files:**

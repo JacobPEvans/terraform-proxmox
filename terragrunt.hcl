@@ -4,8 +4,11 @@ locals {
   # SOPS integration: decrypt terraform.sops.json if it exists, fall back to empty map
   # This allows using either SOPS or Doppler (env vars) for secrets.
   # - SOPS active: place terraform.sops.json (encrypted) in repo root
-  # - Doppler active: run with `doppler run -- aws-vault exec terraform -- terragrunt plan`
-  sops_secrets = try(jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")), {})
+  # - Doppler active: run with `aws-vault exec terraform -- doppler run -- terragrunt plan`
+  #
+  # fileexists() gate ensures decrypt/parse errors fail loudly instead of silently
+  # falling back to Doppler when terraform.sops.json exists but can't be decrypted.
+  sops_secrets = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
 
   # Provider auth extracted from SOPS (empty string/null if SOPS not active)
   sops_endpoint  = lookup(local.sops_secrets, "proxmox_ve_endpoint", "")
@@ -19,7 +22,7 @@ locals {
   # Pre-compute provider auth block:
   # - SOPS active: explicit endpoint, api_token, insecure attributes
   # - SOPS absent: comment directing to PROXMOX_VE_* environment variables
-  provider_auth_block = local.sops_endpoint != "" ? join("\n", [
+  provider_auth_block = (local.sops_endpoint != "" && local.sops_api_token != "") ? join("\n", [
     "  endpoint  = \"${local.sops_endpoint}\"",
     "  api_token = \"${local.sops_api_token}\"",
     "  insecure  = ${local.sops_insecure != null ? local.sops_insecure : false}",
