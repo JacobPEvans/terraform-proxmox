@@ -224,6 +224,29 @@ All VMs are configured with:
 - 5 LXC Containers: IDs 200, 205, 210-211, 220
 - See [INFRASTRUCTURE_NUMBERING.md](./docs/INFRASTRUCTURE_NUMBERING.md) for complete details
 
+## Testing
+
+### Splunk Protection Tests
+
+Verify Splunk VM protection guarantees (plan safety, output structure, live health):
+
+```bash
+# Plan-level tests (safe, no infrastructure changes):
+aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh
+
+# With live VM health checks:
+aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh --live
+```
+
+### Terraform Test Suite
+
+Run the `.tftest.hcl` mock test suite directly:
+
+```bash
+terraform test
+# or: tofu test
+```
+
 ## 📖 Documentation
 
 ### Setup & Configuration
