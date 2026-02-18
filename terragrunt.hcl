@@ -1,10 +1,39 @@
 # Terragrunt configuration for Proxmox infrastructure
 
 locals {
-  # SSH configuration for BPG provider (used in generated provider block)
-  # Note: Use "root" for SSH, not "root@pam" (which is Proxmox auth format)
-  proxmox_ssh_user        = "root"
+  # SOPS: deployment-specific config (node name, IPs, network topology, container/VM definitions).
+  # This is the encrypted equivalent of .env/terraform.tfvars — repo config, not secrets.
+  # Doppler continues to provide all credentials (API tokens, passwords, SSH keys) via env vars.
+  #
+  # Usage: aws-vault exec terraform -- doppler run -- terragrunt plan
+  #   - Doppler injects PROXMOX_VE_* (provider auth) and secret vars (SPLUNK_PASSWORD, etc.)
+  #   - Terragrunt decrypts terraform.sops.json for deployment config if it exists
+  sops_config = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
+
+  # SSH credentials for BPG provider file operations (from Doppler via env vars)
+  proxmox_ssh_user        = get_env("PROXMOX_SSH_USERNAME", "root")
   proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
+
+  # Exclude SOPS metadata key from Terraform inputs
+  sops_inputs = {
+    for k, v in local.sops_config : k => v
+    if k != "_comment"
+  }
+
+  # Fallback defaults from Doppler env vars for values not provided by SOPS.
+  # When SOPS is present, its values override these via merge().
+  env_var_defaults = {
+    proxmox_node = get_env("PROXMOX_VE_NODE", "pve")
+
+    proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
+    proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
+
+    splunk_password  = get_env("SPLUNK_PASSWORD", "")
+    splunk_hec_token = get_env("SPLUNK_HEC_TOKEN", "")
+
+    management_network = get_env("MANAGEMENT_NETWORK", "192.168.0.0/24")
+    splunk_network     = jsondecode(get_env("SPLUNK_NETWORK", "[\"192.168.0.200\"]"))
+  }
 }
 
 terraform {
@@ -29,7 +58,6 @@ remote_state {
   config = {
     bucket         = "terraform-proxmox-state-useast2-${get_aws_account_id()}"
     key            = "terraform-proxmox/terraform.tfstate"
-    # key            = "terraform-proxmox/${path_relative_to_include()}/terraform.tfstate"
     region         = "us-east-2"
     encrypt        = true
     use_lockfile   = true
@@ -40,42 +68,11 @@ remote_state {
   }
 }
 
-# Define common variables that can be used across modules
-inputs = {
-  # BPG Provider Authentication
-  # The BPG provider reads directly from PROXMOX_VE_* environment variables:
-  #   - PROXMOX_VE_ENDPOINT   → API URL (without /api2/json)
-  #   - PROXMOX_VE_API_TOKEN  → API token (user@realm!tokenid=secret)
-  #   - PROXMOX_VE_USERNAME   → Username for token
-  #   - PROXMOX_VE_INSECURE   → Skip TLS verification
-  #
-  # These are set by Doppler and passed through WITHOUT --name-transformer
-  #
-  # Usage:
-  #   doppler run -- aws-vault exec terraform -- \
-  #     nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
-  #
-  # Note: No --name-transformer needed! BPG reads PROXMOX_VE_* directly.
+# SOPS config overrides env var defaults (SOPS takes precedence when present)
+inputs = merge(local.env_var_defaults, local.sops_inputs)
 
-  # Non-provider variables still passed as inputs
-  proxmox_node     = get_env("PROXMOX_VE_NODE", "pve")
-  proxmox_username = get_env("PROXMOX_VE_USERNAME", "terraform@pve")
-  proxmox_insecure = get_env("PROXMOX_VE_INSECURE", "true")
-
-  # SSH credentials for provisioners (not BPG provider vars)
-  proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
-  proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "~/.ssh/id_rsa")
-
-  # Splunk secrets (from Doppler)
-  splunk_password  = get_env("SPLUNK_PASSWORD", "")
-  splunk_hec_token = get_env("SPLUNK_HEC_TOKEN", "")
-
-  # Network configuration (from Doppler or SOPS)
-  management_network = get_env("MANAGEMENT_NETWORK", "192.168.0.0/24")
-  splunk_network     = jsondecode(get_env("SPLUNK_NETWORK", "[\"192.168.0.200\"]"))
-}
-
-# Terragrunt will generate provider.tf with these settings
+# Generate provider.tf — required_providers block + SSH credentials from Doppler env vars.
+# BPG provider reads API auth (endpoint, token) from PROXMOX_VE_* env vars set by Doppler.
 generate "provider" {
   path      = "provider_override.tf"
   if_exists = "overwrite"
@@ -102,14 +99,9 @@ terraform {
   }
 }
 
-# BPG provider reads authentication from PROXMOX_VE_* environment variables:
-#   - PROXMOX_VE_ENDPOINT   (required)
-#   - PROXMOX_VE_API_TOKEN  (required, or use USERNAME+PASSWORD)
-#   - PROXMOX_VE_INSECURE   (optional, default false)
+# BPG provider reads API auth from PROXMOX_VE_* env vars (set by Doppler).
 # See: https://registry.terraform.io/providers/bpg/proxmox/latest/docs
 provider "proxmox" {
-  # Authentication is read from environment variables
-  # SSH config needed for file uploads (snippets)
   ssh {
     agent       = false
     username    = "${local.proxmox_ssh_user}"

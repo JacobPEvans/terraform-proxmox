@@ -21,14 +21,14 @@ This repo uses:
 - **GitHub Actions** - CI/CD
 - **Nix Shell** - Provides Terraform/Terragrunt/Ansible tooling
 - **aws-vault** - Securely manages AWS credentials for S3 backend
-- **Doppler** - Manages Proxmox API secrets as environment variables
-- **SOPS/age** - Git-committed encrypted secrets (alternative to Doppler)
+- **Doppler** - Manages credentials (API tokens, passwords, SSH keys) at runtime
+- **SOPS/age** - Git-committed encrypted deployment config (replaces `.env/terraform.tfvars`)
 
 ## Running Terraform Commands
 
 **CRITICAL**: All Terraform/Terragrunt commands require the complete toolchain wrapper.
 
-### The Complete Command Pattern
+### The Command (always this, always both)
 
 ```bash
 aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
@@ -36,11 +36,17 @@ aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
 
 The Nix shell (providing Terraform/Terragrunt/Ansible) is activated automatically via direnv when you enter the repository directory.
 
+**Doppler and SOPS serve different purposes — they are always used together:**
+
+- **Doppler** injects credentials: `PROXMOX_VE_*` (provider auth), `PROXMOX_SSH_*`, `SPLUNK_*`
+- **SOPS** (`terraform.sops.json`) provides deployment config: node name, IPs, container/VM definitions
+- Terragrunt decrypts SOPS automatically. No extra flags needed.
+
 ### Command Breakdown
 
-1. **`aws-vault exec terraform`** - Provides AWS credentials for S3 backend (profile: `terraform`)
-2. **`doppler run --`** - Injects Proxmox secrets as `PROXMOX_VE_*` environment variables
-3. **`terragrunt <COMMAND>`** - The actual Terraform command to run
+1. **`aws-vault exec terraform`** - AWS credentials for S3 backend (profile: `terraform`)
+2. **`doppler run --`** - Injects credentials as env vars (`PROXMOX_VE_*`, `SPLUNK_*`, etc.)
+3. **`terragrunt <COMMAND>`** - Runs Terraform; also auto-decrypts `terraform.sops.json` if present
 
 **Note**: The BPG Proxmox provider reads directly from `PROXMOX_VE_*` environment variables.
 No `--name-transformer` is needed. See [BPG provider docs](https://registry.terraform.io/providers/bpg/proxmox/latest/docs).
@@ -48,16 +54,9 @@ No `--name-transformer` is needed. See [BPG provider docs](https://registry.terr
 ### Common Commands
 
 ```bash
-# Validate configuration
 aws-vault exec terraform -- doppler run -- terragrunt validate
-
-# Plan changes
 aws-vault exec terraform -- doppler run -- terragrunt plan
-
-# Apply changes
 aws-vault exec terraform -- doppler run -- terragrunt apply
-
-# Show state
 aws-vault exec terraform -- doppler run -- terragrunt show
 ```
 
@@ -78,19 +77,21 @@ Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
 | `PROXMOX_VE_INSECURE` | Skip TLS verification |
 | `PROXMOX_VE_NODE` | Proxmox node name |
 
-### Why All Three Tools?
+### Why All Four Tools?
 
 - **Nix + direnv**: Provides consistent tool versions (Terraform, Terragrunt, Ansible) via `.envrc` auto-activation
 - **aws-vault**: Secures AWS credentials for S3 backend (never stored in files)
-- **Doppler**: Manages Proxmox API credentials using `PROXMOX_VE_*` naming (never stored in tfvars or git)
+- **Doppler**: Credentials at runtime — API tokens, passwords, SSH keys (`PROXMOX_VE_*`, `SPLUNK_*`, etc.)
+- **SOPS/age**: Encrypted deployment config in git — replaces `.env/terraform.tfvars` (`proxmox_node`, IPs, container/VM definitions)
 
-### SOPS Secrets (Alternative to Doppler)
+### SOPS Deployment Config
 
-SOPS with age encryption provides git-committed encrypted secrets.
+SOPS (`terraform.sops.json`) is the encrypted replacement for `.env/terraform.tfvars`.
+It contains deployment config, not credentials. Credentials stay in Doppler.
 See [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md) for setup and usage.
 
 - `.sops.yaml` - Age public key configuration (safe to commit)
-- `secrets.enc.yaml.example` - Secrets template (copy, fill in, encrypt)
+- `terraform.sops.json.example` - Config template (copy, fill in, encrypt)
 
 ## Repository Context
 
