@@ -122,7 +122,18 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   timeout_stop_vm     = 900   # 15 min - standard
 
   lifecycle {
+    prevent_destroy       = true
     create_before_destroy = false
+    ignore_changes = [
+      # Ignore changes to the source template after initial clone.
+      # The VM is managed by Ansible post-creation; Packer rebuilds of the base
+      # template should not trigger VM replacement.
+      clone,
+      # Cloud-init runs only at first boot; Ansible handles all post-boot config.
+      # Ignore changes to user_data_file_id so cloud-init template updates
+      # don't force VM replacement on an already-running VM.
+      initialization[0].user_data_file_id,
+    ]
   }
 }
 

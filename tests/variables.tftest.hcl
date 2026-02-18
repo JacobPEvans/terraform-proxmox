@@ -71,8 +71,6 @@ variables {
   splunk_vm_id       = 200
   management_network = "192.168.0.0/24"
   splunk_network     = ["192.168.0.200"]
-  splunk_password    = "test-password-12345"
-  splunk_hec_token   = "12345678-abcd-ef01-2345-678901234567"
 }
 
 # --- Positive test: valid inputs pass ---
@@ -104,18 +102,6 @@ run "splunk_vm_id_out_of_range_rejected" {
 
   expect_failures = [
     var.splunk_vm_id,
-  ]
-}
-
-run "splunk_password_too_short_rejected" {
-  command = plan
-
-  variables {
-    splunk_password = "short"
-  }
-
-  expect_failures = [
-    var.splunk_password,
   ]
 }
 

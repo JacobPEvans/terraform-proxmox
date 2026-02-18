@@ -141,10 +141,6 @@ module "splunk_vm" {
   cpu_cores      = var.splunk_cpu_cores
   memory         = var.splunk_memory
 
-  # Splunk secrets from Doppler
-  splunk_password  = var.splunk_password
-  splunk_hec_token = var.splunk_hec_token
-
   depends_on = [module.pools]
 }
 
