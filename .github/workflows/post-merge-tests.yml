@@ -4,8 +4,6 @@ on:
   push:
     branches: [main]
 
-permissions: {}
-
 jobs:
   review:
     uses: JacobPEvans/ai-workflows/.github/workflows/post-merge-tests.yml@v0.1.0

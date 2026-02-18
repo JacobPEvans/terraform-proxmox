@@ -5,8 +5,6 @@ on:
     - cron: "0 3 * * 3"
   workflow_dispatch:
 
-permissions: {}
-
 jobs:
   recommend:
     uses: JacobPEvans/ai-workflows/.github/workflows/best-practices.yml@v0.1.0
