@@ -28,9 +28,6 @@ locals {
     proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
     proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
 
-    splunk_password  = get_env("SPLUNK_PASSWORD", "")
-    splunk_hec_token = get_env("SPLUNK_HEC_TOKEN", "")
-
     management_network = get_env("MANAGEMENT_NETWORK", "192.168.0.0/24")
     splunk_network     = jsondecode(get_env("SPLUNK_NETWORK", "[\"192.168.0.200\"]"))
   }

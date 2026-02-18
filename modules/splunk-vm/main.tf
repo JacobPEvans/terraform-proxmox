@@ -122,7 +122,9 @@ resource "proxmox_virtual_environment_vm" "splunk_vm" {
   timeout_stop_vm     = 900   # 15 min - standard
 
   lifecycle {
+    prevent_destroy       = true
     create_before_destroy = false
+    ignore_changes        = [clone]
   }
 }
 

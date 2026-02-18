@@ -153,25 +153,3 @@ variable "memory" {
     error_message = "Memory must be between 1024 MB and 65536 MB."
   }
 }
-
-variable "splunk_password" {
-  description = "Splunk password (from Doppler: SPLUNK_PASSWORD)"
-  type        = string
-  sensitive   = true
-
-  validation {
-    condition     = length(var.splunk_password) >= 8
-    error_message = "Splunk password must be at least 8 characters long. Note that your Splunk instance may also enforce additional complexity requirements (such as numbers or special characters)."
-  }
-}
-
-variable "splunk_hec_token" {
-  description = "Splunk HEC token for data ingestion (from Doppler: SPLUNK_HEC_TOKEN)"
-  type        = string
-  sensitive   = true
-
-  validation {
-    condition     = length(var.splunk_hec_token) >= 20 && can(regex("^[a-fA-F0-9-]+$", var.splunk_hec_token))
-    error_message = "Splunk HEC token must be at least 20 characters and contain only hex characters and dashes (UUID format expected)."
-  }
-}
