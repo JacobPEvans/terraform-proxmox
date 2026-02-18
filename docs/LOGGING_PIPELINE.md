@@ -18,7 +18,7 @@ Syslog Sources              Load Balancer       Syslog Collectors      Processin
                                               100GB queue disk         Persistent queue
                                               (survives outages)       for reliability
 
-NetFlow Sources             Load Balancer       Syslog Collectors      Processing         Destination
+NetFlow Sources             Load Balancer       Collectors            Processing         Destination
 +----------------+          +----------+        +---------------+      +-----------+      +---------+
 | UniFi IPFIX    |          |          |        | cribl-edge-01 |      |           |      |         |
 | (2055 UDP)     |   --->   | HAProxy  |  --->  |               | ---> | Cribl     | ---> | Splunk  |
@@ -28,18 +28,25 @@ NetFlow Sources             Load Balancer       Syslog Collectors      Processin
 
 ## Components
 
-### 1. Syslog Sources
+### 1. Log Sources
+
+#### Syslog Sources
 
 Network devices and hosts configured to send syslog to `<internal-domain>`.
 
-| Source                 | Port | Protocol | Index    |
-| ---------------------- | ---- | -------- | -------- |
-| UniFi Network Device   | 1514 | UDP/TCP  | unifi    |
-| Palo Alto              | 1515 | UDP/TCP  | firewall |
-| Cisco ASA              | 1516 | UDP/TCP  | firewall |
-| Linux/macOS hosts      | 1517 | UDP/TCP  | os       |
-| Windows hosts          | 1518 | UDP/TCP  | os       |
-| UniFi IPFIX (NetFlow)  | 2055 | UDP      | network  |
+| Source                | Port | Protocol | Index    |
+| --------------------- | ---- | -------- | -------- |
+| UniFi Network Device  | 1514 | UDP/TCP  | unifi    |
+| Palo Alto             | 1515 | UDP/TCP  | firewall |
+| Cisco ASA             | 1516 | UDP/TCP  | firewall |
+| Linux/macOS hosts     | 1517 | UDP/TCP  | os       |
+| Windows hosts         | 1518 | UDP/TCP  | os       |
+
+#### NetFlow/IPFIX Sources
+
+| Source         | Port | Protocol | Index   |
+| -------------- | ---- | -------- | ------- |
+| UniFi (IPFIX)  | 2055 | UDP      | network |
 
 The `network` Splunk index receives NetFlow/IPFIX data from UniFi for traffic analysis.
 See `SPLUNK_INDEXES.md` for index retention settings.

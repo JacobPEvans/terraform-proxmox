@@ -89,7 +89,7 @@ locals {
   valid_vga_types = ["std", "cirrus", "vmware", "qxl"]
 }
 
-# Pipeline constants - single source of truth for service and syslog ports
+# Pipeline constants - single source of truth for service, syslog, and NetFlow ports
 # Referenced by ansible_inventory output for downstream consumption
 locals {
   pipeline_constants = {
@@ -109,7 +109,7 @@ locals {
       windows   = 1518
     }
     netflow_ports = {
-      netflow = 2055
+      unifi = 2055
     }
   }
 }
