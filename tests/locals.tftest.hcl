@@ -70,8 +70,6 @@ variables {
   splunk_vm_id       = 200
   management_network = "192.168.0.0/24"
   splunk_network     = ["192.168.0.200"]
-  splunk_password    = "test-password-12345"
-  splunk_hec_token   = "12345678-abcd-ef01-2345-678901234567"
 }
 
 # --- derive_ip tests ---
