@@ -113,10 +113,9 @@ JSON notation and coerce to HCL types automatically.
 
 To re-encrypt with a new age key:
 
-1. Edit the file with the old key: `sops terraform.sops.json`
-2. Update `.sops.yaml` with the new public key
-3. Re-encrypt: `sops updatekeys terraform.sops.json`
-4. Commit the re-encrypted file
+1. Update `.sops.yaml` with the new public key.
+2. Run `sops updatekeys terraform.sops.json` to re-encrypt with the new master key.
+3. Commit both the re-encrypted `terraform.sops.json` and updated `.sops.yaml`.
 
 ## Security Notes
 

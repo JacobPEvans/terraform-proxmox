@@ -7,13 +7,13 @@ locals {
   # - Doppler active: run with `doppler run -- aws-vault exec terraform -- terragrunt plan`
   sops_secrets = try(jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")), {})
 
-  # Provider auth extracted from SOPS (empty strings if SOPS not active)
+  # Provider auth extracted from SOPS (empty string/null if SOPS not active)
   sops_endpoint  = lookup(local.sops_secrets, "proxmox_ve_endpoint", "")
   sops_api_token = lookup(local.sops_secrets, "proxmox_ve_api_token", "")
-  sops_insecure  = lookup(local.sops_secrets, "proxmox_ve_insecure", "")
+  sops_insecure  = lookup(local.sops_secrets, "proxmox_ve_insecure", null)
 
-  # SSH configuration for BPG provider
-  proxmox_ssh_user        = "root"
+  # SSH configuration for BPG provider (reads from SOPS or environment variable)
+  proxmox_ssh_user        = lookup(local.sops_secrets, "proxmox_ssh_username", get_env("PROXMOX_SSH_USERNAME", "root"))
   proxmox_ssh_private_key = lookup(local.sops_secrets, "proxmox_ssh_private_key", get_env("PROXMOX_SSH_PRIVATE_KEY", ""))
 
   # Pre-compute provider auth block:
@@ -22,23 +22,28 @@ locals {
   provider_auth_block = local.sops_endpoint != "" ? join("\n", [
     "  endpoint  = \"${local.sops_endpoint}\"",
     "  api_token = \"${local.sops_api_token}\"",
-    "  insecure  = ${local.sops_insecure != "" ? local.sops_insecure : "false"}",
+    "  insecure  = ${local.sops_insecure != null ? local.sops_insecure : false}",
   ]) : "  # Authentication from PROXMOX_VE_* environment variables (Doppler or manual export)"
 
-  # Keys that are provider-level and must be excluded from Terraform variable inputs
-  provider_keys = toset(["proxmox_ve_endpoint", "proxmox_ve_api_token", "proxmox_ve_insecure", "_comment"])
+  # Keys that are provider-level or unused and must be excluded from Terraform variable inputs.
+  # proxmox_username and proxmox_insecure are declared in variables.tf but not referenced by
+  # any resource module - exclude them to avoid passing noise through inputs.
+  provider_keys = toset([
+    "proxmox_ve_endpoint", "proxmox_ve_api_token", "proxmox_ve_insecure",
+    "proxmox_username", "proxmox_insecure",
+    "_comment",
+  ])
 
-  # SOPS inputs: all keys except provider-level ones pass through as Terraform inputs
+  # SOPS inputs: all keys except provider-level/unused ones pass through as Terraform inputs
   sops_inputs = {
     for k, v in local.sops_secrets : k => v
     if !contains(local.provider_keys, k)
   }
 
-  # Default inputs from environment variables (Doppler compatibility)
+  # Default inputs from environment variables (Doppler compatibility).
+  # Only includes variables actually referenced by resource modules.
   env_var_defaults = {
-    proxmox_node     = get_env("PROXMOX_VE_NODE", "pve")
-    proxmox_username = get_env("PROXMOX_VE_USERNAME", "terraform@pve")
-    proxmox_insecure = get_env("PROXMOX_VE_INSECURE", "true") == "true" ? true : false
+    proxmox_node = get_env("PROXMOX_VE_NODE", "pve")
 
     proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
     proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "~/.ssh/id_rsa")
