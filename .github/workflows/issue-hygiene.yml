@@ -8,8 +8,9 @@ on:
 permissions:
   contents: read
   issues: write
+  pull-requests: read
 
 jobs:
   hygiene:
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-hygiene.yml@v0.1.0
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-hygiene.yml@v0.2.3
     secrets: inherit

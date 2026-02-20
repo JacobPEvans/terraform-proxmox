@@ -7,9 +7,11 @@ on:
     types: [created]
 
 permissions:
-  contents: read
-  pull-requests: write
   actions: read
+  contents: read
+  id-token: write
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: claude-review-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
@@ -17,7 +19,7 @@ concurrency:
 
 jobs:
   review:
-    uses: JacobPEvans/ai-workflows/.github/workflows/claude-review.yml@v0.1.0
+    uses: JacobPEvans/ai-workflows/.github/workflows/claude-review.yml@v0.2.3
     with:
       review_prompt: "Focus on Terraform best practices, security, SOPS/age patterns"
     secrets: inherit
