@@ -10,5 +10,5 @@ permissions:
 
 jobs:
   review:
-    uses: JacobPEvans/ai-workflows/.github/workflows/post-merge-tests.yml@v0.2.6
+    uses: JacobPEvans/ai-workflows/.github/workflows/post-merge-tests.yml@v0.2.9
     secrets: inherit
