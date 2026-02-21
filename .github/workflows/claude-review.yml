@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   review:
-    uses: JacobPEvans/ai-workflows/.github/workflows/claude-review.yml@v0.2.6
+    uses: JacobPEvans/ai-workflows/.github/workflows/claude-review.yml@v0.2.9
     with:
       review_prompt: "Focus on Terraform best practices, security, SOPS/age patterns"
     secrets: inherit
