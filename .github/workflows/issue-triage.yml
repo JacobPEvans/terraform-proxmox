@@ -10,5 +10,5 @@ permissions:
 
 jobs:
   triage:
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.2.3
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.2.6
     secrets: inherit
