@@ -7,10 +7,11 @@ on:
 
 permissions:
   contents: read
+  id-token: write
   issues: write
   pull-requests: read
 
 jobs:
   recommend:
-    uses: JacobPEvans/ai-workflows/.github/workflows/best-practices.yml@v0.2.9
+    uses: JacobPEvans/ai-workflows/.github/workflows/best-practices.yml@v0.3.0
     secrets: inherit

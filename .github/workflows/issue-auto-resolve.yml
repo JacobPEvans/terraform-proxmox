@@ -1,0 +1,25 @@
+name: Issue Auto-Resolve
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  run-triage:
+    if: github.event.sender.type != 'Bot'
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.3.0
+    secrets: inherit
+
+  resolve-issue:
+    needs: run-triage
+    if: github.event.sender.type != 'Bot'
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.3.0
+    secrets: inherit
+    with:
+      repo_context: "Terraform/OpenTofu managing Proxmox VE infrastructure"

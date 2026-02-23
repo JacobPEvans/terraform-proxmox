@@ -7,10 +7,11 @@ on:
 
 permissions:
   contents: read
+  id-token: write
   issues: write
   pull-requests: read
 
 jobs:
   sweep:
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-sweeper.yml@v0.2.9
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-sweeper.yml@v0.3.0
     secrets: inherit

@@ -8,8 +8,9 @@ permissions:
   contents: read
   id-token: write
   issues: write
+  pull-requests: write
 
 jobs:
   triage:
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.2.9
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.3.0
     secrets: inherit

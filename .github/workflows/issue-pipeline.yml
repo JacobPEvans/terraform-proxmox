@@ -1,0 +1,23 @@
+name: Issue Resolver (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Issue number to resolve (must already be labeled)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  resolve-issue:
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.3.0
+    secrets: inherit
+    with:
+      repo_context: "Terraform/OpenTofu managing Proxmox VE infrastructure"
+      issue_number: ${{ github.event.inputs.issue_number || 0 }}
