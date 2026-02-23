@@ -7,9 +7,10 @@ on:
 
 permissions:
   contents: write
+  id-token: write
   pull-requests: write
 
 jobs:
   simplify:
-    uses: JacobPEvans/ai-workflows/.github/workflows/code-simplifier.yml@v0.2.9
+    uses: JacobPEvans/ai-workflows/.github/workflows/code-simplifier.yml@v0.3.0
     secrets: inherit
