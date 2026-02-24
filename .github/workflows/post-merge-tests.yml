@@ -10,6 +10,8 @@ on:
         required: false
         type: string
 
+# Workflow-level: union of all job permissions (required for job-level to be effective).
+# Each job below restricts further to only what it needs.
 permissions:
   actions: write
   contents: write
@@ -20,15 +22,18 @@ jobs:
   dispatch:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - name: Re-trigger as workflow_dispatch
+        env:
+          WORKFLOW_NAME: ${{ github.workflow }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run "${{ github.workflow }}" \
+          gh workflow run "$WORKFLOW_NAME" \
             --repo "${{ github.repository }}" \
             --ref main \
             -f commit_sha="${{ github.sha }}"
-        env:
-          GH_TOKEN: ${{ github.token }}
 
   review:
     if: github.event_name == 'workflow_dispatch'
