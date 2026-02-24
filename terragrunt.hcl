@@ -1,48 +1,41 @@
 # Terragrunt configuration for Proxmox infrastructure
 
 locals {
-  # SOPS: deployment-specific config (node name, IPs, network topology, container/VM definitions).
-  # This is the encrypted equivalent of .env/terraform.tfvars — repo config, not secrets.
-  # Doppler continues to provide all credentials (API tokens, passwords, SSH keys) via env vars.
-  #
-  # Usage: aws-vault exec terraform -- doppler run -- terragrunt plan
-  #   - Doppler injects PROXMOX_VE_* (provider auth) and secret vars (SPLUNK_PASSWORD, etc.)
-  #   - Terragrunt decrypts terraform.sops.json for deployment config if it exists
+  # Layer 1: Non-secret deployment config (committed plaintext — edit directly, no SOPS).
+  # Contains container/VM definitions, pool names, Splunk VM sizing, template IDs, etc.
+  deployment_config = try(jsondecode(file("${get_terragrunt_dir()}/deployment.json")), {})
+
+  deployment_inputs = {
+    for k, v in local.deployment_config : k => v
+    if k != "_comment"
+  }
+
+  # Layer 2: Network topology + SSH paths (committed, SOPS-encrypted — edit with `sops terraform.sops.json`).
+  # Only 3 values: network_prefix, vm_ssh_public_key_path, vm_ssh_private_key_path.
+  # management_network and splunk_network are DERIVED in locals.tf — never stored here.
   sops_config = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
 
-  # SSH credentials for BPG provider file operations (from Doppler via env vars)
-  proxmox_ssh_user        = get_env("PROXMOX_SSH_USERNAME", "root")
-  proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
-
-  # Exclude SOPS metadata key from Terraform inputs
   sops_inputs = {
     for k, v in local.sops_config : k => v
     if k != "_comment"
   }
 
-  # Fallback defaults from Doppler env vars for values not provided by SOPS.
-  # When SOPS is present, its values override these via merge().
-  env_var_defaults = {
-    proxmox_node = get_env("PROXMOX_VE_NODE", "pve")
+  # Layer 3: Doppler env vars — credentials only (API tokens, SSH keys, passwords).
+  # SSH credentials for BPG provider file operations.
+  proxmox_ssh_user        = get_env("PROXMOX_SSH_USERNAME", "root")
+  proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
 
+  # Fallback defaults from Doppler for values that may vary per environment.
+  # These override deployment.json and SOPS via merge() order.
+  env_var_defaults = {
+    proxmox_node            = get_env("PROXMOX_VE_NODE", "pve")
     proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
     proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
-
-    management_network = get_env("MANAGEMENT_NETWORK", "192.168.0.0/24")
-    splunk_network     = jsondecode(get_env("SPLUNK_NETWORK", "[\"192.168.0.200\"]"))
   }
 }
 
 terraform {
   source = "."
-
-  # Load environment-specific tfvars (gitignored, contains real values)
-  extra_arguments "env_vars" {
-    commands = get_terraform_commands_that_need_vars()
-    optional_var_files = [
-      "${get_terragrunt_dir()}/.env/terraform.tfvars"
-    ]
-  }
 }
 
 # Remote state backend configuration using S3 + DynamoDB
@@ -65,8 +58,9 @@ remote_state {
   }
 }
 
-# SOPS config overrides env var defaults (SOPS takes precedence when present)
-inputs = merge(local.env_var_defaults, local.sops_inputs)
+# Merge order: deployment.json < SOPS < Doppler env vars
+# Later entries win for the same key.
+inputs = merge(local.deployment_inputs, local.sops_inputs, local.env_var_defaults)
 
 # Generate provider.tf — required_providers block + SSH credentials from Doppler env vars.
 # BPG provider reads API auth (endpoint, token) from PROXMOX_VE_* env vars set by Doppler.

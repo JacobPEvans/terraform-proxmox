@@ -334,6 +334,14 @@ variable "containers" {
     protection    = optional(bool, false)
     os_type       = optional(string, "debian")
     start_on_boot = optional(bool, true)
+
+    # LXC features (nesting required for Docker-in-LXC)
+    features = optional(object({
+      nesting = optional(bool, true)
+      keyctl  = optional(bool, false)
+      fuse    = optional(bool, false)
+      mount   = optional(list(string), [])
+    }), { nesting = true })
   }))
   default = {}
 }
@@ -356,18 +364,6 @@ variable "network_cidr_mask" {
 }
 
 # Firewall configuration
-variable "management_network" {
-  description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
-  type        = string
-  # No default - must be specified in .tfvars for environment-specific configuration
-}
-
-variable "splunk_network" {
-  description = "List of Splunk VM IP addresses for firewall rules. Configure in terraform.tfvars for your environment."
-  type        = list(string)
-  # No default - must be specified in .tfvars for environment-specific configuration
-}
-
 variable "internal_networks" {
   description = "RFC1918 networks allowed to access Splunk (SSH, Web UI, forwarding port 9997). Configure in terraform.tfvars for your actual networks."
   type        = list(string)

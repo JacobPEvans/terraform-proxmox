@@ -87,6 +87,16 @@ locals {
 
   # VGA type validation helper
   valid_vga_types = ["std", "cirrus", "vmware", "qxl"]
+
+  # DRY: Derive management_network from network_prefix (eliminates redundant variable)
+  management_network = "${var.network_prefix}.0${var.network_cidr_mask}"
+
+  # DRY: Derive splunk_network_ips from VM IDs (eliminates redundant variable)
+  # Combines splunk VM IP + any containers tagged "splunk"
+  splunk_network_ips = concat(
+    ["${var.network_prefix}.${var.splunk_vm_id}"],
+    [for k, v in var.containers : "${var.network_prefix}.${v.vm_id}" if contains(coalesce(v.tags, []), "splunk")]
+  )
 }
 
 # Pipeline constants - single source of truth for service, syslog, and NetFlow ports

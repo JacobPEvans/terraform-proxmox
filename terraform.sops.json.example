@@ -1,45 +1,7 @@
 {
-  "_comment": "SOPS-encrypted deployment config for terraform-proxmox. Replaces .env/terraform.tfvars with git-committed encrypted config. Copy to terraform.sops.json, fill in real values, then: sops --encrypt --in-place terraform.sops.json. See docs/SOPS_SETUP.md.",
+  "_comment": "SOPS-encrypted network topology. Copy to terraform.sops.json, fill in real values, then: sops --encrypt --in-place terraform.sops.json. See docs/SOPS_SETUP.md. All other config lives in deployment.json (plaintext, committed).",
 
-  "proxmox_node": "pve",
-  "environment": "homelab",
-
-  "management_network": "192.168.0.0/24",
-  "splunk_network": ["192.168.0.200"],
-
-  "splunk_vm_id": 200,
-  "splunk_vm_name": "splunk-vm",
-  "splunk_vm_pool_id": "logging",
-  "template_id": 9201,
-  "splunk_boot_disk_size": 25,
-  "splunk_data_disk_size": 200,
-
-  "pools": {
-    "logging": { "comment": "Logging and observability infrastructure" },
-    "ai": { "comment": "AI development environments" },
-    "infrastructure": { "comment": "Core infrastructure services" }
-  },
-
-  "datastores": {},
-  "vms": {},
-
-  "containers": {
-    "ansible": {
-      "vm_id": 100,
-      "hostname": "ansible",
-      "description": "Ansible control node - primary",
-      "cpu_cores": 2,
-      "memory_dedicated": 2048,
-      "memory_swap": 512,
-      "tags": ["terraform", "ansible", "control-plane", "container"],
-      "pool_id": "infrastructure",
-      "root_disk": {
-        "datastore_id": "local-zfs",
-        "size": 64
-      },
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ]
-    }
-  }
+  "network_prefix": "192.168.0",
+  "vm_ssh_public_key_path": "~/.ssh/id_rsa_vm.pub",
+  "vm_ssh_private_key_path": "~/.ssh/id_rsa_vm"
 }

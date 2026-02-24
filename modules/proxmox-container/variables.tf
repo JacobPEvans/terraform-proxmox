@@ -52,6 +52,14 @@ variable "containers" {
     # Features
     protection    = optional(bool, false)
     start_on_boot = optional(bool, true)
+
+    # LXC features (nesting required for Docker-in-LXC)
+    features = optional(object({
+      nesting = optional(bool, true)
+      keyctl  = optional(bool, false)
+      fuse    = optional(bool, false)
+      mount   = optional(list(string), [])
+    }), { nesting = true })
   }))
   default = {}
 }

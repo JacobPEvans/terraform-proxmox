@@ -175,8 +175,8 @@ module "firewall" {
     )
   }
 
-  management_network = var.management_network
-  splunk_network     = join(",", var.splunk_network)
+  management_network = local.management_network
+  splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks
 
   depends_on = [module.vms, module.containers, module.splunk_vm]

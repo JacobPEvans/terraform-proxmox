@@ -1,51 +1,78 @@
-# SOPS Secrets Management Setup
+# Configuration Management Setup
 
-This repository uses [SOPS](https://github.com/getsops/sops) with
-[age](https://github.com/FiloSottile/age) encryption to commit deployment
-configuration alongside the code.
+This repository uses a 3-layer architecture for deployment configuration.
 
-## What SOPS Is (and Isn't)
+## The 3 Layers
 
-**SOPS replaces `.env/terraform.tfvars`** — it's the encrypted version of your
-deployment config committed to git. This includes:
+```
+LAYER 1: deployment.json (committed, plaintext, git-diffable)
+  containers, VMs, pools, template IDs, disk sizes, CPU/memory/tags, proxmox_node
 
-- Proxmox node name, environment name
-- Network ranges and IP addresses (management, Splunk, etc.)
-- Container and VM definitions
-- Pool and datastore configuration
-- Splunk VM sizing and IDs
+LAYER 2: terraform.sops.json (committed, SOPS-encrypted, 3 values)
+  network_prefix, vm_ssh_public_key_path, vm_ssh_private_key_path
 
-**SOPS does NOT replace Doppler.** Doppler continues to manage all credentials:
+LAYER 3: Doppler (runtime env vars, never committed)
+  PROXMOX_VE_*, PROXMOX_SSH_*, passwords, API tokens
 
-| Secret | Provider | How Injected |
-|--------|----------|--------------|
-| `PROXMOX_VE_ENDPOINT` | Doppler | BPG provider reads from env var |
-| `PROXMOX_VE_API_TOKEN` | Doppler | BPG provider reads from env var |
-| `PROXMOX_VE_INSECURE` | Doppler | BPG provider reads from env var |
-| `PROXMOX_SSH_PRIVATE_KEY` | Doppler | Terragrunt injects into provider SSH block |
-| `SPLUNK_PASSWORD` | Doppler | Terragrunt passes as TF variable |
-| `SPLUNK_HEC_TOKEN` | Doppler | Terragrunt passes as TF variable |
+DERIVED (locals.tf — no input needed):
+  management_network = "${network_prefix}.0/24"
+  splunk_network     = IPs from splunk_vm_id + containers tagged "splunk"
+```
+
+## What Goes Where
+
+| Value | File | Why |
+|-------|------|-----|
+| Container/VM definitions | `deployment.json` | Not secret |
+| Pool definitions | `deployment.json` | Not secret |
+| Template/ISO names | `deployment.json` | Not secret |
+| Disk sizes, CPU, memory | `deployment.json` | Not secret |
+| `proxmox_node`, `environment` | `deployment.json` | Not secret |
+| `network_prefix` | `terraform.sops.json` | Reveals internal network range |
+| `vm_ssh_public_key_path` | `terraform.sops.json` | SSH key filesystem path |
+| `vm_ssh_private_key_path` | `terraform.sops.json` | SSH key filesystem path |
+| `management_network` | **Derived** in `locals.tf` | `= "${network_prefix}.0/24"` |
+| `splunk_network` | **Derived** in `locals.tf` | From `splunk_vm_id` + splunk-tagged containers |
+| API tokens, SSH key content | Doppler | Actual credentials |
+| Passwords | Doppler | Actual credentials |
 
 ## The Run Command
 
-There is **one command**. Doppler and SOPS work together, not as alternatives:
+One command — always this, always both:
 
 ```bash
 aws-vault exec terraform -- doppler run -- terragrunt plan
 ```
 
-Terragrunt automatically decrypts `terraform.sops.json` if present. No extra flags needed.
+Terragrunt reads `deployment.json` automatically. Terragrunt decrypts `terraform.sops.json`
+automatically. Doppler injects credentials. No extra flags needed.
 
-## Prerequisites
+## Setting Up Layer 1: deployment.json
 
-SOPS and age are provided by the Nix terraform shell. No manual installation needed:
+`deployment.json` is committed plaintext. Edit it directly and commit like any other file.
 
 ```bash
-which sops  # should resolve via direnv/nix
-which age   # should resolve via direnv/nix
+# Start from the example
+cp deployment.json.example deployment.json
+
+# Fill in your actual values
+$EDITOR deployment.json
+
+# Commit — no encryption needed
+git add deployment.json
+git commit -m "chore: add deployment config"
 ```
 
-## One-Time Key Setup
+Changes to `deployment.json` produce clean, readable `git diff` output.
+
+## Setting Up Layer 2: terraform.sops.json
+
+`terraform.sops.json` is committed but SOPS-encrypted. It holds only 3 values:
+`network_prefix`, `vm_ssh_public_key_path`, `vm_ssh_private_key_path`.
+
+### One-Time Key Setup
+
+SOPS and age are provided by the Nix terraform shell. No manual installation needed.
 
 Generate an age keypair (once per machine):
 
@@ -64,13 +91,13 @@ creation_rules:
     age: "age1your-actual-public-key"
 ```
 
-## Creating Your Config File
+### Creating Your SOPS File
 
 ```bash
-# Start from the example template
+# Start from the example
 cp terraform.sops.json.example terraform.sops.json
 
-# Fill in real values (node name, IPs, container definitions, etc.)
+# Fill in your network prefix and SSH key paths
 $EDITOR terraform.sops.json
 
 # Encrypt in-place — safe to commit after this
@@ -80,45 +107,33 @@ sops --encrypt --in-place terraform.sops.json
 git add terraform.sops.json
 ```
 
-## Running Terraform
-
-```bash
-# Doppler provides credentials, SOPS provides config — always together
-aws-vault exec terraform -- doppler run -- terragrunt plan
-aws-vault exec terraform -- doppler run -- terragrunt apply
-```
-
-## Editing Encrypted Config
+### Editing Encrypted Values
 
 ```bash
 # Opens in $EDITOR, decrypts for editing, re-encrypts on save
 sops terraform.sops.json
 ```
 
-## JSON Structure
+## Layer 3: Doppler (no setup needed here)
 
-`terraform.sops.json` contains deployment config only — no credentials:
+Doppler provides all credentials via environment variables. See your local environment
+documentation for Doppler project/config details.
 
-```json
-{
-  "proxmox_node": "pve",
-  "environment": "homelab",
-  "management_network": "192.168.0.0/24",
-  "splunk_network": ["192.168.0.200"],
-  "pools": { ... },
-  "containers": { ... }
-}
-```
-
-All keys map 1:1 to `variables.tf`. Complex types (objects, lists) use standard
-JSON notation and coerce to HCL types automatically via `jsondecode()`.
+| Secret | Purpose |
+|--------|---------|
+| `PROXMOX_VE_ENDPOINT` | API URL |
+| `PROXMOX_VE_API_TOKEN` | API token |
+| `PROXMOX_VE_INSECURE` | Skip TLS verification |
+| `PROXMOX_SSH_PRIVATE_KEY` | SSH private key content for BPG provider |
+| `SPLUNK_PASSWORD` | Splunk admin password |
+| `SPLUNK_HEC_TOKEN` | Splunk HEC token |
 
 ## Key Rotation
 
-To re-encrypt with a new age key:
+To re-encrypt the SOPS file with a new age key:
 
 1. Update `.sops.yaml` with the new public key.
-2. Run `sops updatekeys terraform.sops.json` to re-encrypt with the new master key.
+2. Run `sops updatekeys terraform.sops.json` to re-encrypt with the new key.
 3. Commit both the re-encrypted `terraform.sops.json` and updated `.sops.yaml`.
 
 ## Security Notes
@@ -126,4 +141,5 @@ To re-encrypt with a new age key:
 - The age private key (`keys.txt`) must **never** be committed to git
 - The `.sops.yaml` file contains only the **public** key (safe to commit)
 - `terraform.sops.json` is safe to commit once encrypted (values are ciphertext)
-- Credentials (API tokens, passwords, SSH keys) live in Doppler — never in SOPS
+- `deployment.json` contains no secrets — commit freely, edit directly
+- `management_network` and `splunk_network` are derived from other values — never set manually
