@@ -12,5 +12,6 @@ permissions:
 
 jobs:
   triage:
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.3.2
+    if: github.event.sender.type != 'Bot'
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.3.3
     secrets: inherit
