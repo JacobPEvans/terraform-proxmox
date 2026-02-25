@@ -1,16 +1,17 @@
 {
-	"network_prefix": "ENC[AES256_GCM,data:8+V1Q2jo,iv:Epps0LgSg5z76VMo/vcWuZIrZ4Io7rCCgkeJ9kxU3kE=,tag:T4uTzBxMFScRjn+8zXQLDQ==,type:str]",
-	"vm_ssh_public_key_path": "ENC[AES256_GCM,data:uPnwzjVQYiJDu1TjR0G9DCHgBmc=,iv:modfdmTavCkBkLdp/4TDkAH5F2yMavTepFZM+ELJH/0=,tag:08MBEiPOf2Bpt0GUTohzHg==,type:str]",
-	"vm_ssh_private_key_path": "ENC[AES256_GCM,data:nxPRQixSZGQ7J0Njr8ddvg==,iv:a1lYH9Qc/75M0jPwhTrLBHo+doDADF2Wlwml9hP2JHo=,tag:vi5tWd9ncOxtQeusS0z/MA==,type:str]",
+	"network_prefix": "ENC[AES256_GCM,data:/7ffzsqb,iv:EeRIw6wMbI9x5KD5dJA225eENwIht3/9r7I8RfTK864=,tag:m5OG4gRN2Ue9UN6YV4ipkg==,type:str]",
+	"vm_ssh_public_key_path": "ENC[AES256_GCM,data:8/zDv2w+5QA7dhBHnm7BR8mn+lk=,iv:HsPYx+n05mftqghhvvlrSqhIMM453SoILzO0Z76w9rQ=,tag:AMqPcJ52O3QgKyRnYZslvg==,type:str]",
+	"vm_ssh_private_key_path": "ENC[AES256_GCM,data:PK2R1FI5j/NxBFzPoj13lA==,iv:+kxuxz9UnO07ckO8wC37JuShKRAwv43gfViGcpO+mn4=,tag:54P9c6qarnVXiUtXbdEsiQ==,type:str]",
+	"proxmox_ssh_username": "ENC[AES256_GCM,data:eZN2hQ==,iv:o/BGRyUs/ILeYG87acAJc7ZBmMAykyRTiu4MYAB85B4=,tag:2MmDjJKwrW/RgO8MlAg/mQ==,type:str]",
 	"sops": {
 		"age": [
 			{
 				"recipient": "age1y0jvtlp2ac8fwwvh2nzm88ehye74jlseywjrjcjqll7u8vycsedq788tp9",
-				"enc": "-----BEGIN AGE ENCRYPTED FILE-----\nYWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBoUEdES0pxdmlWbUpuYWFZ\neWp0T21wdlA3VUFoQVoyRjVqUVIwKyt1RGk4CkhCSlBWTFk5bWM4UnJDUVdYa3hl\naDZBT3dyWGpXWE9pTGIxY29CSlo1NUUKLS0tIENQOGZPT3dhbjJ0RG5pVEx3akNz\nZVgrbnFYaGtYMFFYL0U1S3VhaGtsdVkKrWPM+qmaeAdA7zh4PjXz+HDdqgPbZdg1\nhfCyk+vUXg327f6mmcnUQl98X8SyVaMRvJuH4gTJPgppETzy4IewHw==\n-----END AGE ENCRYPTED FILE-----\n"
+				"enc": "-----BEGIN AGE ENCRYPTED FILE-----\nYWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBUQi90UHpJbWVGaWwxLy91\na2I2OE80UCtweHFjbWFwSnUwb1JXcGQwWGlnCmdmTzlwSUdscDRoVGtDdEFDOEFF\nWDZENzlzMVg3ZGRSQXhYQmhJWVlBTzQKLS0tIGl3dEgwYUthVkIzS3gzMWNTTzhZ\nK2tPSGJIUUluWEUwVWt6UzRBUlViNnMKui5IQscD0rTsOfulOUyhi8pPQUFn2+6L\nKmN4s09sJxeZeXzBUpnD5V+9xgnZHAh/8bBaEdAAmSB4qdaXYvdtEA==\n-----END AGE ENCRYPTED FILE-----\n"
 			}
 		],
-		"lastmodified": "2026-02-24T22:04:09Z",
-		"mac": "ENC[AES256_GCM,data:FSh5MKbO09T/sMPmbE7jDiMjT0jQ82i0bnKv7up78DJJqVCnkIvjjpXebrqTJErwZYKcu7+6Iz1UcHOYy45lOcn8GQaGEQwgal31/ODIwpxC8irMcAkxQ/g0fDja+qNSqG9Man0SgMKIv6eDWSUDo8MNLVFQGv7nmEqEV5+Y4a4=,iv:wzNwT+USzh4f7IeHcOyI6WaoX40mMkFkD2CnKYOY0lo=,tag:x57glF71Nwt0Jkk3UAJ++A==,type:str]",
+		"lastmodified": "2026-02-25T19:34:54Z",
+		"mac": "ENC[AES256_GCM,data:y2LmPPI2nCmN0793EACHbT2r6Vh9XCCfW4xkHBt4mu6ejm5g+24MmCxEPCbThv7nqwgSphfOjt0L9kVmt2bq6aAYKZUZ66nEpCtWq3VKumzdPTcVs1TCzSi9hvKhuXrqT8naEuy9cQqouJ/cScd33BKs0Ao51RVGNZofVpOtwLo=,iv:ELJhDVxBcHwFRPxswft1DH9MmCOl+IEPgQ0DDG0TqG0=,tag:qTGXuFpJLLULEsJmrKzi6g==,type:str]",
 		"unencrypted_suffix": "_unencrypted",
 		"version": "3.12.1"
 	}
