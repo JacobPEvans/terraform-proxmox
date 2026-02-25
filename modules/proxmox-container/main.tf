@@ -106,11 +106,16 @@ resource "proxmox_virtual_environment_container" "containers" {
   }
 
   # Container features (nesting for Docker, keyctl for overlay fs)
-  features {
-    nesting = each.value.features.nesting
-    keyctl  = each.value.features.keyctl
-    fuse    = each.value.features.fuse
-    mount   = each.value.features.mount
+  # Only emit features block when any non-default value is set.
+  # Creating privileged containers with a features block requires root@pam.
+  dynamic "features" {
+    for_each = (each.value.features.nesting || each.value.features.keyctl || each.value.features.fuse || length(each.value.features.mount) > 0) ? [1] : []
+    content {
+      nesting = each.value.features.nesting
+      keyctl  = each.value.features.keyctl
+      fuse    = each.value.features.fuse
+      mount   = each.value.features.mount
+    }
   }
 
   lifecycle {
@@ -126,6 +131,10 @@ resource "proxmox_virtual_environment_container" "containers" {
       # whether the container is currently running. We manage boot behavior via
       # start_on_boot, not runtime state.
       started,
+      # Ignore features drift on existing containers — Proxmox returns HTTP 500
+      # "no options specified" when an update sends no meaningful feature changes.
+      # Features are only set at creation time (privileged containers require root@pam).
+      features,
     ]
   }
 }

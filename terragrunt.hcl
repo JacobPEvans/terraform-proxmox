@@ -11,7 +11,7 @@ locals {
   }
 
   # Layer 2: Network topology + SSH paths (committed, SOPS-encrypted — edit with `sops terraform.sops.json`).
-  # Only 3 values: network_prefix, vm_ssh_public_key_path, vm_ssh_private_key_path.
+  # Values: network_prefix, vm_ssh_public_key_path, vm_ssh_private_key_path, proxmox_ssh_username.
   # management_network and splunk_network are DERIVED in locals.tf — never stored here.
   sops_config = fileexists("${get_terragrunt_dir()}/terraform.sops.json") ? jsondecode(sops_decrypt_file("${get_terragrunt_dir()}/terraform.sops.json")) : {}
 
@@ -22,15 +22,17 @@ locals {
 
   # Layer 3: Doppler env vars — credentials only (API tokens, SSH keys, passwords).
   # SSH credentials for BPG provider file operations.
-  proxmox_ssh_user        = get_env("PROXMOX_SSH_USERNAME", "root")
+  # proxmox_ssh_username comes from SOPS (env-specific, not a secret — value is "root").
+  proxmox_ssh_user        = try(local.sops_config["proxmox_ssh_username"], get_env("PROXMOX_SSH_USERNAME", "root"))
   proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
 
   # Fallback defaults from Doppler for values that may vary per environment.
   # These override deployment.json and SOPS via merge() order.
   env_var_defaults = {
     proxmox_node            = get_env("PROXMOX_VE_NODE", "pve")
-    proxmox_ssh_username    = get_env("PROXMOX_SSH_USERNAME", "root")
     proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
+    # Keep in sync with local.proxmox_ssh_user (SOPS-first, env fallback)
+    proxmox_ssh_username    = local.proxmox_ssh_user
   }
 }
 

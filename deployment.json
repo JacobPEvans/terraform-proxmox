@@ -59,7 +59,7 @@
       "network_interfaces": [
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
-      "features": { "nesting": true, "keyctl": true }
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
     "mailpit": {
       "vm_id": 110,
@@ -74,7 +74,7 @@
       "network_interfaces": [
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
-      "features": { "nesting": true, "keyctl": true }
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
     "ntfy": {
       "vm_id": 111,
@@ -89,7 +89,7 @@
       "network_interfaces": [
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
-      "features": { "nesting": true, "keyctl": true }
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
     }
   }
 }

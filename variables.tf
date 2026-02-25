@@ -335,13 +335,14 @@ variable "containers" {
     os_type       = optional(string, "debian")
     start_on_boot = optional(bool, true)
 
-    # LXC features (nesting required for Docker-in-LXC)
+    # LXC features (set nesting=true for Docker-in-LXC on unprivileged containers;
+    # privileged containers run Docker without features — requires root@pam to set any flag)
     features = optional(object({
-      nesting = optional(bool, true)
+      nesting = optional(bool, false)
       keyctl  = optional(bool, false)
       fuse    = optional(bool, false)
       mount   = optional(list(string), [])
-    }), { nesting = true, keyctl = false, fuse = false, mount = [] })
+    }), { nesting = false, keyctl = false, fuse = false, mount = [] })
   }))
   default = {}
 }

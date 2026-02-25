@@ -320,7 +320,7 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "outbound
 
 # Security group for notification services (Mailpit SMTP/Web, ntfy HTTP)
 resource "proxmox_virtual_environment_cluster_firewall_security_group" "notification_services" {
-  name    = "notification-services"
+  name    = "notification-svc"
   comment = "Notification service ports: Mailpit SMTP (1025), Mailpit Web (8025), ntfy HTTP (8080) from internal networks"
 
   dynamic "rule" {
@@ -529,7 +529,7 @@ resource "proxmox_virtual_environment_firewall_options" "notification_container"
   container_id  = each.value
   enabled       = true
   input_policy  = "DROP"
-  output_policy = "DROP"
+  output_policy = "ACCEPT"
   log_level_in  = "warning"
   log_level_out = "warning"
 
@@ -550,11 +550,6 @@ resource "proxmox_virtual_environment_firewall_rules" "notification_container" {
   rule {
     security_group = proxmox_virtual_environment_cluster_firewall_security_group.notification_services.name
     comment        = "Notification services (Mailpit SMTP/Web, ntfy HTTP)"
-  }
-
-  rule {
-    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
-    comment        = "Outbound to internal only"
   }
 
   depends_on = [proxmox_virtual_environment_firewall_options.notification_container]
