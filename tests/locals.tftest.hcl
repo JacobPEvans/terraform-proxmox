@@ -249,16 +249,16 @@ run "derive_ip_custom_prefix" {
   command = plan
 
   variables {
-    network_prefix = "10.0.1"
+    network_prefix = "192.168.1"
   }
 
   assert {
-    condition     = local.derive_ip[100] == "10.0.1.100/24"
+    condition     = local.derive_ip[100] == "192.168.1.100/24"
     error_message = "derive_ip with custom prefix should work, got ${local.derive_ip[100]}"
   }
 
   assert {
-    condition     = local.network_gateway == "10.0.1.1"
+    condition     = local.network_gateway == "192.168.1.1"
     error_message = "network_gateway should use custom prefix, got ${local.network_gateway}"
   }
 }
