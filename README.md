@@ -25,7 +25,10 @@ terraform-proxmox/
 ├── outputs.tf                 # Root-level outputs
 ├── locals.tf                  # Local value definitions
 ├── container.tf               # Container resource definitions
-├── terraform.tfvars.example   # Variable values template
+├── deployment.json            # Non-secret deployment config (committed plaintext)
+├── deployment.json.example   # Config template
+├── terraform.sops.json       # Encrypted network topology (3 values)
+├── terraform.sops.json.example # SOPS template
 ├── terragrunt.hcl            # Terragrunt configuration (generates provider.tf)
 ├── packer/                    # Packer templates for VM images
 │   ├── splunk.pkr.hcl        # Splunk Enterprise template build
@@ -143,30 +146,35 @@ terragrunt show
 
 ### Configuration
 
-**⚠️ Security Notice**: This repository uses placeholder values (192.168.1.x) in all committed files. Never commit your real infrastructure values.
+Configuration is split into three layers:
 
-1. **Copy the example file** and replace with your real values:
+```
+deployment.json          (committed, plaintext) — containers, VMs, pools, proxmox_node
+terraform.sops.json      (committed, encrypted) — network_prefix, SSH key paths
+Doppler env vars         (runtime only)         — PROXMOX_VE_*, SPLUNK_*, credentials
+```
 
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars
-   # Edit terraform.tfvars with your REAL IPs, hostnames, etc.
-   # This file is gitignored - your real values never touch git
-   ```
-
-2. **Verify protection** before making changes:
+1. **Edit non-secret config** directly in `deployment.json`:
 
    ```bash
-   # Ensure terraform.tfvars is gitignored
-   git status | grep terraform.tfvars  # Should show nothing
+   # deployment.json is committed plaintext — edit and commit normally
+   $EDITOR deployment.json
+   git add deployment.json && git commit -m "chore: update containers"
    ```
 
-3. **See the complete guide**: [Managing Real Infrastructure Values](./docs/MANAGING_REAL_VALUES.md)
+2. **Set up SOPS** for the 3 encrypted values (network prefix + SSH key paths):
 
-   This document explains:
-   - How to safely maintain real vs. example values
-   - Pre-commit safety checks
-   - Multi-environment configurations
-   - Doppler integration for secrets
+   ```bash
+   cp terraform.sops.json.example terraform.sops.json
+   $EDITOR terraform.sops.json        # fill in real values
+   sops --encrypt --in-place terraform.sops.json
+   git add terraform.sops.json
+   ```
+
+3. **See the complete guide**: [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md)
+
+   This document explains the full 3-layer architecture, SOPS key setup,
+   Doppler credential management, and derived network values.
 
 ## 📁 Repository Structure
 
@@ -178,7 +186,11 @@ terragrunt show
 | `container.tf` | Container resources and configurations |
 | `outputs.tf` | Output value definitions |
 | `terragrunt.hcl` | Remote state management (generates provider.tf) |
-| `terraform.tfvars.example` | Variable values template |
+| `deployment.json` | Non-secret deployment config (containers, VMs, pools) |
+| `deployment.json.example` | Config template |
+| `terraform.sops.json` | Encrypted network topology (3 values) |
+| `terraform.sops.json.example` | SOPS template |
+| `terraform.tfvars.example` | **Deprecated** — replaced by deployment.json + SOPS |
 
 ## 🔧 Configuration
 

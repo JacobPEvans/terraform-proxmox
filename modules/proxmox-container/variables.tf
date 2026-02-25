@@ -59,7 +59,7 @@ variable "containers" {
       keyctl  = optional(bool, false)
       fuse    = optional(bool, false)
       mount   = optional(list(string), [])
-    }), { nesting = true })
+    }), { nesting = true, keyctl = false, fuse = false, mount = [] })
   }))
   default = {}
 }

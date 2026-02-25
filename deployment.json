@@ -3,7 +3,6 @@
 
   "proxmox_node": "pve",
   "environment": "homelab",
-  "proxmox_insecure": true,
 
   "proxmox_iso_debian": "debian-13.2.0-amd64-netinst.iso",
   "proxmox_ct_template_debian": "debian-13-standard_13.1-2_amd64.tar.zst",
