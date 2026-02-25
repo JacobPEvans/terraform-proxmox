@@ -26,7 +26,6 @@ terraform-proxmox/
 ├── locals.tf                  # Local value definitions
 ├── container.tf               # Container resource definitions
 ├── deployment.json            # Non-secret deployment config (committed plaintext)
-├── deployment.json.example   # Config template
 ├── terraform.sops.json       # Encrypted network topology (3 values)
 ├── terraform.sops.json.example # SOPS template
 ├── terragrunt.hcl            # Terragrunt configuration (generates provider.tf)
@@ -187,7 +186,6 @@ Doppler env vars         (runtime only)         — PROXMOX_VE_*, SPLUNK_*, cred
 | `outputs.tf` | Output value definitions |
 | `terragrunt.hcl` | Remote state management (generates provider.tf) |
 | `deployment.json` | Non-secret deployment config (containers, VMs, pools) |
-| `deployment.json.example` | Config template |
 | `terraform.sops.json` | Encrypted network topology (3 values) |
 | `terraform.sops.json.example` | SOPS template |
 | `terraform.tfvars.example` | **Deprecated** — replaced by deployment.json + SOPS |

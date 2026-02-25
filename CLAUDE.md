@@ -99,7 +99,7 @@ locals.tf derivations    (computed)             — management_network, splunk_n
 See [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md) for full setup and usage.
 
 - `.sops.yaml` - Age public key configuration (safe to commit)
-- `deployment.json.example` - Non-secret config template (edit and commit directly)
+- `deployment.json` - Non-secret config (edit and commit directly)
 - `terraform.sops.json.example` - SOPS template with 3 values (copy, fill in, encrypt)
 
 ## Repository Context

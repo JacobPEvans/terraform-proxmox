@@ -52,10 +52,7 @@ automatically. Doppler injects credentials. No extra flags needed.
 `deployment.json` is committed plaintext. Edit it directly and commit like any other file.
 
 ```bash
-# Start from the example
-cp deployment.json.example deployment.json
-
-# Fill in your actual values
+# Edit directly and commit like any other file
 $EDITOR deployment.json
 
 # Commit — no encryption needed
