@@ -31,6 +31,8 @@ locals {
   env_var_defaults = {
     proxmox_node            = get_env("PROXMOX_VE_NODE", "pve")
     proxmox_ssh_private_key = get_env("PROXMOX_SSH_PRIVATE_KEY", "")
+    # Keep in sync with local.proxmox_ssh_user (SOPS-first, env fallback)
+    proxmox_ssh_username    = local.proxmox_ssh_user
   }
 }
 
