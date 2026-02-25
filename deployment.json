@@ -60,6 +60,36 @@
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
       "features": { "nesting": true, "keyctl": true }
+    },
+    "mailpit": {
+      "vm_id": 110,
+      "hostname": "mailpit",
+      "description": "Mailpit SMTP relay with web UI - Docker in LXC",
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 256,
+      "tags": ["terraform", "container", "notifications", "smtp", "docker"],
+      "pool_id": "infrastructure",
+      "root_disk": { "datastore_id": "local-zfs", "size": 8 },
+      "network_interfaces": [
+        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
+      ],
+      "features": { "nesting": true, "keyctl": true }
+    },
+    "ntfy": {
+      "vm_id": 111,
+      "hostname": "ntfy",
+      "description": "ntfy push notification server - Docker in LXC",
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 256,
+      "tags": ["terraform", "container", "notifications", "push", "docker"],
+      "pool_id": "infrastructure",
+      "root_disk": { "datastore_id": "local-zfs", "size": 8 },
+      "network_interfaces": [
+        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
+      ],
+      "features": { "nesting": true, "keyctl": true }
     }
   }
 }

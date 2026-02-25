@@ -318,6 +318,48 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "outbound
   }
 }
 
+# Security group for notification services (Mailpit SMTP/Web, ntfy HTTP)
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "notification_services" {
+  name    = "notification-services"
+  comment = "Notification service ports: Mailpit SMTP (1025), Mailpit Web (8025), ntfy HTTP (8080) from internal networks"
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "1025"
+      source  = rule.value
+      comment = "Mailpit SMTP from ${rule.value}"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "8025"
+      source  = rule.value
+      comment = "Mailpit Web UI from ${rule.value}"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "8080"
+      source  = rule.value
+      comment = "ntfy HTTP from ${rule.value}"
+    }
+  }
+}
+
 # =============================================================================
 # VM Firewall Configuration
 # =============================================================================
@@ -473,4 +515,47 @@ resource "proxmox_virtual_environment_firewall_rules" "pipeline_container" {
   }
 
   depends_on = [proxmox_virtual_environment_firewall_options.pipeline_container]
+}
+
+# =============================================================================
+# Notification Container Firewall Configuration (Mailpit, ntfy)
+# These containers provide SMTP relay and push notification services
+# =============================================================================
+
+resource "proxmox_virtual_environment_firewall_options" "notification_container" {
+  for_each = var.notification_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = true
+  input_policy  = "DROP"
+  output_policy = "DROP"
+  log_level_in  = "warning"
+  log_level_out = "warning"
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "notification_container" {
+  for_each = var.notification_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.notification_services.name
+    comment        = "Notification services (Mailpit SMTP/Web, ntfy HTTP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
+    comment        = "Outbound to internal only"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.notification_container]
 }

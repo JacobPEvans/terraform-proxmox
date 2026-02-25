@@ -145,11 +145,22 @@ Provisioned via BPG Proxmox Terraform provider. IPs derived from VM ID:
 
 ### LXC Containers (terraform-proxmox)
 
-| Resource | Type | Purpose |
-| --- | --- | --- |
-| HAProxy | LXC | Syslog load balancer |
-| Technitium DNS | LXC | Internal DNS |
-| apt-cacher-ng | LXC | APT package cache |
+| Resource | VM ID | Type | Purpose |
+| --- | --- | --- | --- |
+| HAProxy | - | LXC | Syslog load balancer |
+| Technitium DNS | - | LXC | Internal DNS |
+| apt-cacher-ng | - | LXC | APT package cache |
+| Mailpit | 110 | LXC | SMTP relay with web UI (Docker in LXC) |
+| ntfy | 111 | LXC | Push notification server (Docker in LXC) |
+
+#### Notification Services
+
+Mailpit (VM ID 110) and ntfy (VM ID 111) provide internal notification delivery:
+
+- **Mailpit** (`192.168.x.110`): SMTP relay on port 1025, web UI on port 8025. Captures outbound emails from internal services for inspection and relaying.
+- **ntfy** (`192.168.x.111`): HTTP push notification server on port 8080. Provides topic-based pub/sub notifications for internal alerting.
+
+Both containers run Docker-in-LXC (`nesting: true`, `keyctl: true`) and are tagged `notifications` for firewall group membership.
 
 ### Terraform Modules
 

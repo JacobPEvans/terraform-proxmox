@@ -21,6 +21,12 @@ variable "pipeline_container_ids" {
   default     = {}
 }
 
+variable "notification_container_ids" {
+  description = "Map of notification container names to their IDs (Mailpit, ntfy)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
