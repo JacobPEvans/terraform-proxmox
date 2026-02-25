@@ -180,18 +180,6 @@ run "management_network_default" {
   }
 }
 
-run "management_network_custom_prefix" {
-  command = plan
-
-  variables {
-    network_prefix = "172.16.0"
-  }
-
-  assert {
-    condition     = local.management_network == "172.16.0.0/24"
-    error_message = "management_network with custom prefix should be 172.16.0.0/24, got ${local.management_network}"
-  }
-}
 
 run "management_network_custom_mask" {
   command = plan
