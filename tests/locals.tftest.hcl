@@ -169,6 +169,92 @@ run "pipeline_constants_syslog_ports" {
   }
 }
 
+# --- management_network tests ---
+
+run "management_network_default" {
+  command = plan
+
+  assert {
+    condition     = local.management_network == "192.168.0.0/24"
+    error_message = "management_network should be 192.168.0.0/24, got ${local.management_network}"
+  }
+}
+
+run "management_network_custom_prefix" {
+  command = plan
+
+  variables {
+    network_prefix = "10.0.1"
+  }
+
+  assert {
+    condition     = local.management_network == "10.0.1.0/24"
+    error_message = "management_network with custom prefix should be 10.0.1.0/24, got ${local.management_network}"
+  }
+}
+
+run "management_network_custom_mask" {
+  command = plan
+
+  variables {
+    network_cidr_mask = "/16"
+  }
+
+  assert {
+    condition     = local.management_network == "192.168.0.0/16"
+    error_message = "management_network with /16 mask should be 192.168.0.0/16, got ${local.management_network}"
+  }
+}
+
+# --- splunk_network_ips tests ---
+
+run "splunk_network_ips_default_no_containers" {
+  command = plan
+
+  variables {
+    containers = {}
+  }
+
+  assert {
+    condition     = length(local.splunk_network_ips) == 1
+    error_message = "splunk_network_ips with no splunk containers should have exactly 1 entry, got ${length(local.splunk_network_ips)}"
+  }
+
+  assert {
+    condition     = contains(local.splunk_network_ips, "192.168.0.200")
+    error_message = "splunk_network_ips should contain splunk VM IP 192.168.0.200"
+  }
+}
+
+run "splunk_network_ips_includes_splunk_tagged_container" {
+  command = plan
+
+  variables {
+    containers = {
+      "splunk-mgmt" = {
+        vm_id    = 199
+        hostname = "splunk-mgmt"
+        tags     = ["terraform", "splunk", "container"]
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(local.splunk_network_ips, "192.168.0.200")
+    error_message = "splunk_network_ips must include splunk VM IP"
+  }
+
+  assert {
+    condition     = contains(local.splunk_network_ips, "192.168.0.199")
+    error_message = "splunk_network_ips must include splunk-tagged container IP"
+  }
+
+  assert {
+    condition     = length(local.splunk_network_ips) == 2
+    error_message = "splunk_network_ips should have exactly 2 entries"
+  }
+}
+
 # --- derive_ip with different prefix ---
 
 run "derive_ip_custom_prefix" {
