@@ -168,18 +168,10 @@ module "firewall" {
 
   # Pipeline containers: HAProxy (haproxy tag) and Cribl Edge (cribl + edge tags)
   # These receive syslog and NetFlow data from network devices
-  pipeline_container_ids = {
-    for k, v in var.containers : k => v.vm_id
-    if contains(try(v.tags, []), "haproxy") || (
-      contains(try(v.tags, []), "cribl") && contains(try(v.tags, []), "edge")
-    )
-  }
+  pipeline_container_ids = local.pipeline_container_ids
 
   # Notification containers: Mailpit and ntfy (notifications tag)
-  notification_container_ids = {
-    for k, v in var.containers : k => v.vm_id
-    if contains(try(v.tags, []), "notifications")
-  }
+  notification_container_ids = local.notification_container_ids
 
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)

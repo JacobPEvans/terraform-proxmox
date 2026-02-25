@@ -243,6 +243,54 @@ run "splunk_network_ips_includes_splunk_tagged_container" {
   }
 }
 
+# --- pipeline_constants netflow_ports tests ---
+
+run "pipeline_constants_netflow_ports" {
+  command = plan
+
+  assert {
+    condition     = local.pipeline_constants.netflow_ports.unifi == 2055
+    error_message = "unifi netflow port should be 2055"
+  }
+}
+
+# --- pipeline_constants notification_ports tests ---
+
+run "pipeline_constants_notification_ports" {
+  command = plan
+
+  assert {
+    condition     = local.pipeline_constants.notification_ports.mailpit_smtp == 1025
+    error_message = "mailpit_smtp port should be 1025"
+  }
+
+  assert {
+    condition     = local.pipeline_constants.notification_ports.mailpit_web == 8025
+    error_message = "mailpit_web port should be 8025"
+  }
+
+  assert {
+    condition     = local.pipeline_constants.notification_ports.ntfy_http == 8080
+    error_message = "ntfy_http port should be 8080"
+  }
+}
+
+# --- pipeline_constants cribl ports tests ---
+
+run "pipeline_constants_cribl_ports" {
+  command = plan
+
+  assert {
+    condition     = local.pipeline_constants.service_ports.cribl_edge_api == 9000
+    error_message = "cribl_edge_api port should be 9000"
+  }
+
+  assert {
+    condition     = local.pipeline_constants.service_ports.cribl_stream_api == 9100
+    error_message = "cribl_stream_api port should be 9100"
+  }
+}
+
 # --- derive_ip with different prefix ---
 
 run "derive_ip_custom_prefix" {

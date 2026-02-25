@@ -97,6 +97,21 @@ locals {
     ["${var.network_prefix}.${var.splunk_vm_id}"],
     [for k, v in var.containers : "${var.network_prefix}.${v.vm_id}" if contains(coalesce(v.tags, []), "splunk")]
   )
+
+  # Pipeline containers: HAProxy (haproxy tag) and Cribl Edge (cribl + edge tags)
+  # These receive syslog and NetFlow data from network devices
+  pipeline_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(try(v.tags, []), "haproxy") || (
+      contains(try(v.tags, []), "cribl") && contains(try(v.tags, []), "edge")
+    )
+  }
+
+  # Notification containers: Mailpit and ntfy (notifications tag)
+  notification_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(try(v.tags, []), "notifications")
+  }
 }
 
 # Pipeline constants - single source of truth for service, syslog, and NetFlow ports
