@@ -121,5 +121,10 @@ locals {
     netflow_ports = {
       unifi = 2055
     }
+    notification_ports = {
+      mailpit_smtp = 1025
+      mailpit_web  = 8025
+      ntfy_http    = 8080
+    }
   }
 }

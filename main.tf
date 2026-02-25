@@ -175,6 +175,12 @@ module "firewall" {
     )
   }
 
+  # Notification containers: Mailpit and ntfy (notifications tag)
+  notification_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(try(v.tags, []), "notifications")
+  }
+
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks
