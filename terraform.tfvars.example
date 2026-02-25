@@ -1,3 +1,14 @@
+# DEPRECATED: This file format is no longer used.
+#
+# Configuration is now split into two committed files:
+#   - deployment.json        — all non-secret config (containers, VMs, pools, Splunk sizing)
+#   - terraform.sops.json    — 3 encrypted values: network_prefix, vm_ssh_public_key_path, vm_ssh_private_key_path
+#
+# See deployment.json.example and terraform.sops.json.example for the new format.
+# See docs/SOPS_SETUP.md for the full 3-layer architecture.
+#
+# ---------------------- LEGACY REFERENCE (for migration) ----------------------
+#
 # Proxmox Configuration Example
 #
 # TWO OPTIONS for providing secrets:

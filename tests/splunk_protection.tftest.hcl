@@ -66,11 +66,9 @@ override_module {
 }
 
 variables {
-  network_prefix     = "192.168.0"
-  network_cidr_mask  = "/24"
-  splunk_vm_id       = 200
-  management_network = "192.168.0.0/24"
-  splunk_network     = ["192.168.0.200"]
+  network_prefix    = "192.168.0"
+  network_cidr_mask = "/24"
+  splunk_vm_id      = 200
 }
 
 # --- Test: no Splunk credentials required at Terraform level ---
@@ -104,8 +102,7 @@ run "splunk_ip_derived_from_vm_id" {
   command = plan
 
   variables {
-    splunk_vm_id   = 205
-    splunk_network = ["192.168.0.205"]
+    splunk_vm_id = 205
   }
 
   assert {

@@ -105,6 +105,14 @@ resource "proxmox_virtual_environment_container" "containers" {
     type             = each.value.os_type
   }
 
+  # Container features (nesting for Docker, keyctl for overlay fs)
+  features {
+    nesting = each.value.features.nesting
+    keyctl  = each.value.features.keyctl
+    fuse    = each.value.features.fuse
+    mount   = each.value.features.mount
+  }
+
   lifecycle {
     create_before_destroy = false
     ignore_changes = [

@@ -55,6 +55,13 @@ repos:
   # Local hooks using the full nix+aws-vault+doppler toolchain
   - repo: local
     hooks:
+      - id: tofu-test
+        name: tofu test (mock providers)
+        entry: bash -c 'nix develop ~/git/nix-config/main/shells/terraform --command bash -c "tofu init -backend=false -no-color >/dev/null 2>&1 && tofu test -no-color"'
+        language: system
+        files: '\.(tf|hcl)$'
+        pass_filenames: false
+
       - id: terragrunt-validate
         name: terragrunt validate
         entry: bash -c 'nix develop ~/git/nix-config/main/shells/terraform --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"'
