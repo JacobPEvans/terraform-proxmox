@@ -56,8 +56,7 @@
     "qemu",
     "k3s",
     "OrbStack",
-    "orbstack",
-    "direnv"
+    "orbstack"
   ],
   "ignorePaths": [
     ".terraform/**",
