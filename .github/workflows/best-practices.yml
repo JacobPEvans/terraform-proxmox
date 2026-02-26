@@ -13,5 +13,5 @@ permissions:
 
 jobs:
   recommend:
-    uses: JacobPEvans/ai-workflows/.github/workflows/best-practices.yml@v0.4.0
+    uses: JacobPEvans/ai-workflows/.github/workflows/best-practices.yml@v0.5.0
     secrets: inherit
