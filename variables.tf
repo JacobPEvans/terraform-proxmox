@@ -317,6 +317,27 @@ variable "containers" {
     }), { nesting = false, keyctl = false, fuse = false, mount = [] })
   }))
   default = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.containers : v.vm_id >= 100 && v.vm_id <= 999999999
+    ])
+    error_message = "Container IDs must be between 100 and 999999999."
+  }
+
+  validation {
+    condition = alltrue([
+      for k, v in var.containers : v.cpu_cores >= 1 && v.cpu_cores <= 32
+    ])
+    error_message = "Container CPU cores must be between 1 and 32."
+  }
+
+  validation {
+    condition = alltrue([
+      for k, v in var.containers : v.memory_dedicated >= 64 && v.memory_dedicated <= 65536
+    ])
+    error_message = "Container memory must be between 64 MB and 64 GB."
+  }
 }
 
 # Network configuration - single source of truth

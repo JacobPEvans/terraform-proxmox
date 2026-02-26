@@ -149,3 +149,56 @@ run "vm_with_id_below_minimum_rejected" {
     var.vms,
   ]
 }
+
+run "container_with_id_below_minimum_rejected" {
+  command = plan
+
+  variables {
+    containers = {
+      test = {
+        vm_id    = 1
+        hostname = "test"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.containers,
+  ]
+}
+
+run "container_with_excessive_cpu_rejected" {
+  command = plan
+
+  variables {
+    containers = {
+      test = {
+        vm_id     = 100
+        hostname  = "test"
+        cpu_cores = 64
+      }
+    }
+  }
+
+  expect_failures = [
+    var.containers,
+  ]
+}
+
+run "container_with_memory_below_minimum_rejected" {
+  command = plan
+
+  variables {
+    containers = {
+      test = {
+        vm_id            = 100
+        hostname         = "test"
+        memory_dedicated = 0
+      }
+    }
+  }
+
+  expect_failures = [
+    var.containers,
+  ]
+}
