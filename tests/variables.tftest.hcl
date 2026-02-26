@@ -184,3 +184,21 @@ run "container_with_excessive_cpu_rejected" {
     var.containers,
   ]
 }
+
+run "container_with_memory_below_minimum_rejected" {
+  command = plan
+
+  variables {
+    containers = {
+      test = {
+        vm_id            = 100
+        hostname         = "test"
+        memory_dedicated = 0
+      }
+    }
+  }
+
+  expect_failures = [
+    var.containers,
+  ]
+}
