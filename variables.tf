@@ -6,22 +6,6 @@ variable "environment" {
   default     = "homelab"
 }
 
-# Proxmox connection variables
-# The BPG provider reads authentication directly from PROXMOX_VE_* environment variables:
-#   - PROXMOX_VE_ENDPOINT   → API URL (without /api2/json)
-#   - PROXMOX_VE_API_TOKEN  → API token (user@realm!tokenid=secret)
-#   - PROXMOX_VE_USERNAME   → Username for token
-#   - PROXMOX_VE_INSECURE   → Skip TLS verification
-#
-# These variables are kept for backward compatibility and module usage,
-# but the provider itself reads from environment variables.
-
-variable "proxmox_insecure" {
-  description = "Allow insecure HTTPS connections to the Proxmox API (read from PROXMOX_VE_INSECURE)"
-  type        = bool
-  default     = false
-}
-
 variable "proxmox_node" {
   description = "The name of the Proxmox node to deploy resources on"
   type        = string
@@ -86,12 +70,6 @@ variable "proxmox_ssh_private_key" {
   }
 }
 
-variable "proxmox_username" {
-  description = "The Proxmox username for authentication"
-  type        = string
-  default     = "proxmox"
-}
-
 # Storage configuration
 variable "datastore_default" {
   description = "Default datastore for VM disks and container volumes"
@@ -101,12 +79,6 @@ variable "datastore_default" {
 
 variable "datastore_iso" {
   description = "Datastore for ISO images and container templates"
-  type        = string
-  default     = "local"
-}
-
-variable "datastore_backup" {
-  description = "Datastore for backups"
   type        = string
   default     = "local"
 }

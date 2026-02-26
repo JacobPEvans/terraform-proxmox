@@ -76,7 +76,7 @@ terraform-proxmox/
 - **Splunk Infrastructure**: Packer-built Splunk Enterprise template with dedicated splunk-vm module
 - **Firewall Management**: Integrated Proxmox firewall module for network isolation and security
 - **Terragrunt Integration**: Backend configuration and state management
-- **Latest Versions**: Terraform 1.12.2, bpg/proxmox 0.90.0, hashicorp/tls ~> 4.1 (updated 2026-01-01)
+- **Latest Versions**: See `terragrunt.hcl` for current provider version constraints
 
 ### Benefits of the Modular Structure
 
@@ -147,7 +147,7 @@ terragrunt show
 
 Configuration is split into three layers:
 
-```
+```text
 deployment.json          (committed, plaintext) — containers, VMs, pools, proxmox_node
 terraform.sops.json      (committed, encrypted) — network_prefix, SSH key paths
 Doppler env vars         (runtime only)         — PROXMOX_VE_*, SPLUNK_*, credentials
@@ -188,7 +188,6 @@ Doppler env vars         (runtime only)         — PROXMOX_VE_*, SPLUNK_*, cred
 | `deployment.json` | Non-secret deployment config (containers, VMs, pools) |
 | `terraform.sops.json` | Encrypted network topology (3 values) |
 | `terraform.sops.json.example` | SOPS template |
-| `terraform.tfvars.example` | **Deprecated** — replaced by deployment.json + SOPS |
 
 ## 🔧 Configuration
 
