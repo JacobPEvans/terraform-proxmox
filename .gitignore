@@ -115,3 +115,6 @@ scripts/timing-results.txt
 
 # direnv cache (nix-direnv)
 .direnv/
+
+# ai-workflows runtime checkout (checked out by CI into .ai-workflows/ at runtime)
+.ai-workflows/
