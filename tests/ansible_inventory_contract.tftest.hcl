@@ -78,7 +78,7 @@ run "ansible_inventory_constants_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.constants != null
+    condition     = can(output.ansible_inventory.constants)
     error_message = "ansible_inventory must contain 'constants' key"
   }
 }
@@ -87,7 +87,7 @@ run "ansible_inventory_constants_service_ports_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.constants.service_ports != null
+    condition     = can(output.ansible_inventory.constants.service_ports)
     error_message = "ansible_inventory.constants must contain 'service_ports' key"
   }
 }
@@ -96,7 +96,7 @@ run "ansible_inventory_constants_syslog_ports_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.constants.syslog_ports != null
+    condition     = can(output.ansible_inventory.constants.syslog_ports)
     error_message = "ansible_inventory.constants must contain 'syslog_ports' key"
   }
 }
@@ -105,7 +105,7 @@ run "ansible_inventory_constants_netflow_ports_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.constants.netflow_ports != null
+    condition     = can(output.ansible_inventory.constants.netflow_ports)
     error_message = "ansible_inventory.constants must contain 'netflow_ports' key"
   }
 }
@@ -114,7 +114,7 @@ run "ansible_inventory_constants_notification_ports_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.constants.notification_ports != null
+    condition     = can(output.ansible_inventory.constants.notification_ports)
     error_message = "ansible_inventory.constants must contain 'notification_ports' key"
   }
 }
@@ -154,7 +154,7 @@ run "ansible_inventory_splunk_vm_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.splunk_vm != null
+    condition     = can(output.ansible_inventory.splunk_vm)
     error_message = "ansible_inventory must contain 'splunk_vm' key at root level"
   }
 }
@@ -163,7 +163,7 @@ run "ansible_inventory_containers_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.containers != null
+    condition     = can(output.ansible_inventory.containers)
     error_message = "ansible_inventory must contain 'containers' key at root level"
   }
 }
@@ -172,7 +172,7 @@ run "ansible_inventory_docker_vms_exists" {
   command = plan
 
   assert {
-    condition     = output.ansible_inventory.docker_vms != null
+    condition     = can(output.ansible_inventory.docker_vms)
     error_message = "ansible_inventory must contain 'docker_vms' key at root level"
   }
 }

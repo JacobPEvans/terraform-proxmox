@@ -102,15 +102,15 @@ locals {
   # These receive syslog and NetFlow data from network devices
   pipeline_container_ids = {
     for k, v in var.containers : k => v.vm_id
-    if contains(try(v.tags, []), "haproxy") || (
-      contains(try(v.tags, []), "cribl") && contains(try(v.tags, []), "edge")
+    if contains(coalesce(try(v.tags, null), []), "haproxy") || (
+      contains(coalesce(try(v.tags, null), []), "cribl") && contains(coalesce(try(v.tags, null), []), "edge")
     )
   }
 
   # Notification containers: Mailpit and ntfy (notifications tag)
   notification_container_ids = {
     for k, v in var.containers : k => v.vm_id
-    if contains(try(v.tags, []), "notifications")
+    if contains(coalesce(try(v.tags, null), []), "notifications")
   }
 }
 
