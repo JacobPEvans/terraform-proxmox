@@ -3,6 +3,9 @@ name: Copilot Setup Steps
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   copilot-setup-steps:
     name: Copilot Setup Steps

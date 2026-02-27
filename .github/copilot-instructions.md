@@ -16,12 +16,14 @@ The binary is `tofu`. All HCL is OpenTofu-compatible.
 All commands must be wrapped with aws-vault and Doppler:
 
 ```bash
+# 'terraform' is the aws-vault profile name, not the binary.
 aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
 ```
 
 For plan/apply:
 
 ```bash
+# 'terraform' is the aws-vault profile name, not the binary.
 aws-vault exec terraform -- doppler run -- terragrunt plan
 aws-vault exec terraform -- doppler run -- terragrunt apply
 ```
@@ -43,5 +45,5 @@ aws-vault exec terraform -- doppler run -- terragrunt apply
 
 ## CI
 
-The `Terraform CI` workflow validates HCL syntax and runs `tofu validate`.
+The `Terraform CI` workflow (named for historical reasons) validates HCL syntax and runs `tofu validate`.
 Fix all validation errors before merging.
