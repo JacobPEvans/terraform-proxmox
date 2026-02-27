@@ -54,7 +54,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' &&
       inputs.skip_triage != 'true'
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.5.0
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-triage.yml@v0.5.1
     secrets: inherit
     with:
       issue_number: ${{ inputs.issue_number }}
@@ -65,7 +65,7 @@ jobs:
       always() &&
       github.event_name == 'workflow_dispatch' &&
       (needs.run-triage.result == 'success' || needs.run-triage.result == 'skipped')
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.5.0
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.5.1
     secrets: inherit
     with:
       repo_context: "Terraform/OpenTofu managing Proxmox VE infrastructure"
