@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   resolve-issue:
-    uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.5.1
+    uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.6.0
     secrets: inherit
     with:
       repo_context: "Terraform/OpenTofu managing Proxmox VE infrastructure"
