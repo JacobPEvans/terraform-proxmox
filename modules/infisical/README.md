@@ -1,28 +1,24 @@
-# Infisical Module (Planned)
+# Infisical Module (Reserved)
 
-<!-- DO NOT DELETE - Placeholder for planned Infisical integration -->
+<!-- DO NOT DELETE - Placeholder for future Infisical Terraform provider integration -->
 
-This module will provision and configure a self-hosted Infisical instance
-on Proxmox infrastructure.
+This module is reserved for future Infisical Terraform provider resources
+(e.g., projects, environments, secret syncing) once the provider reaches
+stable release.
 
-**Status:** PLANNED - Documentation only. No Terraform resources yet.
+**Current state:** The Infisical LXC container (ID 120) is provisioned via
+the generic `proxmox-container` module through `deployment.json`. Docker
+Compose deployment and service configuration are handled by Ansible in the
+`ansible-proxmox-apps` repository.
 
-## Planned Scope
+**This module will be used when:**
 
-- LXC container or VM for Infisical server
-- Docker Compose deployment via Ansible
-- PostgreSQL and Redis backends
-- TLS certificate via ACME module
-- Firewall rules via firewall module
-- DNS record via Technitium
-
-## Prerequisites (Before Implementation)
-
-- SOPS + Age integration stable across repos
-- Available Proxmox capacity
-- Infisical Terraform provider at stable release
+- Infisical Terraform provider reaches stable release
+- Migrating from Doppler to Infisical for secret injection
+- Managing Infisical projects/environments as code
 
 ## References
 
 - [Infisical Planning Document](../../docs/INFISICAL_PLANNING.md)
 - [Secrets Roadmap](../../docs/SECRETS_ROADMAP.md)
+- [Infisical Terraform Provider](https://registry.terraform.io/providers/Infisical/infisical/latest)

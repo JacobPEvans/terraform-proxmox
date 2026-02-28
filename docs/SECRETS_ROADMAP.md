@@ -115,11 +115,15 @@ aws-vault exec terraform -- doppler run -- terragrunt plan
 
 See [docs/SOPS_SETUP.md](./SOPS_SETUP.md) for full setup and usage instructions.
 
-### PLANNED: Self-Hosted Infisical
+### IN PROGRESS: Self-Hosted Infisical
 
 <!-- DO NOT DELETE - Active planning item -->
 
 Self-hosted secrets manager running on Proxmox infrastructure.
+
+**Current state:** LXC container (ID 120) provisioned via Terraform. Ansible
+configuration for Docker Compose deployment, backup automation, and service
+setup is the next step (tracked in ansible-proxmox-apps).
 
 **Motivation:**
 
@@ -128,7 +132,9 @@ Self-hosted secrets manager running on Proxmox infrastructure.
 - Native Terraform and Ansible integrations
 - Web UI for team management
 
-See [INFISICAL_PLANNING.md](./INFISICAL_PLANNING.md) for detailed planning.
+**Backup strategy:** Daily PostgreSQL pg_dump to S3 with encryption keys backed
+up via SOPS. Enables full recovery from total Proxmox host failure. See
+[INFISICAL_PLANNING.md](./INFISICAL_PLANNING.md) for details.
 
 ## Under Consideration
 
@@ -172,8 +178,9 @@ SOPS + Age (ACTIVE) — deployment config (not credentials)
     └── sops_decrypt_file() ──→ Terragrunt inputs
         (proxmox_node, IPs, networks, container/VM definitions)
 
-Infisical (planned) — future replacement for Doppler
-└── Self-hosted ───────→ Replace/complement Doppler
+Infisical (in progress) — future replacement for Doppler
+└── Self-hosted (LXC 120) ──→ Replace/complement Doppler
+    Backup: daily pg_dump → S3 (survives total host failure)
 ```
 
 ## Migration Path

@@ -173,6 +173,9 @@ module "firewall" {
   # Notification containers: Mailpit and ntfy (notifications tag)
   notification_container_ids = local.notification_container_ids
 
+  # Secrets management containers: Infisical (secrets tag)
+  secrets_container_ids = local.secrets_container_ids
+
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks

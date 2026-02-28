@@ -318,6 +318,24 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "outbound
   }
 }
 
+# Security group for secrets management services (Infisical HTTPS API/Web UI)
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "secrets_services" {
+  name    = "secrets-svc"
+  comment = "Secrets management service ports: Infisical HTTPS (8443) from internal networks"
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "8443"
+      source  = rule.value
+      comment = "Infisical HTTPS from ${rule.value}"
+    }
+  }
+}
+
 # Security group for notification services (Mailpit SMTP/Web, ntfy HTTP)
 resource "proxmox_virtual_environment_cluster_firewall_security_group" "notification_services" {
   name    = "notification-svc"
@@ -553,4 +571,42 @@ resource "proxmox_virtual_environment_firewall_rules" "notification_container" {
   }
 
   depends_on = [proxmox_virtual_environment_firewall_options.notification_container]
+}
+
+# =============================================================================
+# Secrets Management Container Firewall Configuration (Infisical)
+# These containers provide centralized secrets management with HTTPS API access
+# =============================================================================
+
+resource "proxmox_virtual_environment_firewall_options" "secrets_container" {
+  for_each = var.secrets_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = true
+  input_policy  = "DROP"
+  output_policy = "ACCEPT"
+  log_level_in  = "warning"
+  log_level_out = "warning"
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "secrets_container" {
+  for_each = var.secrets_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.secrets_services.name
+    comment        = "Secrets management services (Infisical HTTPS)"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.secrets_container]
 }

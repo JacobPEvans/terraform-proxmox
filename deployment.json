@@ -90,6 +90,24 @@
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "infisical": {
+      "vm_id": 120,
+      "hostname": "infisical",
+      "description": "Infisical secrets manager - Docker in LXC (PostgreSQL + Redis embedded)",
+      "cpu_cores": 2,
+      "memory_dedicated": 4096,
+      "memory_swap": 2048,
+      "tags": ["terraform", "container", "secrets", "docker"],
+      "pool_id": "infrastructure",
+      "root_disk": { "datastore_id": "local-zfs", "size": 16 },
+      "mount_points": [
+        { "volume": "local-zfs", "size": "30G", "path": "/opt/infisical" }
+      ],
+      "network_interfaces": [
+        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
+      ],
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
     }
   }
 }

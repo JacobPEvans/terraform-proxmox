@@ -4,7 +4,7 @@
 
 Self-hosted Infisical deployment on Proxmox infrastructure.
 
-**Status:** PLANNED
+**Status:** IN PROGRESS — Container provisioned via Terraform, Ansible configuration pending
 
 ## Overview
 
@@ -20,39 +20,146 @@ integrations for Terraform, Ansible, and CI/CD platforms.
 - **Web UI**: Browser-based secret management and audit trails
 - **RBAC**: Fine-grained access control per project and environment
 
-## Proposed Architecture
+## Container Specification
 
-### Deployment Target
+| Property | Value |
+| --- | --- |
+| **VM ID** | 120 |
+| **Hostname** | infisical |
+| **IP** | `network_prefix`.120 (derived from VM ID) |
+| **Type** | LXC (Docker-in-LXC, unprivileged) |
+| **CPU** | 2 cores |
+| **RAM** | 4 GB (+ 2 GB swap) |
+| **Root Disk** | 16 GB on local-zfs |
+| **Data Volume** | 30 GB on local-zfs mounted at /opt/infisical |
+| **Pool** | infrastructure |
+| **Tags** | terraform, container, secrets, docker |
+| **Features** | nesting, keyctl, fuse (Docker-in-LXC) |
 
-| Component | Resource | Notes |
-| --- | --- | --- |
-| Infisical Server | LXC container or VM | Docker Compose deployment |
-| PostgreSQL | Same container or dedicated | Infisical backend database |
-| Redis | Same container | Caching and queue |
+### Architecture
+
+All services run inside a single LXC container via Docker Compose:
+
+```text
+┌─────────────────────────────────────────┐
+│ LXC Container (ID 120)                  │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ Docker Compose                  │    │
+│  │  ├─ infisical-server (:8443)    │    │
+│  │  ├─ postgresql                  │    │
+│  │  └─ redis                       │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  /opt/infisical/                        │
+│    ├─ postgres-data/                    │
+│    ├─ redis-data/                       │
+│    ├─ docker-compose.yml                │
+│    └─ backups/   (staging for S3 push)  │
+└─────────────────────────────────────────┘
+```
 
 ### Network Integration
 
 - Internal access only (no public exposure)
 - DNS entry via Technitium: `infisical.example.local`
 - TLS via ACME certificate module (existing)
-- Firewall rules via existing firewall module
+- Firewall: inbound DROP, outbound ACCEPT
+  - Port 22 (SSH) from management_network
+  - Port 8443 (HTTPS API/Web UI) from internal_networks
+  - ICMP from internal_networks
 
-### Resource Estimates
+### Firewall Security Group
 
-| Resource | Minimum | Recommended |
+Uses dedicated `secrets-svc` security group applied to containers tagged `secrets`:
+
+```text
+Inbound:  internal-access (SSH, ICMP) + secrets-svc (8443/tcp)
+Outbound: ACCEPT (needed for Docker pulls, updates, S3 backup uploads)
+```
+
+## Disaster Recovery / Backup Strategy
+
+**Goal**: Full recovery from total Proxmox host failure with < 24h RPO.
+
+### What Must Be Backed Up
+
+| Data | Location | Criticality |
 | --- | --- | --- |
-| CPU | 2 cores | 4 cores |
-| RAM | 2 GB | 4 GB |
-| Disk | 10 GB | 20 GB |
+| PostgreSQL database | /opt/infisical/postgres-data/ | **Critical** — all secrets, projects, users |
+| Infisical encryption keys | Environment variables / Docker Compose | **Critical** — needed to decrypt DB contents |
+| Redis data | /opt/infisical/redis-data/ | Low — ephemeral cache, auto-rebuilds |
+| Docker Compose config | /opt/infisical/docker-compose.yml | Medium — reproducible from Ansible role |
+
+### Backup Architecture
+
+```text
+┌──────────────────┐    pg_dump     ┌──────────────────┐    aws s3 cp    ┌─────────────┐
+│ PostgreSQL (LXC) │ ──────────────→│ /opt/infisical/  │ ──────────────→│ S3 Bucket   │
+│                  │   daily cron   │ backups/          │   after dump   │ (encrypted) │
+└──────────────────┘                └──────────────────┘                └─────────────┘
+
+Encryption keys → SOPS-encrypted file in git (terraform.sops.json or dedicated file)
+```
+
+### Backup Components
+
+1. **Automated PostgreSQL dumps (daily)**
+   - Ansible cron job: `pg_dump` → compressed `.sql.gz` in `/opt/infisical/backups/`
+   - Retention: 7 daily + 4 weekly locally, unlimited in S3 with lifecycle rules
+   - Runs inside the container via Docker exec
+
+2. **S3 offsite push (after each dump)**
+   - `aws s3 cp` with server-side encryption (SSE-S3 or SSE-KMS)
+   - Uses dedicated IAM role with write-only S3 access
+   - aws-vault credentials injected by Ansible at deploy time
+   - S3 bucket configured with versioning and lifecycle rules
+
+3. **Encryption key backup**
+   - `ENCRYPTION_KEY` and `AUTH_SECRET` stored in Doppler (current) or SOPS
+   - Keys are also needed for restore — without them, database is useless
+   - Recovery procedure documented in this file (see below)
+
+4. **Container rebuild (Ansible-driven)**
+   - Terraform recreates the empty LXC container
+   - Ansible role redeploys Docker Compose stack
+   - Restore script loads latest S3 backup into fresh PostgreSQL
+
+### Recovery Procedure
+
+**Total Proxmox host failure recovery:**
+
+```bash
+# 1. Rebuild infrastructure (new Proxmox host)
+aws-vault exec terraform -- doppler run -- terragrunt apply
+
+# 2. Run Ansible to deploy Infisical stack
+cd ~/git/ansible-proxmox-apps
+ansible-playbook -i inventory/ playbooks/infisical.yml
+
+# 3. Restore database from S3 (run on infisical container)
+# Ansible restore playbook handles this, or manual:
+aws s3 cp s3://BUCKET/infisical/latest.sql.gz /opt/infisical/backups/
+docker exec -i infisical-postgres psql -U infisical < /opt/infisical/backups/latest.sql
+
+# 4. Verify Infisical is operational
+curl -k https://infisical.example.local:8443/api/status
+```
+
+**RPO**: < 24 hours (daily backups)
+**RTO**: ~1 hour (Terraform + Ansible + restore)
 
 ## Migration Plan
 
-### Phase 1: Deploy and Validate
+### Phase 1: Deploy and Validate (current)
 
-1. Provision LXC container via terraform-proxmox
-2. Deploy Infisical via Docker Compose (Ansible role)
-3. Configure initial projects and environments
-4. Validate API access and CLI connectivity
+1. [x] Provision LXC container via terraform-proxmox
+2. [ ] Deploy Infisical via Docker Compose (Ansible role) — see ansible-proxmox-apps issue
+3. [ ] Configure S3 backup bucket and IAM role
+4. [ ] Set up automated backup cron job
+5. [ ] Configure initial projects and environments
+6. [ ] Validate API access and CLI connectivity
+7. [ ] Test backup and restore procedure
 
 ### Phase 2: Mirror Doppler Secrets
 
@@ -107,17 +214,20 @@ data "infisical_secrets" "proxmox" {
 
 | Risk | Mitigation |
 | --- | --- |
-| Single point of failure | Daily PostgreSQL backups to S3 |
+| Single point of failure | Daily PostgreSQL backups to S3 (off-host) |
+| Total Proxmox host loss | S3 backups + SOPS encryption keys enable full rebuild |
 | Infisical upgrades break API | Pin version, test upgrades in staging |
 | Lost admin credentials | Recovery keys stored in SOPS-encrypted file |
-| Container failure | Proxmox HA restart policy |
+| Lost encryption keys | Keys stored in Doppler AND SOPS (dual backup) |
+| Container failure | Proxmox start_on_boot + Ansible can redeploy |
+| S3 backup corruption | S3 versioning enabled, multiple retention tiers |
 
 ## Decision Criteria
 
 Proceed with implementation when:
 
-- [ ] SOPS + Age integration is stable across repos
-- [ ] Proxmox cluster has available capacity
+- [x] SOPS + Age integration is stable across repos
+- [x] Proxmox cluster has available capacity
 - [ ] Infisical Terraform provider reaches stable release
 - [ ] Current Doppler costs justify migration effort
 

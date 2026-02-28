@@ -275,6 +275,17 @@ run "pipeline_constants_notification_ports" {
   }
 }
 
+# --- pipeline_constants secrets_ports tests ---
+
+run "pipeline_constants_secrets_ports" {
+  command = plan
+
+  assert {
+    condition     = local.pipeline_constants.secrets_ports.infisical_https == 8443
+    error_message = "infisical_https port should be 8443"
+  }
+}
+
 # --- pipeline_constants cribl ports tests ---
 
 run "pipeline_constants_cribl_ports" {

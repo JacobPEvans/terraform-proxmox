@@ -27,6 +27,12 @@ variable "notification_container_ids" {
   default     = {}
 }
 
+variable "secrets_container_ids" {
+  description = "Map of secrets management container names to their IDs (Infisical)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string

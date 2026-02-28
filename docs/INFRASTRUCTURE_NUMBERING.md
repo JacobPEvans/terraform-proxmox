@@ -11,6 +11,9 @@
 All services run as lightweight LXC containers, organized by function:
 
 - **100-110**: Infrastructure (Ansible, PVE scripts)
+- **110-111**: Notifications (Mailpit, ntfy)
+- **120-129**: Security/Secrets (Infisical)
+- **130-139**: Databases (MSSQL)
 - **150-169**: AI development (Claude Code, Gemini)
 - **171-179**: Cribl Stream (log processing)
 - **181-189**: Cribl Edge (log forwarding)
@@ -34,6 +37,25 @@ Heavy I/O workloads run as full VMs:
 | 100 | ansible           | LXC  | 2     | 2GB  | 64GB    | infrastructure | Ansible control node - primary       |
 | 101 | ansible-2         | LXC  | 2     | 2GB  | 64GB    | infrastructure | Ansible control node - secondary     |
 | 102 | pve-scripts-local | LXC  | 1     | 512MB| 8GB     | infrastructure | Proxmox VE Helper Scripts            |
+
+### LXC Containers - Notifications (110-111)
+
+| ID  | Name    | Type | Cores | RAM   | Storage | Pool           | Purpose                              |
+|-----|---------|------|-------|-------|---------|----------------|--------------------------------------|
+| 110 | mailpit | LXC  | 1     | 512MB | 8GB     | infrastructure | Mailpit SMTP relay with web UI       |
+| 111 | ntfy    | LXC  | 1     | 512MB | 8GB     | infrastructure | ntfy push notification server        |
+
+### LXC Containers - Security/Secrets (120-129)
+
+| ID  | Name      | Type | Cores | RAM  | Storage      | Pool           | Purpose                              |
+|-----|-----------|------|-------|------|--------------|----------------|--------------------------------------|
+| 120 | infisical | LXC  | 2     | 4GB  | 16GB + 30GB  | infrastructure | Infisical secrets manager (Docker)   |
+
+### LXC Containers - Databases (130-139)
+
+| ID  | Name  | Type | Cores | RAM  | Storage      | Pool           | Purpose                              |
+|-----|-------|------|-------|------|--------------|----------------|--------------------------------------|
+| 130 | mssql | LXC  | 4     | 4GB  | 16GB + 50GB  | infrastructure | Microsoft SQL Server 2022 (Docker)   |
 
 ### LXC Containers - AI Development (150-169)
 
@@ -77,7 +99,7 @@ Heavy I/O workloads run as full VMs:
 
 | Pool           | Purpose                              | Resources                                    |
 |----------------|--------------------------------------|----------------------------------------------|
-| infrastructure | Core infrastructure services         | ansible, ansible-2, pve-scripts-local        |
+| infrastructure | Core infrastructure services         | ansible, ansible-2, pve-scripts-local, mailpit, ntfy, infisical, mssql |
 | ai             | AI development environments          | claude-code-01/02, gemini-01/02              |
 | logging        | Logging and observability            | cribl-*, splunk-mgmt, splunk-vm              |
 
@@ -85,17 +107,20 @@ Heavy I/O workloads run as full VMs:
 
 ## Resource Totals
 
-### Containers (13 total)
+### Containers (17 total)
 
-| Category       | Cores | RAM   | Storage |
-|----------------|-------|-------|---------|
-| Infrastructure | 5     | 4.5GB | 136GB   |
-| AI Development | 8     | 8GB   | 256GB   |
-| Cribl Stream   | 4     | 4GB   | 264GB   |
-| Cribl Edge     | 4     | 4GB   | 264GB   |
-| HAProxy/Syslog | 1     | 512MB | 16GB    |
-| Splunk Mgmt    | 3     | 3GB   | 100GB   |
-| **Subtotal**   | 25    | 24GB  | 1036GB  |
+| Category         | Cores | RAM   | Storage |
+|------------------|-------|-------|---------|
+| Infrastructure   | 5     | 4.5GB | 136GB   |
+| Notifications    | 2     | 1GB   | 16GB    |
+| Security/Secrets | 2     | 4GB   | 46GB    |
+| Databases        | 4     | 4GB   | 66GB    |
+| AI Development   | 8     | 8GB   | 256GB   |
+| Cribl Stream     | 4     | 4GB   | 264GB   |
+| Cribl Edge       | 4     | 4GB   | 264GB   |
+| HAProxy/Syslog   | 1     | 512MB | 16GB    |
+| Splunk Mgmt      | 3     | 3GB   | 100GB   |
+| **Subtotal**     | 33    | 33GB  | 1164GB  |
 
 ### VMs (1 total)
 
@@ -105,9 +130,9 @@ Heavy I/O workloads run as full VMs:
 
 ### Grand Total
 
-- **Cores**: 33 (oversubscribed)
-- **RAM**: 36GB
-- **Storage**: 1261GB
+- **Cores**: 41 (oversubscribed)
+- **RAM**: 45GB
+- **Storage**: 1364GB
 
 ---
 
@@ -122,6 +147,19 @@ Example configuration uses 192.168.1.0/24:
 - 192.168.1.100/24 - ansible
 - 192.168.1.101/24 - ansible-2
 - 192.168.1.102/24 - pve-scripts-local
+
+### Notifications (110-111)
+
+- 192.168.1.110/24 - mailpit
+- 192.168.1.111/24 - ntfy
+
+### Security/Secrets (120-129)
+
+- 192.168.1.120/24 - infisical
+
+### Databases (130-139)
+
+- 192.168.1.130/24 - mssql
 
 ### AI Development (150-169)
 
@@ -177,6 +215,13 @@ Single all-in-one Splunk Enterprise deployment:
 | 8080 | TCP      | Replication         | Splunk network          |
 | 9887 | TCP      | Clustering          | Splunk network          |
 
+### Infisical Port Matrix
+
+| Port | Protocol | Purpose             | Allowed From            |
+|------|----------|---------------------|-------------------------|
+| 22   | TCP      | SSH                 | management_network      |
+| 8443 | TCP      | Infisical HTTPS     | internal_networks       |
+
 ---
 
 ## Storage Configuration
@@ -231,7 +276,7 @@ splunk_data_disk_size  = 200 # Data disk: 200GB for indexes
 
 All resources are 100% Terraform-managed:
 
-- 13 LXC containers
+- 17 LXC containers
 - 1 VM (Splunk)
 - 3 resource pools
 - Firewall rules
@@ -248,7 +293,7 @@ To deploy from scratch (e.g., after PVE 9.x upgrade):
 terragrunt apply
 ```
 
-This will create all 19 resources from the configuration.
+This will create all resources from the configuration.
 
 ---
 
@@ -257,7 +302,10 @@ This will create all 19 resources from the configuration.
 | Range     | Purpose                              |
 |-----------|--------------------------------------|
 | 100-110   | Infrastructure containers            |
-| 111-149   | Reserved                             |
+| 110-111   | Notification containers             |
+| 120-129   | Security/Secrets containers         |
+| 130-139   | Database containers                 |
+| 140-149   | Reserved                             |
 | 150-169   | AI development containers            |
 | 170       | Reserved                             |
 | 171-179   | Cribl Stream containers              |

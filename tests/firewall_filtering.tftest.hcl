@@ -176,7 +176,41 @@ run "database_tagged_container_in_neither_set" {
   }
 }
 
-run "empty_containers_both_sets_empty" {
+run "secrets_tagged_container_in_secrets_ids" {
+  command = plan
+
+  variables {
+    containers = {
+      "infisical" = {
+        vm_id    = 120
+        hostname = "infisical"
+        tags     = ["terraform", "secrets", "container", "docker"]
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(keys(local.secrets_container_ids), "infisical")
+    error_message = "Container with 'secrets' tag must be in secrets_container_ids"
+  }
+
+  assert {
+    condition     = local.secrets_container_ids["infisical"] == 120
+    error_message = "secrets_container_ids['infisical'] should be vm_id 120"
+  }
+
+  assert {
+    condition     = !contains(keys(local.pipeline_container_ids), "infisical")
+    error_message = "Container with 'secrets' tag must NOT be in pipeline_container_ids"
+  }
+
+  assert {
+    condition     = !contains(keys(local.notification_container_ids), "infisical")
+    error_message = "Container with 'secrets' tag must NOT be in notification_container_ids"
+  }
+}
+
+run "empty_containers_all_sets_empty" {
   command = plan
 
   variables {
@@ -191,6 +225,11 @@ run "empty_containers_both_sets_empty" {
   assert {
     condition     = length(local.notification_container_ids) == 0
     error_message = "notification_container_ids should be empty when containers is empty"
+  }
+
+  assert {
+    condition     = length(local.secrets_container_ids) == 0
+    error_message = "secrets_container_ids should be empty when containers is empty"
   }
 }
 
