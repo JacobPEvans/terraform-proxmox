@@ -89,7 +89,7 @@ Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
 
 ### Config File Architecture
 
-```
+```text
 deployment.json          (committed, plaintext) — containers, VMs, pools, proxmox_node
 terraform.sops.json      (committed, encrypted) — network_prefix, vm_ssh_*_key_path
 Doppler env vars         (runtime only)         — PROXMOX_VE_*, SPLUNK_*, SSH key content
@@ -101,6 +101,17 @@ See [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md) for full setup and usage.
 - `.sops.yaml` - Age public key configuration (safe to commit)
 - `deployment.json` - Non-secret config (edit and commit directly)
 - `terraform.sops.json.example` - SOPS template with 3 values (copy, fill in, encrypt)
+
+## Dev Environment
+
+Uses [Nix flakes](https://wiki.nixos.org/wiki/Flakes) + [direnv](https://direnv.net/) for reproducible dev environment.
+
+```sh
+direnv allow    # one-time per worktree, then automatic on cd
+nix develop     # manual activation
+```
+
+**Tools**: terraform, terragrunt, opentofu, terraform-docs, tflint, tfsec, trivy, sops, age, awscli2
 
 ## Repository Context
 
