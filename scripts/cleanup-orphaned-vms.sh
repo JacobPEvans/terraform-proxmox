@@ -23,7 +23,7 @@ echo "Fetching VMs from Terraform state..."
 cd "$(dirname "$0")/.."
 
 run_terragrunt() {
-    nix develop ~/git/nix-config/main/shells/terraform --command bash -c \
+    nix develop ~/git/terraform-proxmox/main --command bash -c \
         "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt $*"
 }
 

@@ -59,8 +59,9 @@ These are created via Proxmox UI and **not** managed by Terraform:
 ### 1. Validate Configuration
 
 ```bash
-# Enter Nix shell with tools
-nix develop ~/git/nix-config/main/shells/terraform
+# Enter Nix shell (direnv handles this automatically if .envrc is allowed)
+# Or enter manually:
+nix develop ~/git/terraform-proxmox/main
 
 # Validate Terraform syntax
 terragrunt validate

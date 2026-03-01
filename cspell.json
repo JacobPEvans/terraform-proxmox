@@ -63,7 +63,20 @@
     "tflint",
     "awscli",
     "FQCN",
-    "geerlingguy"
+    "geerlingguy",
+    "terrascan",
+    "nixos",
+    "NixOS",
+    "infracost",
+    "subshell",
+    "jevans",
+    "cachix",
+    "creds",
+    "mgmt",
+    "Palo",
+    "IPFIX",
+    "Technitium",
+    "keyctl"
   ],
   "ignorePaths": [
     ".terraform/**",
