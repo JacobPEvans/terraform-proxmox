@@ -5,9 +5,9 @@ to use Nix shells for local Terraform/Terragrunt development and testing.
 
 ## Overview
 
-This repository leverages a pre-configured Nix development shell located at
-`~/git/nix-config/main/shells/terraform` that provides all necessary tools
-for infrastructure-as-code development, including:
+This repository includes a pre-configured Nix development shell at its root
+`flake.nix` that provides all necessary tools for infrastructure-as-code
+development, including:
 
 - **Infrastructure Tools**: Terraform, Terragrunt, OpenTofu
 - **Security Scanners**: checkov, terrascan, tfsec, trivy
@@ -58,8 +58,8 @@ direnv allow
 #### Manual Activation
 
 ```bash
-# Enter the Nix shell manually
-nix develop ~/git/nix-config/main/shells/terraform
+# Enter the Nix shell manually (from the repo root)
+nix develop ~/git/terraform-proxmox/main
 
 # You'll see a welcome message showing all available tools
 ```
@@ -367,11 +367,11 @@ If direnv is not available, use the manual nix develop wrapper:
 ```bash
 # General pattern
 aws-vault exec PROFILE_NAME -- \
-  nix develop ~/git/nix-config/main/shells/terraform --command COMMAND
+  nix develop ~/git/terraform-proxmox/main --command COMMAND
 
 # Common examples
 aws-vault exec PROFILE_NAME -- \
-  nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+  nix develop ~/git/terraform-proxmox/main --command terragrunt plan
 ```
 
 ### Finding Your AWS Profile Name
@@ -454,11 +454,11 @@ nix develop ~/path/to/shell --command \
 **Solution**:
 
 ```bash
-# Update nix flake inputs
-nix flake update ~/git/nix-config/main/shells/terraform
+# Update nix flake inputs (run from repo root)
+nix flake update ~/git/terraform-proxmox/main
 
 # Rebuild the shell
-nix develop ~/git/nix-config/main/shells/terraform --rebuild
+nix develop ~/git/terraform-proxmox/main --rebuild
 ```
 
 ### Issue: Docker not available in Nix shell
@@ -543,37 +543,27 @@ cd ~/git/terraform-proxmox/main
 
 ### Customizing the Shell
 
-Create a local `flake.nix` override:
+The repo's `flake.nix` defines `devShells.default`. To add local customizations
+without modifying the committed flake, set extra environment variables in your
+`.envrc` after `use flake`:
 
-```nix
-{
-  description = "Custom Terraform shell for this project";
-
-  inputs = {
-    terraform-shell.url = "path:/Users/jevans/git/nix-config/main/shells/terraform";
-  };
-
-  outputs = { terraform-shell, ... }: {
-    devShells = terraform-shell.devShells // {
-      default = terraform-shell.devShells.default.overrideAttrs (old: {
-        shellHook = old.shellHook + ''
-          echo "Custom setup for Splunk cluster development"
-          export TF_LOG=DEBUG
-        '';
-      });
-    };
-  };
-}
+```bash
+# .envrc (local only, gitignored for personal overrides)
+use flake
+export TF_LOG=DEBUG
+echo "Custom setup for Splunk cluster development"
 ```
+
+Alternatively, extend the shell by editing `flake.nix` in your feature branch.
 
 ### Running Commands Outside the Shell
 
 ```bash
-# Execute a single command in the Nix shell environment
-nix develop ~/git/nix-config/main/shells/terraform --command terragrunt plan
+# Execute a single command in the Nix shell environment (from repo root)
+nix develop ~/git/terraform-proxmox/main --command terragrunt plan
 
 # Run a script in the Nix shell
-nix develop ~/git/nix-config/main/shells/terraform --command bash ./scripts/deploy.sh
+nix develop ~/git/terraform-proxmox/main --command bash ./scripts/deploy.sh
 ```
 
 ## Integration with CI/CD
@@ -598,7 +588,7 @@ jobs:
 
       - name: Enter Nix shell and validate
         run: |
-          nix develop ~/git/nix-config/main/shells/terraform --command bash -c "
+          nix develop . --command bash -c "
             terragrunt init
             terragrunt validate
             tflint
@@ -608,7 +598,7 @@ jobs:
 
 ## Additional Resources
 
-- **Nix Shell Documentation**: `~/git/nix-config/main/shells/terraform/flake.nix`
+- **Nix Shell Definition**: `~/git/terraform-proxmox/main/flake.nix`
 - **Terraform Documentation**:
   [developer.hashicorp.com/terraform](https://developer.hashicorp.com/terraform/docs)
 - **Terragrunt Documentation**:

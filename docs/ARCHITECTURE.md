@@ -21,7 +21,6 @@ graph TD
     end
 
     subgraph "Development & Applications"
-        NC[nix-config]
         CR[cribl]
         SP[splunk]
     end
@@ -41,8 +40,6 @@ graph TD
     DOP -->|env vars| APA
     AV -->|AWS creds for S3 backend| TP
     AV -->|AWS creds| TA
-    NC -->|nix develop shells| TP
-    NC -->|nix develop shells| TA
     CR -->|packs & configs| APA
     SP -->|add-ons| AS
     SOPS_AGE -.->|planned| TP
