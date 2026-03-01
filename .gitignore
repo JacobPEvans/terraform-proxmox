@@ -49,7 +49,6 @@ aws-credentials
 .env
 .env.*
 !.env.example
-.envrc
 
 # Doppler configuration (contains project/config names)
 .doppler.yaml

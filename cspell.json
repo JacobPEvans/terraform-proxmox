@@ -56,7 +56,14 @@
     "qemu",
     "k3s",
     "OrbStack",
-    "orbstack"
+    "orbstack",
+    "worktree",
+    "worktrees",
+    "tokenid",
+    "tflint",
+    "awscli",
+    "FQCN",
+    "geerlingguy"
   ],
   "ignorePaths": [
     ".terraform/**",

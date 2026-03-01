@@ -93,22 +93,30 @@ terraform-proxmox/
 
 #### Option A: Using Nix Shell (Recommended)
 
-All tools are provided via a pre-configured Nix development shell.
-The repository ships an `.envrc` file that auto-activates the shell
-via direnv when you enter the directory.
+All tools are provided via a self-contained `flake.nix` devShell.
+The repository ships a committed `.envrc` file that auto-activates
+the shell via direnv when you enter the directory.
 
 **Requirements:**
 
-- `nix-direnv` (not just plain direnv) - Install via: `nix profile install nixpkgs#nix-direnv`
-- Shell hook setup for direnv (see [direnv setup](https://direnv.net/docs/hook.html))
+- [Nix](https://nixos.org/download/) with flakes enabled
+- [direnv](https://direnv.net/docs/installation.html) with [nix-direnv](https://github.com/nix-community/nix-direnv)
 
 ```bash
 # Automatic activation (requires direnv + nix-direnv)
-direnv allow    # one-time setup
+direnv allow    # one-time per worktree, then automatic on cd
 
-# Manual fallback
-nix develop "${NIX_CONFIG_PATH:-$HOME/git/nix-config/main}/shells/terraform"
+# Manual activation
+nix develop
 ```
+
+**Tools provided:**
+
+- `terraform`, `terragrunt`, `opentofu`, `terraform-docs`, `tflint` -- IaC tooling
+- `tfsec`, `trivy` -- security scanning
+- `sops`, `age` -- secrets management
+- `awscli2` -- AWS CLI
+- `jq`, `yq` -- utilities
 
 See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
 
@@ -121,7 +129,7 @@ Install the following tools manually:
 - AWS CLI configured
 - Proxmox API token
 - SSH key pair
-- Security scanners (tfsec, checkov, trivy)
+- Security scanners (tfsec, trivy)
 - Ansible and molecule (for configuration management)
 
 ### Essential Commands
