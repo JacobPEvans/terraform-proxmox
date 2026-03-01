@@ -112,13 +112,14 @@ nix develop
 
 **Tools provided:**
 
-- `terraform`, `terragrunt`, `opentofu`, `terraform-docs`, `tflint` -- IaC tooling
+- `terragrunt`, `opentofu`, `terraform-docs`, `tflint` -- IaC tooling
 - `tfsec`, `trivy` -- security scanning
 - `sops`, `age` -- secrets management
-- `awscli2` -- AWS CLI
+- `awscli2`, `git`, `python3` -- cloud and development
 - `jq`, `yq` -- utilities
+- `pre-commit` -- git hook management
 
-See **[Nix Shell Setup Guide](./docs/nix-shell-setup.md)** for detailed instructions.
+See **[`flake.nix`](./flake.nix)** for the complete dev environment definition.
 
 #### Option B: Manual Installation
 

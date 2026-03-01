@@ -111,7 +111,7 @@ direnv allow    # one-time per worktree, then automatic on cd
 nix develop     # manual activation
 ```
 
-**Tools**: terraform, terragrunt, opentofu, terraform-docs, tflint, tfsec, trivy, sops, age, awscli2
+**Tools**: terragrunt, opentofu, terraform-docs, tflint, tfsec, trivy, sops, age, awscli2, git, python3, jq, yq, pre-commit
 
 ## Repository Context
 
