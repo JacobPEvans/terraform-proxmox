@@ -110,11 +110,11 @@ terragrunt apply -var-file=terraform.tfvars.prod
 ├── .git/                    # Shared git directory (bare repo)
 ├── .env/terraform.tfvars    # Shared environment config (gitignored)
 ├── main/                    # Main branch worktree
-├── feat/feature-name/       # Feature branch worktree
-└── fix/bug-fix/             # Fix branch worktree
+├── feature/feature-name/    # Feature branch worktree
+└── bugfix/bug-fix/          # Fix branch worktree
 
 # Each worktree references the shared .env/terraform.tfvars via symlink
-~/git/terraform-proxmox/feat/feature-name/.env -> ../../.env
+~/git/terraform-proxmox/feature/feature-name/.env -> ../../.env
 ```
 
 **Configuration precedence** (highest to lowest):
