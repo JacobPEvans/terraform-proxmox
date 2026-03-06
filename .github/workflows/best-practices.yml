@@ -2,7 +2,7 @@ name: Best Practices Recommender
 
 on:
   schedule:
-    - cron: "0 3 * * 3"
+    - cron: "0 3 * * 2,5"
   workflow_dispatch:
 
 permissions:
