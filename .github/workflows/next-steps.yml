@@ -13,5 +13,5 @@ permissions:
 
 jobs:
   analyze:
-    uses: JacobPEvans/ai-workflows/.github/workflows/next-steps.yml@v0.8.0
+    uses: JacobPEvans/ai-workflows/.github/workflows/next-steps.yml@v0.9.0
     secrets: inherit
