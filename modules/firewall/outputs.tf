@@ -17,3 +17,8 @@ output "pipeline_container_firewall_enabled" {
   description = "Map of pipeline container IDs with firewall enabled (HAProxy, Cribl Edge)"
   value       = { for k, v in proxmox_virtual_environment_firewall_options.pipeline_container : k => v.enabled }
 }
+
+output "vectordb_container_firewall_enabled" {
+  description = "Map of vector database container IDs with firewall enabled (Qdrant)"
+  value       = { for k, v in proxmox_virtual_environment_firewall_options.vectordb_container : k => v.enabled }
+}

@@ -173,6 +173,9 @@ module "firewall" {
   # Notification containers: Mailpit and ntfy (notifications tag)
   notification_container_ids = local.notification_container_ids
 
+  # Vector database containers: Qdrant (vectordb tag)
+  vectordb_container_ids = local.vectordb_container_ids
+
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks

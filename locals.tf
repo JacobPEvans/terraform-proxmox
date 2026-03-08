@@ -41,9 +41,15 @@ locals {
     for k, v in var.containers : k => v.vm_id
     if contains(coalesce(try(v.tags, null), []), "notifications")
   }
+
+  # Vector database containers: Qdrant (vectordb tag)
+  vectordb_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(coalesce(try(v.tags, null), []), "vectordb")
+  }
 }
 
-# Pipeline constants - single source of truth for service, syslog, and NetFlow ports
+# Pipeline constants - single source of truth for service, syslog, NetFlow, notification, and vector DB ports
 # Referenced by ansible_inventory output for downstream consumption
 locals {
   pipeline_constants = {
@@ -69,6 +75,10 @@ locals {
       mailpit_smtp = 1025
       mailpit_web  = 8025
       ntfy_http    = 8080
+    }
+    vector_db_ports = {
+      qdrant_http = 6333
+      qdrant_grpc = 6334
     }
   }
 }

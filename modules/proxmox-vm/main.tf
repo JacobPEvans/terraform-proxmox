@@ -141,13 +141,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
   }
 
   # Timeout configurations - operation-level timeouts
-  timeout_clone       = 1800  # 30 min - disk copy can be slow
-  timeout_create      = 1800  # 30 min - cloud-init execution
-  timeout_migrate     = 900   # 15 min - standard
-  timeout_reboot      = 900   # 15 min - standard
-  timeout_shutdown_vm = 900   # 15 min - standard
-  timeout_start_vm    = 900   # 15 min - standard
-  timeout_stop_vm     = 900   # 15 min - standard
+  timeout_clone       = 1800 # 30 min - disk copy can be slow
+  timeout_create      = 1800 # 30 min - cloud-init execution
+  timeout_migrate     = 900  # 15 min - standard
+  timeout_reboot      = 900  # 15 min - standard
+  timeout_shutdown_vm = 900  # 15 min - standard
+  timeout_start_vm    = 900  # 15 min - standard
+  timeout_stop_vm     = 900  # 15 min - standard
 
   lifecycle {
     create_before_destroy = false

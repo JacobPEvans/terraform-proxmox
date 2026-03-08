@@ -30,7 +30,7 @@ variable "acme_accounts" {
 variable "dns_plugins" {
   description = "DNS challenge plugins for ACME validation (e.g., AWS Route53)"
   type = map(object({
-    plugin_type = string # API plugin name (e.g., "route53")
+    plugin_type = string      # API plugin name (e.g., "route53")
     data        = map(string) # DNS plugin data as key=value pairs (e.g., AWS credentials)
   }))
   default = {}
@@ -41,10 +41,10 @@ variable "dns_plugins" {
 variable "acme_certificates" {
   description = "ACME certificates to provision and manage"
   type = map(object({
-    node_name      = string # Proxmox node name (e.g., "pve")
-    domain         = string # Primary domain for certificate
-    account_id     = string # Associated ACME account ID
-    dns_plugin_id  = string # DNS plugin ID for validation
+    node_name     = string # Proxmox node name (e.g., "pve")
+    domain        = string # Primary domain for certificate
+    account_id    = string # Associated ACME account ID
+    dns_plugin_id = string # DNS plugin ID for validation
   }))
   default = {}
 }
