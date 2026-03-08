@@ -291,6 +291,22 @@ run "pipeline_constants_cribl_ports" {
   }
 }
 
+# --- pipeline_constants vector_db_ports tests ---
+
+run "pipeline_constants_vector_db_ports" {
+  command = plan
+
+  assert {
+    condition     = local.pipeline_constants.vector_db_ports.qdrant_http == 6333
+    error_message = "qdrant_http port should be 6333"
+  }
+
+  assert {
+    condition     = local.pipeline_constants.vector_db_ports.qdrant_grpc == 6334
+    error_message = "qdrant_grpc port should be 6334"
+  }
+}
+
 # --- derive_ip with different prefix ---
 
 run "derive_ip_custom_prefix" {

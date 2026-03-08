@@ -76,7 +76,9 @@
     "Palo",
     "IPFIX",
     "Technitium",
-    "keyctl"
+    "keyctl",
+    "Qdrant",
+    "qdrant"
   ],
   "ignorePaths": [
     ".terraform/**",

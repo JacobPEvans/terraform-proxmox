@@ -90,6 +90,24 @@
         { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "qdrant": {
+      "vm_id": 165,
+      "hostname": "qdrant",
+      "description": "Qdrant vector database - AI RAG memory store (Docker in LXC)",
+      "cpu_cores": 2,
+      "memory_dedicated": 8192,
+      "memory_swap": 4096,
+      "tags": ["terraform", "container", "vectordb", "ai", "docker"],
+      "pool_id": "ai",
+      "root_disk": { "datastore_id": "local-zfs", "size": 8 },
+      "mount_points": [
+        { "volume": "local-zfs", "size": "100G", "path": "/opt/qdrant" }
+      ],
+      "network_interfaces": [
+        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
+      ],
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
     }
   }
 }
