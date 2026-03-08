@@ -30,9 +30,9 @@ resource "proxmox_virtual_environment_acme_account" "accounts" {
 resource "proxmox_virtual_environment_acme_dns_plugin" "dns_plugins" {
   for_each = var.dns_plugins
 
-  plugin = each.key                # Plugin identifier (e.g., "myroute53")
-  api    = each.value.plugin_type  # API plugin name (e.g., "route53")
-  data   = each.value.data         # DNS plugin data (credentials as key=value pairs)
+  plugin = each.key               # Plugin identifier (e.g., "myroute53")
+  api    = each.value.plugin_type # API plugin name (e.g., "route53")
+  data   = each.value.data        # DNS plugin data (credentials as key=value pairs)
 }
 
 # ACME Certificate - the actual TLS certificate

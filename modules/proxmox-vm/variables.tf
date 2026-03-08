@@ -11,7 +11,7 @@ variable "vms" {
     node_name = string
 
     # Resource configuration
-    cpu_cores        = optional(number, 2)
+    cpu_cores = optional(number, 2)
     # cpu_type: "host" for single-node homelab stability (zero CPU emulation overhead)
     # VMs inherit all host CPU features. Not portable across different CPUs.
     cpu_type         = optional(string, "host")
