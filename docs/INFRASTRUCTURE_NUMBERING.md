@@ -11,7 +11,7 @@
 All services run as lightweight LXC containers, organized by function:
 
 - **100-110**: Infrastructure (Ansible, PVE scripts)
-- **150-169**: AI development (Claude Code, Gemini)
+- **150-169**: AI development (Claude Code, Gemini, Qdrant)
 - **171-179**: Cribl Stream (log processing)
 - **181-189**: Cribl Edge (log forwarding)
 - **190-199**: Splunk management
@@ -43,6 +43,7 @@ Heavy I/O workloads run as full VMs:
 | 151 | claude-code-02 | LXC  | 2     | 2GB  | 64GB    | ai   | Claude Code development environment 2|
 | 161 | gemini-01      | LXC  | 2     | 2GB  | 64GB    | ai   | Gemini development environment 1     |
 | 162 | gemini-02      | LXC  | 2     | 2GB  | 64GB    | ai   | Gemini development environment 2     |
+| 165 | qdrant         | LXC  | 2     | 8GB  | 108GB   | ai   | Qdrant vector database - AI RAG      |
 
 ### LXC Containers - Cribl Stream (171-179)
 
@@ -78,24 +79,24 @@ Heavy I/O workloads run as full VMs:
 | Pool           | Purpose                              | Resources                                    |
 |----------------|--------------------------------------|----------------------------------------------|
 | infrastructure | Core infrastructure services         | ansible, ansible-2, pve-scripts-local        |
-| ai             | AI development environments          | claude-code-01/02, gemini-01/02              |
+| ai             | AI development environments          | claude-code-01/02, gemini-01/02, qdrant      |
 | logging        | Logging and observability            | cribl-*, splunk-mgmt, splunk-vm              |
 
 ---
 
 ## Resource Totals
 
-### Containers (13 total)
+### Containers (14 total)
 
 | Category       | Cores | RAM   | Storage |
 |----------------|-------|-------|---------|
 | Infrastructure | 5     | 4.5GB | 136GB   |
-| AI Development | 8     | 8GB   | 256GB   |
+| AI Development | 10    | 16GB  | 364GB   |
 | Cribl Stream   | 4     | 4GB   | 264GB   |
 | Cribl Edge     | 4     | 4GB   | 264GB   |
 | HAProxy/Syslog | 1     | 512MB | 16GB    |
 | Splunk Mgmt    | 3     | 3GB   | 100GB   |
-| **Subtotal**   | 25    | 24GB  | 1036GB  |
+| **Subtotal**   | 27    | 32GB  | 1144GB  |
 
 ### VMs (1 total)
 
@@ -105,9 +106,9 @@ Heavy I/O workloads run as full VMs:
 
 ### Grand Total
 
-- **Cores**: 33 (oversubscribed)
-- **RAM**: 36GB
-- **Storage**: 1261GB
+- **Cores**: 35 (oversubscribed)
+- **RAM**: 44GB
+- **Storage**: 1369GB
 
 ---
 
@@ -129,6 +130,7 @@ Example configuration uses 192.168.1.0/24:
 - 192.168.1.151/24 - claude-code-02
 - 192.168.1.161/24 - gemini-01
 - 192.168.1.162/24 - gemini-02
+- 192.168.1.165/24 - qdrant
 
 ### Cribl Stream (171-179)
 
@@ -231,7 +233,7 @@ splunk_data_disk_size  = 200 # Data disk: 200GB for indexes
 
 All resources are 100% Terraform-managed:
 
-- 13 LXC containers
+- 14 LXC containers
 - 1 VM (Splunk)
 - 3 resource pools
 - Firewall rules
@@ -248,7 +250,7 @@ To deploy from scratch (e.g., after PVE 9.x upgrade):
 terragrunt apply
 ```
 
-This will create all 19 resources from the configuration.
+This will create all 20 resources from the configuration.
 
 ---
 

@@ -70,5 +70,9 @@ locals {
       mailpit_web  = 8025
       ntfy_http    = 8080
     }
+    vector_db_ports = {
+      qdrant_http = 6333
+      qdrant_grpc = 6334
+    }
   }
 }
