@@ -554,3 +554,76 @@ resource "proxmox_virtual_environment_firewall_rules" "notification_container" {
 
   depends_on = [proxmox_virtual_environment_firewall_options.notification_container]
 }
+
+# =============================================================================
+# Vector Database Container Firewall Configuration (Qdrant)
+# AI RAG memory store - HTTP API (6333) and gRPC (6334)
+# =============================================================================
+
+# Security group for Qdrant vector database
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "vectordb_services" {
+  name    = "vectordb-svc"
+  comment = "Vector database ports: Qdrant HTTP (6333) and gRPC (6334) from internal networks"
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "6333"
+      source  = rule.value
+      comment = "Qdrant HTTP API from ${rule.value}"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.internal_networks
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = "tcp"
+      dport   = "6334"
+      source  = rule.value
+      comment = "Qdrant gRPC from ${rule.value}"
+    }
+  }
+}
+
+resource "proxmox_virtual_environment_firewall_options" "vectordb_container" {
+  for_each = var.vectordb_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = true
+  input_policy  = "DROP"
+  output_policy = "DROP"
+  log_level_in  = "warning"
+  log_level_out = "warning"
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "vectordb_container" {
+  for_each = var.vectordb_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.vectordb_services.name
+    comment        = "Vector database (Qdrant HTTP, gRPC)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
+    comment        = "Outbound to internal only"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.vectordb_container]
+}
