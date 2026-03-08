@@ -49,7 +49,7 @@ locals {
   }
 }
 
-# Pipeline constants - single source of truth for service, syslog, and NetFlow ports
+# Pipeline constants - single source of truth for service, syslog, NetFlow, notification, and vector DB ports
 # Referenced by ansible_inventory output for downstream consumption
 locals {
   pipeline_constants = {
