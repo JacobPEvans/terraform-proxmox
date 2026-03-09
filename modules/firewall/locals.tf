@@ -117,6 +117,19 @@ locals {
     ]
   ])
 
+  apt_cacher_ng_services_rules = flatten([
+    for rule in [
+      { proto = "tcp", dport = "3142", label = "apt-cacher-ng proxy" },
+      ] : [
+      for net in var.internal_networks : {
+        proto   = rule.proto
+        dport   = rule.dport
+        source  = net
+        comment = "${rule.label} from ${net}"
+      }
+    ]
+  ])
+
   # Outbound rules - dynamic portion only (static Splunk rules stay inline)
   outbound_internal_rules = flatten([
     for rule in [

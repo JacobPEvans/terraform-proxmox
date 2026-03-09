@@ -47,6 +47,12 @@ locals {
     for k, v in var.containers : k => v.vm_id
     if contains(coalesce(try(v.tags, null), []), "vectordb")
   }
+
+  # APT caching proxy containers: apt-cacher-ng (apt-cache tag)
+  apt_cacher_ng_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(coalesce(try(v.tags, null), []), "apt-cache")
+  }
 }
 
 # Pipeline constants - single source of truth for service, syslog, NetFlow, notification, and vector DB ports
