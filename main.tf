@@ -176,6 +176,9 @@ module "firewall" {
   # Vector database containers: Qdrant (vectordb tag)
   vectordb_container_ids = local.vectordb_container_ids
 
+  # APT caching proxy containers: apt-cacher-ng (apt-cache tag)
+  apt_cacher_ng_container_ids = local.apt_cacher_ng_container_ids
+
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks

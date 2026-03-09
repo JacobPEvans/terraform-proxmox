@@ -47,6 +47,12 @@ locals {
     for k, v in var.containers : k => v.vm_id
     if contains(coalesce(try(v.tags, null), []), "vectordb")
   }
+
+  # APT caching proxy containers: apt-cacher-ng (apt-cache tag)
+  apt_cacher_ng_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(coalesce(try(v.tags, null), []), "apt-cache")
+  }
 }
 
 # Pipeline constants - single source of truth for service, syslog, NetFlow, notification, and vector DB ports
@@ -60,6 +66,7 @@ locals {
       splunk_mgmt      = 8089
       cribl_edge_api   = 9000
       cribl_stream_api = 9100
+      apt_cacher_ng    = 3142
     }
     syslog_ports = {
       unifi     = 1514

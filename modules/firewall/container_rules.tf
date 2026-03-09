@@ -142,6 +142,45 @@ resource "proxmox_virtual_environment_firewall_rules" "notification_container" {
 }
 
 # =============================================================================
+# APT Caching Proxy Container Firewall Configuration (apt-cacher-ng)
+# APT package caching proxy - inbound port 3142 from internal networks,
+# outbound internet access to reach upstream APT mirrors
+# =============================================================================
+
+resource "proxmox_virtual_environment_firewall_options" "apt_cacher_ng_container" {
+  for_each = var.apt_cacher_ng_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = local.firewall_defaults.enabled
+  input_policy  = local.firewall_defaults.input_policy
+  output_policy = "ACCEPT"
+  log_level_in  = local.firewall_defaults.log_level_in
+  log_level_out = local.firewall_defaults.log_level_out
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "apt_cacher_ng_container" {
+  for_each = var.apt_cacher_ng_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.apt_cacher_ng_services.name
+    comment        = "APT caching proxy (port 3142)"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.apt_cacher_ng_container]
+}
+
+# =============================================================================
 # Vector Database Container Firewall Configuration (Qdrant)
 # AI RAG memory store - HTTP API (6333) and gRPC (6334)
 # =============================================================================

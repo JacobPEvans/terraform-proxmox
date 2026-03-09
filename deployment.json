@@ -91,6 +91,20 @@
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
+    "apt-cacher-ng": {
+      "vm_id": 106,
+      "hostname": "apt-cacher-ng",
+      "description": "apt-cacher-ng - APT package caching proxy",
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 512,
+      "tags": ["terraform", "container", "infrastructure", "apt-cache"],
+      "pool_id": "infrastructure",
+      "root_disk": { "datastore_id": "local-zfs", "size": 16 },
+      "network_interfaces": [
+        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
+      ]
+    },
     "qdrant": {
       "vm_id": 165,
       "hostname": "qdrant",

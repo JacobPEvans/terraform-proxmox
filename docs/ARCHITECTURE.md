@@ -146,7 +146,7 @@ Provisioned via BPG Proxmox Terraform provider. IPs derived from VM ID:
 | --- | --- | --- | --- |
 | HAProxy | - | LXC | Syslog load balancer |
 | Technitium DNS | - | LXC | Internal DNS |
-| apt-cacher-ng | - | LXC | APT package cache |
+| apt-cacher-ng | 106 | LXC | APT package cache |
 | Mailpit | 110 | LXC | SMTP relay with web UI (Docker in LXC) |
 | ntfy | 111 | LXC | Push notification server (Docker in LXC) |
 

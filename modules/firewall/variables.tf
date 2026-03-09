@@ -33,6 +33,12 @@ variable "vectordb_container_ids" {
   default     = {}
 }
 
+variable "apt_cacher_ng_container_ids" {
+  description = "Map of APT caching proxy container names to their IDs (apt-cacher-ng)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
