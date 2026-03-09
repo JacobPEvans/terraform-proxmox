@@ -97,7 +97,7 @@
       "description": "apt-cacher-ng - APT package caching proxy",
       "cpu_cores": 1,
       "memory_dedicated": 512,
-      "memory_swap": 1536,
+      "memory_swap": 512,
       "tags": ["terraform", "container", "infrastructure", "apt-cache"],
       "pool_id": "infrastructure",
       "root_disk": { "datastore_id": "local-zfs", "size": 16 },
