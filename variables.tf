@@ -122,6 +122,23 @@ variable "datastores" {
   default = {}
 }
 
+# Host-level services (ZFS datasets, Samba, etc.) — not managed by Terraform directly,
+# but documented here so ansible-proxmox can consume them via ansible_inventory output.
+variable "host_services" {
+  description = "Host-level services config (ZFS datasets, Samba shares) for ansible-proxmox consumption"
+  type = object({
+    nas = optional(object({
+      zfs_dataset   = string
+      zfs_quota     = string
+      mount_point   = string
+      smb_share_name = string
+      directories   = list(string)
+      description   = optional(string)
+    }))
+  })
+  default = null
+}
+
 # VMs configuration
 variable "vms" {
   description = "Map of VMs to create"
