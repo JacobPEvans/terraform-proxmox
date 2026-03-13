@@ -176,3 +176,49 @@ run "ansible_inventory_docker_vms_exists" {
     error_message = "ansible_inventory must contain 'docker_vms' key at root level"
   }
 }
+
+# --- host_services structure tests ---
+
+run "ansible_inventory_host_services_exists" {
+  command = plan
+
+  assert {
+    condition     = can(output.ansible_inventory.host_services)
+    error_message = "ansible_inventory must contain 'host_services' key at root level"
+  }
+}
+
+run "ansible_inventory_host_services_default_no_nas" {
+  command = plan
+
+  assert {
+    condition     = output.ansible_inventory.host_services.nas == null
+    error_message = "ansible_inventory.host_services.nas must be null when no host_services var is set"
+  }
+}
+
+run "ansible_inventory_host_services_nas_propagated" {
+  command = plan
+
+  variables {
+    host_services = {
+      nas = {
+        zfs_dataset    = "rpool/data/nas"
+        zfs_quota      = "1T"
+        mount_point    = "/mnt/nas"
+        smb_share_name = "nas"
+        directories    = ["huggingface/hub", "ollama/models", "media", "backups"]
+      }
+    }
+  }
+
+  assert {
+    condition     = output.ansible_inventory.host_services.nas.zfs_dataset == "rpool/data/nas"
+    error_message = "host_services.nas.zfs_dataset must propagate to ansible_inventory output"
+  }
+
+  assert {
+    condition     = output.ansible_inventory.host_services.nas.mount_point == "/mnt/nas"
+    error_message = "host_services.nas.mount_point must propagate to ansible_inventory output"
+  }
+}

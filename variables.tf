@@ -131,12 +131,12 @@ variable "host_services" {
       zfs_dataset   = string
       zfs_quota     = string
       mount_point   = string
-      smb_share_name = string
-      directories   = list(string)
-      description   = optional(string)
+      smb_share_name  = string
+      directories     = list(string)
+      description     = optional(string)
     }))
   })
-  default = null
+  default = {}
 }
 
 # VMs configuration

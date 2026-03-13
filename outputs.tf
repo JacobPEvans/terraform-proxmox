@@ -125,6 +125,6 @@ output "ansible_inventory" {
     # Pipeline constants - service and syslog port definitions
     constants = local.pipeline_constants
     # Host-level NAS service config - consumed by ansible-proxmox to provision ZFS dataset + Samba
-    host_services = var.host_services != null ? var.host_services : {}
+    host_services = var.host_services
   }
 }
