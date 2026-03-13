@@ -23,6 +23,17 @@
 
   "datastores": {},
 
+  "host_services": {
+    "nas": {
+      "zfs_dataset": "rpool/data/nas",
+      "zfs_quota": "1T",
+      "mount_point": "/mnt/nas",
+      "smb_share_name": "nas",
+      "directories": ["huggingface/hub", "ollama/models", "media", "backups"],
+      "description": "Host-level NAS: ZFS dataset on local-zfs served via Samba. Managed by ansible-proxmox."
+    }
+  },
+
   "vms": {},
 
   "containers": {
