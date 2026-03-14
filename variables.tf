@@ -172,6 +172,16 @@ variable "vms" {
       discard      = optional(string, "ignore")
     }), {})
 
+    additional_disks = optional(list(object({
+      datastore_id = optional(string)
+      interface    = string
+      size         = number
+      file_format  = optional(string, "raw")
+      iothread     = optional(bool, true)
+      ssd          = optional(bool, false)
+      discard      = optional(string, "ignore")
+    })), [])
+
     # Network configuration
     network_interfaces = optional(list(object({
       bridge   = optional(string, "vmbr0")
