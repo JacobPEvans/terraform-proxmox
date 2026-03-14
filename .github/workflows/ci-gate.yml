@@ -1,0 +1,114 @@
+# CI Gate - Conditional Required Checks
+#
+# FRAMEWORK: Merge Gatekeeper Pattern
+# ====================================
+# Solves: "Required checks that only run when relevant files change"
+#
+# Problem: GitHub branch protection only supports "always required" or "not required"
+#          Path-filtered workflows that don't run = pending forever = blocks merge
+#
+# Solution: Single workflow that:
+# 1. Always triggers on ALL PRs (no path filters at workflow level)
+# 2. Detects which file categories changed
+# 3. Calls reusable workflows conditionally (skipped = success)
+# 4. Final "Merge Gate" job aggregates all results
+#
+# Branch Protection: Set ONLY "Merge Gate" as required check
+#
+# Adding New Checks:
+# 1. Create reusable workflow: _your-check.yml with `on: workflow_call`
+# 2. Add filter pattern under `changes.steps.filter.with.filters`
+# 3. Add job that calls the reusable workflow with appropriate `if:` condition
+# 4. Add job name to `gate.needs` array and `allowed-skips`
+
+name: CI Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # ==========================================================================
+  # CHANGE DETECTION
+  # ==========================================================================
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+      markdown: ${{ steps.filter.outputs.markdown }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - '**.tf'
+              - '**.tfvars'
+              - '.terraform.lock.hcl'
+              - 'tests/**'
+            markdown:
+              - '**.md'
+              - '.markdownlint*'
+
+  # ==========================================================================
+  # CONDITIONAL CHECKS
+  # ==========================================================================
+  terraform:
+    name: Terraform
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+      - name: OpenTofu Format
+        run: tofu fmt -check
+      - name: OpenTofu Init
+        run: tofu init -backend=false
+      - name: OpenTofu Validate
+        run: tofu validate -no-color
+      - name: OpenTofu Test
+        run: tofu test -no-color
+
+  markdown-lint:
+    name: Markdown Lint
+    needs: changes
+    if: needs.changes.outputs.markdown == 'true'
+    uses: JacobPEvans/.github/.github/workflows/_markdown-lint.yml@main
+
+  file-size:
+    name: File Size
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true' || needs.changes.outputs.markdown == 'true'
+    uses: JacobPEvans/.github/.github/workflows/_file-size.yml@main
+
+  # ==========================================================================
+  # MERGE GATE - The ONLY required check in branch protection
+  # ==========================================================================
+  gate:
+    name: Merge Gate
+    needs: [changes, terraform, markdown-lint, file-size]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all results
+        uses: re-actors/alls-green@release/v1
+        with:
+          allowed-skips: terraform, markdown-lint, file-size
+          jobs: ${{ toJSON(needs) }}
