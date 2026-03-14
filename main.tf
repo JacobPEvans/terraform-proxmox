@@ -78,6 +78,7 @@ module "vms" {
 
   environment       = var.environment
   default_datastore = var.datastore_default
+  domain            = var.domain
 
   # SSH credentials for provisioners (BPG provider reads auth from PROXMOX_VE_* env vars)
   proxmox_ssh_username    = var.proxmox_ssh_username
@@ -116,6 +117,7 @@ module "containers" {
 
   environment       = var.environment
   default_datastore = var.datastore_default
+  domain            = var.domain
 
   depends_on = [module.pools, module.storage]
 }
@@ -140,6 +142,7 @@ module "splunk_vm" {
   data_disk_size = var.splunk_data_disk_size
   cpu_cores      = var.splunk_cpu_cores
   memory         = var.splunk_memory
+  domain         = var.domain
 
   depends_on = [module.pools]
 }
@@ -178,6 +181,9 @@ module "firewall" {
 
   # APT caching proxy containers: apt-cacher-ng (apt-cache tag)
   apt_cacher_ng_container_ids = local.apt_cacher_ng_container_ids
+
+  # Cribl Stream containers: cribl + stream tags (receives from Edge, routes to Splunk)
+  cribl_stream_container_ids = local.cribl_stream_container_ids
 
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)

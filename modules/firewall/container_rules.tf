@@ -104,6 +104,49 @@ resource "proxmox_virtual_environment_firewall_rules" "pipeline_container" {
 }
 
 # =============================================================================
+# Cribl Stream Container Firewall Configuration
+# Receives log data from Cribl Edge, routes and transforms to Splunk HEC
+# =============================================================================
+
+resource "proxmox_virtual_environment_firewall_options" "cribl_stream_container" {
+  for_each = var.cribl_stream_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = local.firewall_defaults.enabled
+  input_policy  = local.firewall_defaults.input_policy
+  output_policy = local.firewall_defaults.output_policy
+  log_level_in  = local.firewall_defaults.log_level_in
+  log_level_out = local.firewall_defaults.log_level_out
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "cribl_stream_container" {
+  for_each = var.cribl_stream_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.cribl_stream_services.name
+    comment        = "Cribl Stream API (9100)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
+    comment        = "Outbound to internal only (reaches Splunk HEC 8088)"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.cribl_stream_container]
+}
+
+# =============================================================================
 # Notification Container Firewall Configuration (Mailpit, ntfy)
 # These containers provide SMTP relay and push notification services
 # =============================================================================

@@ -197,6 +197,39 @@ run "ansible_inventory_host_services_default_no_nas" {
   }
 }
 
+# --- domain propagation tests ---
+
+run "ansible_inventory_domain_field_exists" {
+  command = plan
+
+  assert {
+    condition     = can(output.ansible_inventory.domain)
+    error_message = "ansible_inventory must contain 'domain' key for downstream FQDN configuration"
+  }
+}
+
+run "ansible_inventory_domain_default_empty" {
+  command = plan
+
+  assert {
+    condition     = output.ansible_inventory.domain == ""
+    error_message = "ansible_inventory.domain should be empty string when var.domain is not set"
+  }
+}
+
+run "ansible_inventory_domain_propagated" {
+  command = plan
+
+  variables {
+    domain = "example.com"
+  }
+
+  assert {
+    condition     = output.ansible_inventory.domain == "example.com"
+    error_message = "ansible_inventory.domain must propagate var.domain, got '${output.ansible_inventory.domain}'"
+  }
+}
+
 run "ansible_inventory_host_services_nas_propagated" {
   command = plan
 

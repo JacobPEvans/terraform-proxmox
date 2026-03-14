@@ -51,6 +51,14 @@ resource "proxmox_virtual_environment_container" "containers" {
       }
     }
 
+    # DNS search domain for FQDN resolution
+    dynamic "dns" {
+      for_each = var.domain != "" ? [1] : []
+      content {
+        domain = var.domain
+      }
+    }
+
     # User account configuration (only if keys are provided)
     dynamic "user_account" {
       for_each = length(lookup(each.value.user_account, "keys", [])) > 0 || lookup(each.value.user_account, "password", "") != "" ? [1] : []

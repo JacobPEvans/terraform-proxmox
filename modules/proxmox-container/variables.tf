@@ -19,7 +19,7 @@ variable "containers" {
 
     # Storage
     root_disk = optional(object({
-      datastore_id = optional(string, "local-lvm")
+      datastore_id = optional(string, "local-zfs")
       size         = optional(number, 8)
     }), {})
 
@@ -34,9 +34,9 @@ variable "containers" {
     network_interfaces = optional(list(object({
       name     = optional(string, "eth0")
       bridge   = optional(string, "vmbr0")
-      firewall = optional(bool, false)
+      firewall = optional(bool, true)
       vlan_id  = optional(number)
-    })), [{ name = "eth0", bridge = "vmbr0" }])
+    })), [{ name = "eth0", bridge = "vmbr0", firewall = true }])
 
     # Initialization
     ip_config = optional(object({
@@ -62,6 +62,12 @@ variable "containers" {
     }), { nesting = true, keyctl = false, fuse = false, mount = [] })
   }))
   default = {}
+}
+
+variable "domain" {
+  description = "Internal domain for FQDN resolution (e.g., jacobpevans.com)"
+  type        = string
+  default     = ""
 }
 
 variable "environment" {

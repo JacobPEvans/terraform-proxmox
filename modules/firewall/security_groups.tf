@@ -199,6 +199,23 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "vectordb
   }
 }
 
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "cribl_stream_services" {
+  name    = "cribl-stream-svc"
+  comment = "Cribl Stream API (9100) from internal networks"
+
+  dynamic "rule" {
+    for_each = local.cribl_stream_services_rules
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = rule.value.proto
+      dport   = rule.value.dport
+      source  = rule.value.source
+      comment = rule.value.comment
+    }
+  }
+}
+
 resource "proxmox_virtual_environment_cluster_firewall_security_group" "apt_cacher_ng_services" {
   name    = "apt-cacher-ng-svc"
   comment = "APT caching proxy port: apt-cacher-ng (3142) from internal networks"

@@ -126,5 +126,7 @@ output "ansible_inventory" {
     constants = local.pipeline_constants
     # Host-level NAS service config - consumed by ansible-proxmox to provision ZFS dataset + Samba
     host_services = var.host_services
+    # Domain for FQDN resolution (e.g., jacobpevans.com)
+    domain = var.domain
   }
 }

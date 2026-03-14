@@ -1,5 +1,11 @@
 
 # Environment and general configuration
+variable "domain" {
+  description = "Internal domain for FQDN resolution (e.g., jacobpevans.com)"
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Environment name for resource tagging and organization"
   type        = string
@@ -289,7 +295,7 @@ variable "containers" {
 
     # Storage
     root_disk = optional(object({
-      datastore_id = optional(string, "local-lvm")
+      datastore_id = optional(string, "local-zfs")
       size         = optional(number, 16)
     }), {})
 
@@ -304,8 +310,8 @@ variable "containers" {
     network_interfaces = optional(list(object({
       name     = optional(string, "eth0")
       bridge   = optional(string, "vmbr0")
-      firewall = optional(bool, false)
-    })), [{ name = "eth0", bridge = "vmbr0" }])
+      firewall = optional(bool, true)
+    })), [{ name = "eth0", bridge = "vmbr0", firewall = true }])
 
     # Initialization
     ip_config = optional(object({

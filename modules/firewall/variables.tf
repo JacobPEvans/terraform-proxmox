@@ -39,6 +39,12 @@ variable "apt_cacher_ng_container_ids" {
   default     = {}
 }
 
+variable "cribl_stream_container_ids" {
+  description = "Map of Cribl Stream container names to their IDs (receives from Edge, routes to Splunk)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
