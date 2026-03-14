@@ -19,7 +19,7 @@ variable "containers" {
 
     # Storage
     root_disk = optional(object({
-      datastore_id = optional(string, "local-zfs")
+      datastore_id = optional(string)
       size         = optional(number, 8)
     }), {})
 

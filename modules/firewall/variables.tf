@@ -63,6 +63,11 @@ variable "internal_networks" {
   default     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
 
   validation {
+    condition     = length(var.internal_networks) > 0
+    error_message = "internal_networks must contain at least one CIDR — cannot generate firewall rules with no source networks."
+  }
+
+  validation {
     condition = alltrue([
       for net in var.internal_networks :
       can(cidrnetmask(net))
