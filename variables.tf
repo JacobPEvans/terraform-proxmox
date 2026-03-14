@@ -173,7 +173,7 @@ variable "vms" {
     }), {})
 
     additional_disks = optional(list(object({
-      datastore_id = optional(string)
+      datastore_id = optional(string, "local-zfs")
       interface    = string
       size         = number
       file_format  = optional(string, "raw")
