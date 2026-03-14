@@ -39,6 +39,12 @@ variable "apt_cacher_ng_container_ids" {
   default     = {}
 }
 
+variable "cribl_stream_container_ids" {
+  description = "Map of Cribl Stream container names to their IDs (receives from Edge, routes to Splunk)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
@@ -55,6 +61,11 @@ variable "internal_networks" {
   description = "RFC1918 networks allowed to access Splunk (SSH, Web UI, forwarding port 9997)"
   type        = list(string)
   default     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+
+  validation {
+    condition     = length(var.internal_networks) > 0
+    error_message = "internal_networks must contain at least one CIDR — cannot generate firewall rules with no source networks."
+  }
 
   validation {
     condition = alltrue([

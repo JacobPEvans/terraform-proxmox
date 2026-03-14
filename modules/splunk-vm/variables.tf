@@ -1,3 +1,9 @@
+variable "domain" {
+  description = "Internal domain for FQDN resolution (e.g., example.com)"
+  type        = string
+  default     = ""
+}
+
 variable "vm_id" {
   description = "Unique VM ID for the Splunk VM"
   type        = number

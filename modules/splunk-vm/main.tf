@@ -12,6 +12,7 @@ terraform {
 locals {
   cloud_init_config = templatefile("${path.module}/templates/cloud-init.yml.tpl", {
     hostname = var.name
+    domain   = var.domain
   })
 }
 

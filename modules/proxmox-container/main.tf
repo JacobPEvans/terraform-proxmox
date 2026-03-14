@@ -51,6 +51,14 @@ resource "proxmox_virtual_environment_container" "containers" {
       }
     }
 
+    # DNS search domain for FQDN resolution
+    dynamic "dns" {
+      for_each = var.domain != "" ? [1] : []
+      content {
+        domain = var.domain
+      }
+    }
+
     # User account configuration (only if keys are provided)
     dynamic "user_account" {
       for_each = length(lookup(each.value.user_account, "keys", [])) > 0 || lookup(each.value.user_account, "password", "") != "" ? [1] : []
@@ -74,7 +82,7 @@ resource "proxmox_virtual_environment_container" "containers" {
 
   # Root disk
   disk {
-    datastore_id = each.value.root_disk.datastore_id
+    datastore_id = coalesce(each.value.root_disk.datastore_id, var.default_datastore)
     size         = coalesce(each.value.root_disk.size, 8)
   }
 

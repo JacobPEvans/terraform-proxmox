@@ -90,6 +90,12 @@ variable "vms" {
   # Allowed values: std, cirrus, vmware, qxl
 }
 
+variable "domain" {
+  description = "Internal domain for FQDN resolution (e.g., example.com)"
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Environment name for resource tagging"
   type        = string

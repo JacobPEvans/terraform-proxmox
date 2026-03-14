@@ -6,6 +6,10 @@
 # deployed by Ansible after first boot.
 
 hostname: ${hostname}
+%{ if domain != "" ~}
+fqdn: ${hostname}.${domain}
+manage_etc_hosts: true
+%{ endif ~}
 
 runcmd:
   # --- Data disk setup (idempotent) ---

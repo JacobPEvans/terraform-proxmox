@@ -53,6 +53,13 @@ locals {
     for k, v in var.containers : k => v.vm_id
     if contains(coalesce(try(v.tags, null), []), "apt-cache")
   }
+
+  # Cribl Stream containers: tagged cribl + stream (receives from Edge, routes to Splunk)
+  # Distinct from pipeline_container_ids (HAProxy + Cribl Edge) as it doesn't receive external traffic
+  cribl_stream_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(coalesce(try(v.tags, null), []), "cribl") && contains(coalesce(try(v.tags, null), []), "stream")
+  }
 }
 
 # Pipeline constants - single source of truth for service, syslog, NetFlow, notification, and vector DB ports

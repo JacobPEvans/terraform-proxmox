@@ -3,7 +3,6 @@
 
   "proxmox_node": "pve",
   "environment": "homelab",
-
   "proxmox_iso_debian": "debian-13.2.0-amd64-netinst.iso",
   "proxmox_ct_template_debian": "debian-13-standard_13.1-2_amd64.tar.zst",
   "ansible_cloud_init_file": "cloud-init/ansible-server-example.yml",
@@ -46,13 +45,7 @@
       "memory_swap": 512,
       "tags": ["terraform", "ansible", "control-plane", "container"],
       "pool_id": "infrastructure",
-      "root_disk": {
-        "datastore_id": "local-zfs",
-        "size": 64
-      },
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ]
+      "root_disk": { "size": 64 }
     },
     "mssql": {
       "vm_id": 130,
@@ -63,12 +56,9 @@
       "memory_swap": 2048,
       "tags": ["terraform", "container", "database", "docker"],
       "pool_id": "infrastructure",
-      "root_disk": { "datastore_id": "local-zfs", "size": 16 },
+      "root_disk": { "size": 16 },
       "mount_points": [
         { "volume": "local-zfs", "size": "50G", "path": "/opt/mssql" }
-      ],
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
@@ -81,10 +71,7 @@
       "memory_swap": 256,
       "tags": ["terraform", "container", "notifications", "smtp", "docker"],
       "pool_id": "infrastructure",
-      "root_disk": { "datastore_id": "local-zfs", "size": 8 },
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ],
+      "root_disk": { "size": 8 },
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
     "ntfy": {
@@ -96,10 +83,7 @@
       "memory_swap": 256,
       "tags": ["terraform", "container", "notifications", "push", "docker"],
       "pool_id": "infrastructure",
-      "root_disk": { "datastore_id": "local-zfs", "size": 8 },
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ],
+      "root_disk": { "size": 8 },
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
     "apt-cacher-ng": {
@@ -111,10 +95,7 @@
       "memory_swap": 512,
       "tags": ["terraform", "container", "infrastructure", "apt-cache"],
       "pool_id": "infrastructure",
-      "root_disk": { "datastore_id": "local-zfs", "size": 16 },
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ]
+      "root_disk": { "size": 16 }
     },
     "qdrant": {
       "vm_id": 165,
@@ -125,13 +106,57 @@
       "memory_swap": 4096,
       "tags": ["terraform", "container", "vectordb", "ai", "docker"],
       "pool_id": "ai",
-      "root_disk": { "datastore_id": "local-zfs", "size": 8 },
+      "root_disk": { "size": 8 },
       "mount_points": [
         { "volume": "local-zfs", "size": "100G", "path": "/opt/qdrant" }
       ],
-      "network_interfaces": [
-        { "name": "eth0", "bridge": "vmbr0", "firewall": true }
-      ],
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "haproxy": {
+      "vm_id": 175,
+      "hostname": "haproxy",
+      "description": "HAProxy - syslog/NetFlow TCP+UDP load balancer",
+      "cpu_cores": 2,
+      "memory_dedicated": 1024,
+      "memory_swap": 512,
+      "tags": ["terraform", "container", "haproxy", "pipeline", "infrastructure"],
+      "pool_id": "logging",
+      "root_disk": { "size": 8 }
+    },
+    "cribl-stream": {
+      "vm_id": 171,
+      "hostname": "cribl-stream",
+      "description": "Cribl Stream - log routing and transformation",
+      "cpu_cores": 4,
+      "memory_dedicated": 4096,
+      "memory_swap": 2048,
+      "tags": ["terraform", "container", "cribl", "stream", "pipeline", "logging"],
+      "pool_id": "logging",
+      "root_disk": { "size": 16 },
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "cribl-edge-01": {
+      "vm_id": 180,
+      "hostname": "cribl-edge-01",
+      "description": "Cribl Edge node 1 - syslog/NetFlow collection",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 1024,
+      "tags": ["terraform", "container", "cribl", "edge", "pipeline", "logging"],
+      "pool_id": "logging",
+      "root_disk": { "size": 32 },
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "cribl-edge-02": {
+      "vm_id": 181,
+      "hostname": "cribl-edge-02",
+      "description": "Cribl Edge node 2 - syslog/NetFlow collection",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 1024,
+      "tags": ["terraform", "container", "cribl", "edge", "pipeline", "logging"],
+      "pool_id": "logging",
+      "root_disk": { "size": 32 },
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     }
   }

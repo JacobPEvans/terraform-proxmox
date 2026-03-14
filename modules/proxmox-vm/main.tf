@@ -111,6 +111,14 @@ resource "proxmox_virtual_environment_vm" "vms" {
   initialization {
     datastore_id = var.default_datastore
 
+    # DNS search domain for FQDN resolution
+    dynamic "dns" {
+      for_each = var.domain != "" ? [1] : []
+      content {
+        domain = var.domain
+      }
+    }
+
     dynamic "ip_config" {
       for_each = each.value.ip_config.ipv4_address != null || each.value.ip_config.ipv6_address != null ? [1] : []
       content {

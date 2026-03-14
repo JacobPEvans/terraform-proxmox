@@ -200,7 +200,7 @@ run "cribl_without_edge_not_in_pipeline_ids" {
   variables {
     containers = {
       "cribl-stream" = {
-        vm_id    = 182
+        vm_id    = 171
         hostname = "cribl-stream"
         tags     = ["terraform", "cribl", "stream", "container"]
       }
@@ -210,5 +210,99 @@ run "cribl_without_edge_not_in_pipeline_ids" {
   assert {
     condition     = !contains(keys(local.pipeline_container_ids), "cribl-stream")
     error_message = "Container with 'cribl' but NOT 'edge' tag must NOT be in pipeline_container_ids"
+  }
+}
+
+# --- cribl_stream_container_ids tests ---
+
+run "cribl_stream_tagged_container_in_cribl_stream_ids" {
+  command = plan
+
+  variables {
+    containers = {
+      "cribl-stream" = {
+        vm_id    = 171
+        hostname = "cribl-stream"
+        tags     = ["terraform", "cribl", "stream", "pipeline", "container"]
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(keys(local.cribl_stream_container_ids), "cribl-stream")
+    error_message = "Container with 'cribl' + 'stream' tags must be in cribl_stream_container_ids"
+  }
+
+  assert {
+    condition     = local.cribl_stream_container_ids["cribl-stream"] == 171
+    error_message = "cribl_stream_container_ids['cribl-stream'] should be vm_id 171"
+  }
+
+  assert {
+    condition     = !contains(keys(local.pipeline_container_ids), "cribl-stream")
+    error_message = "Cribl Stream must NOT be in pipeline_container_ids (it doesn't receive external traffic)"
+  }
+}
+
+run "cribl_edge_not_in_cribl_stream_ids" {
+  command = plan
+
+  variables {
+    containers = {
+      "cribl-edge-01" = {
+        vm_id    = 180
+        hostname = "cribl-edge-01"
+        tags     = ["terraform", "cribl", "edge", "pipeline", "container"]
+      }
+    }
+  }
+
+  assert {
+    condition     = !contains(keys(local.cribl_stream_container_ids), "cribl-edge-01")
+    error_message = "Container with 'cribl' + 'edge' tags must NOT be in cribl_stream_container_ids"
+  }
+
+  assert {
+    condition     = contains(keys(local.pipeline_container_ids), "cribl-edge-01")
+    error_message = "Container with 'cribl' + 'edge' tags must be in pipeline_container_ids"
+  }
+}
+
+run "pipeline_and_stream_containers_mutually_exclusive" {
+  command = plan
+
+  variables {
+    containers = {
+      "haproxy" = {
+        vm_id    = 175
+        hostname = "haproxy"
+        tags     = ["terraform", "haproxy", "pipeline", "container"]
+      }
+      "cribl-edge-01" = {
+        vm_id    = 180
+        hostname = "cribl-edge-01"
+        tags     = ["terraform", "cribl", "edge", "pipeline", "container"]
+      }
+      "cribl-stream" = {
+        vm_id    = 171
+        hostname = "cribl-stream"
+        tags     = ["terraform", "cribl", "stream", "pipeline", "container"]
+      }
+    }
+  }
+
+  assert {
+    condition     = length(local.pipeline_container_ids) == 2
+    error_message = "pipeline_container_ids should contain haproxy + cribl-edge-01 (2 total)"
+  }
+
+  assert {
+    condition     = length(local.cribl_stream_container_ids) == 1
+    error_message = "cribl_stream_container_ids should contain only cribl-stream (1 total)"
+  }
+
+  assert {
+    condition     = length(setintersection(keys(local.pipeline_container_ids), keys(local.cribl_stream_container_ids))) == 0
+    error_message = "pipeline_container_ids and cribl_stream_container_ids must be mutually exclusive"
   }
 }

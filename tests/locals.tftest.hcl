@@ -307,6 +307,45 @@ run "pipeline_constants_vector_db_ports" {
   }
 }
 
+# --- cribl_stream_container_ids tests ---
+
+run "cribl_stream_ids_empty_by_default" {
+  command = plan
+
+  variables {
+    containers = {}
+  }
+
+  assert {
+    condition     = length(local.cribl_stream_container_ids) == 0
+    error_message = "cribl_stream_container_ids should be empty when containers is empty"
+  }
+}
+
+run "cribl_stream_ids_picks_up_stream_tagged" {
+  command = plan
+
+  variables {
+    containers = {
+      "cribl-stream" = {
+        vm_id    = 171
+        hostname = "cribl-stream"
+        tags     = ["terraform", "cribl", "stream", "container"]
+      }
+    }
+  }
+
+  assert {
+    condition     = length(local.cribl_stream_container_ids) == 1
+    error_message = "cribl_stream_container_ids should have 1 entry for cribl+stream tagged container"
+  }
+
+  assert {
+    condition     = local.cribl_stream_container_ids["cribl-stream"] == 171
+    error_message = "cribl_stream_container_ids should map 'cribl-stream' to vm_id 171"
+  }
+}
+
 # --- derive_ip with different prefix ---
 
 run "derive_ip_custom_prefix" {
