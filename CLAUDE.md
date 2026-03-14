@@ -38,8 +38,9 @@ The Nix shell (providing Terraform/Terragrunt/Ansible) is activated automaticall
 
 **Doppler and SOPS serve different purposes — they are always used together:**
 
-- **`deployment.json`** contains all non-secret config (containers, VMs, pools, Splunk sizing) — committed plaintext, edit directly
-- **`terraform.sops.json`** contains 5 encrypted values: `network_prefix`, `domain`, `vm_ssh_public_key_path`, `vm_ssh_private_key_path`, `proxmox_ssh_username`
+- **`deployment.json`** contains resource definitions (containers, VMs, pools, sizing) — committed plaintext, edit directly
+- **`terraform.sops.json`** contains 5 env-specific values (not necessarily secret, but installation-specific):
+  `network_prefix`, `domain`, `vm_ssh_public_key_path`, `vm_ssh_private_key_path`, `proxmox_ssh_username`
 - **Doppler** injects credentials: `PROXMOX_VE_*` (provider auth), `PROXMOX_SSH_*`, `SPLUNK_*`
 - Terragrunt reads `deployment.json` and decrypts SOPS automatically. No extra flags needed.
 - `management_network` and `splunk_network` are **derived** in `locals.tf` — never set manually

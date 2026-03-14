@@ -6,7 +6,7 @@ type: feedback
 
 # deployment.json is the Single Source of Truth
 
-`deployment.json` is the **single source of truth** for all non-secret Terraform configuration in this repo.
+`deployment.json` is the **single source of truth** for Terraform resource definitions (containers, VMs, pools, sizing) in this repo.
 
 **Why:** `terraform.tfvars` was deleted because it silently overrides `deployment.json` via Terraform variable
 precedence (tfvars = level 3, TF_VAR_* env vars from Terragrunt = level 2). It was gitignored, so it didn't
@@ -17,8 +17,10 @@ transfer to new worktrees, causing silent drift where changes appeared to apply 
 - Edit `deployment.json` for ALL infrastructure changes: containers, VMs, pools, Splunk sizing
 - Never create or commit `terraform.tfvars` — it is gitignored and forbidden
 - If `terraform.tfvars` exists in your worktree, delete it immediately: `rm terraform.tfvars`
-- SOPS (`terraform.sops.json`) holds only 5 encrypted values: `network_prefix`, `domain`,
-  `vm_ssh_public_key_path`, `vm_ssh_private_key_path`, `proxmox_ssh_username`
+- SOPS (`terraform.sops.json`) holds 5 env-specific values (not necessarily secret, but
+  installation-specific — they'd reveal private infra details if committed plaintext):
+  `network_prefix`, `domain`, `vm_ssh_public_key_path`, `vm_ssh_private_key_path`,
+  `proxmox_ssh_username`
 - Doppler holds only runtime credentials: `PROXMOX_VE_*`, `SPLUNK_*`, `PROXMOX_SSH_PRIVATE_KEY`
 
 ## Compact DRY Format for Containers
