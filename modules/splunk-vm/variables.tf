@@ -1,5 +1,5 @@
 variable "domain" {
-  description = "Internal domain for FQDN resolution (e.g., jacobpevans.com)"
+  description = "Internal domain for FQDN resolution (e.g., example.com)"
   type        = string
   default     = ""
 }
