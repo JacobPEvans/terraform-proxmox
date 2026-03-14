@@ -33,7 +33,21 @@
     }
   },
 
-  "vms": {},
+  "vms": {
+    "docker-host": {
+      "vm_id": 250,
+      "name": "docker",
+      "description": "Docker Swarm host - Cribl Edge and Stream services",
+      "cpu_cores": 4,
+      "memory_dedicated": 8192,
+      "tags": ["terraform", "cribl", "docker", "logging", "swarm"],
+      "pool_id": "logging",
+      "boot_disk": { "datastore_id": "local-zfs", "size": 50 },
+      "additional_disks": [{ "datastore_id": "local-zfs", "interface": "scsi1", "size": 100 }],
+      "clone_template": { "template_id": 9000 },
+      "user_account": { "username": "debian", "password": "", "keys": [] }
+    }
+  },
 
   "containers": {
     "ansible": {
@@ -42,25 +56,68 @@
       "description": "Ansible control node - primary",
       "cpu_cores": 2,
       "memory_dedicated": 2048,
-      "memory_swap": 512,
+      "memory_swap": 6144,
       "tags": ["terraform", "ansible", "control-plane", "container"],
       "pool_id": "infrastructure",
       "root_disk": { "size": 64 }
     },
-    "mssql": {
-      "vm_id": 130,
-      "hostname": "mssql",
-      "description": "Microsoft SQL Server 2022 - Docker in LXC",
-      "cpu_cores": 4,
-      "memory_dedicated": 4096,
-      "memory_swap": 2048,
-      "tags": ["terraform", "container", "database", "docker"],
+    "pve-scripts-local": {
+      "vm_id": 102,
+      "hostname": "pve-scripts-local",
+      "description": "Proxmox VE Helper Scripts - community automation tools",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "meta", "proxmox"],
       "pool_id": "infrastructure",
-      "root_disk": { "size": 16 },
-      "mount_points": [
-        { "volume": "local-zfs", "size": "50G", "path": "/opt/mssql" }
-      ],
-      "features": { "nesting": true, "keyctl": true, "fuse": true }
+      "root_disk": { "size": 8 },
+      "network_interfaces": [{ "name": "eth0", "bridge": "vmbr0", "firewall": false }]
+    },
+    "technitium-dns": {
+      "vm_id": 103,
+      "hostname": "technitium-dns",
+      "description": "Technitium DNS Server - local DNS for homelab",
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 1536,
+      "tags": ["terraform", "container", "dns", "meta"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 8 },
+      "network_interfaces": [{ "name": "eth0", "bridge": "vmbr0", "firewall": false }]
+    },
+    "pi-hole": {
+      "vm_id": 104,
+      "hostname": "pi-hole",
+      "description": "Pi-Hole DNS server and ad blocker",
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 1536,
+      "tags": ["terraform", "container", "dns", "infrastructure", "ad-blocker"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 16 }
+    },
+    "phpipam": {
+      "vm_id": 105,
+      "hostname": "phpipam",
+      "description": "phpIPAM - IP Address Management for homelab",
+      "cpu_cores": 1,
+      "memory_dedicated": 1024,
+      "memory_swap": 3072,
+      "tags": ["terraform", "container", "ipam", "meta"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 8 },
+      "network_interfaces": [{ "name": "eth0", "bridge": "vmbr0", "firewall": false }]
+    },
+    "apt-cacher-ng": {
+      "vm_id": 106,
+      "hostname": "apt-cacher-ng",
+      "description": "apt-cacher-ng - APT package caching proxy",
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 1536,
+      "tags": ["terraform", "container", "infrastructure", "apt-cache"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 16 }
     },
     "mailpit": {
       "vm_id": 110,
@@ -86,16 +143,75 @@
       "root_disk": { "size": 8 },
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
-    "apt-cacher-ng": {
-      "vm_id": 106,
-      "hostname": "apt-cacher-ng",
-      "description": "apt-cacher-ng - APT package caching proxy",
-      "cpu_cores": 1,
-      "memory_dedicated": 512,
-      "memory_swap": 512,
-      "tags": ["terraform", "container", "infrastructure", "apt-cache"],
+    "homeassistant": {
+      "vm_id": 120,
+      "hostname": "homeassistant",
+      "description": "Home Assistant home automation platform",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "homeassistant", "automation"],
       "pool_id": "infrastructure",
       "root_disk": { "size": 16 }
+    },
+    "mssql": {
+      "vm_id": 130,
+      "hostname": "mssql",
+      "description": "Microsoft SQL Server 2022 - Docker in LXC",
+      "cpu_cores": 4,
+      "memory_dedicated": 4096,
+      "memory_swap": 2048,
+      "tags": ["terraform", "container", "database", "docker"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 16 },
+      "mount_points": [
+        { "volume": "local-zfs", "size": "50G", "path": "/opt/mssql" }
+      ],
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "claude-code-01": {
+      "vm_id": 150,
+      "hostname": "claude-code-01",
+      "description": "Claude Code development environment 1",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "ai", "claude", "development"],
+      "pool_id": "ai",
+      "root_disk": { "size": 64 }
+    },
+    "claude-code-02": {
+      "vm_id": 151,
+      "hostname": "claude-code-02",
+      "description": "Claude Code development environment 2",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "ai", "claude", "development"],
+      "pool_id": "ai",
+      "root_disk": { "size": 64 }
+    },
+    "gemini-01": {
+      "vm_id": 161,
+      "hostname": "gemini-01",
+      "description": "Gemini development environment 1",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "ai", "gemini", "development"],
+      "pool_id": "ai",
+      "root_disk": { "size": 64 }
+    },
+    "gemini-02": {
+      "vm_id": 162,
+      "hostname": "gemini-02",
+      "description": "Gemini development environment 2",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "ai", "gemini", "development"],
+      "pool_id": "ai",
+      "root_disk": { "size": 64 }
     },
     "qdrant": {
       "vm_id": 165,
@@ -112,28 +228,28 @@
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
+    "nginx-proxy-manager": {
+      "vm_id": 170,
+      "hostname": "nginx-proxy-manager",
+      "description": "Nginx Proxy Manager - reverse proxy for all services",
+      "cpu_cores": 1,
+      "memory_dedicated": 1024,
+      "memory_swap": 3072,
+      "tags": ["terraform", "container", "proxy", "services"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 8 },
+      "network_interfaces": [{ "name": "eth0", "bridge": "vmbr0", "firewall": false }]
+    },
     "haproxy": {
       "vm_id": 175,
       "hostname": "haproxy",
       "description": "HAProxy - syslog/NetFlow TCP+UDP load balancer",
-      "cpu_cores": 2,
-      "memory_dedicated": 1024,
-      "memory_swap": 512,
+      "cpu_cores": 1,
+      "memory_dedicated": 512,
+      "memory_swap": 1536,
       "tags": ["terraform", "container", "haproxy", "pipeline", "infrastructure"],
       "pool_id": "logging",
       "root_disk": { "size": 8 }
-    },
-    "cribl-stream": {
-      "vm_id": 171,
-      "hostname": "cribl-stream",
-      "description": "Cribl Stream - log routing and transformation",
-      "cpu_cores": 4,
-      "memory_dedicated": 4096,
-      "memory_swap": 2048,
-      "tags": ["terraform", "container", "cribl", "stream", "pipeline", "logging"],
-      "pool_id": "logging",
-      "root_disk": { "size": 16 },
-      "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
     "cribl-edge-01": {
       "vm_id": 180,
@@ -141,7 +257,7 @@
       "description": "Cribl Edge node 1 - syslog/NetFlow collection",
       "cpu_cores": 2,
       "memory_dedicated": 2048,
-      "memory_swap": 1024,
+      "memory_swap": 6144,
       "tags": ["terraform", "container", "cribl", "edge", "pipeline", "logging"],
       "pool_id": "logging",
       "root_disk": { "size": 32 },
@@ -153,11 +269,56 @@
       "description": "Cribl Edge node 2 - syslog/NetFlow collection",
       "cpu_cores": 2,
       "memory_dedicated": 2048,
-      "memory_swap": 1024,
+      "memory_swap": 6144,
       "tags": ["terraform", "container", "cribl", "edge", "pipeline", "logging"],
       "pool_id": "logging",
       "root_disk": { "size": 32 },
       "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "cribl-stream-01": {
+      "vm_id": 182,
+      "hostname": "cribl-stream-01",
+      "description": "Cribl Stream processing node 1",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "cribl", "stream", "pipeline", "logging"],
+      "pool_id": "logging",
+      "root_disk": { "size": 32 }
+    },
+    "cribl-stream-02": {
+      "vm_id": 183,
+      "hostname": "cribl-stream-02",
+      "description": "Cribl Stream processing node 2",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "cribl", "stream", "pipeline", "logging"],
+      "pool_id": "logging",
+      "root_disk": { "size": 32 }
+    },
+    "prometheus": {
+      "vm_id": 195,
+      "hostname": "prometheus",
+      "description": "Prometheus - metrics collection and monitoring",
+      "cpu_cores": 2,
+      "memory_dedicated": 2048,
+      "memory_swap": 6144,
+      "tags": ["terraform", "container", "monitoring", "meta"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 16 },
+      "network_interfaces": [{ "name": "eth0", "bridge": "vmbr0", "firewall": false }]
+    },
+    "splunk-mgmt": {
+      "vm_id": 199,
+      "hostname": "splunk-mgmt",
+      "description": "Splunk Management - Search Head, Deployment Server, License Manager, MC, Cluster Manager",
+      "cpu_cores": 3,
+      "memory_dedicated": 3072,
+      "memory_swap": 9216,
+      "tags": ["terraform", "container", "splunk", "management"],
+      "pool_id": "logging",
+      "root_disk": { "size": 100 }
     }
   }
 }

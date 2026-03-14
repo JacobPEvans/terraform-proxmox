@@ -38,8 +38,9 @@ The Nix shell (providing Terraform/Terragrunt/Ansible) is activated automaticall
 
 **Doppler and SOPS serve different purposes — they are always used together:**
 
-- **`deployment.json`** contains all non-secret config (containers, VMs, pools, Splunk sizing) — committed plaintext, edit directly
-- **`terraform.sops.json`** contains 3 encrypted values: `network_prefix`, `vm_ssh_public_key_path`, `vm_ssh_private_key_path`
+- **`deployment.json`** contains resource definitions (containers, VMs, pools, sizing) — committed plaintext, edit directly
+- **`terraform.sops.json`** contains 5 env-specific values (not necessarily secret, but installation-specific):
+  `network_prefix`, `domain`, `vm_ssh_public_key_path`, `vm_ssh_private_key_path`, `proxmox_ssh_username`
 - **Doppler** injects credentials: `PROXMOX_VE_*` (provider auth), `PROXMOX_SSH_*`, `SPLUNK_*`
 - Terragrunt reads `deployment.json` and decrypts SOPS automatically. No extra flags needed.
 - `management_network` and `splunk_network` are **derived** in `locals.tf` — never set manually
@@ -85,22 +86,26 @@ Doppler secrets use `PROXMOX_VE_*` naming to match the BPG Terraform provider:
 - **aws-vault**: Secures AWS credentials for S3 backend (never stored in files)
 - **Doppler**: Credentials at runtime — API tokens, passwords, SSH keys (`PROXMOX_VE_*`, `SPLUNK_*`, etc.)
 - **`deployment.json`**: Committed plaintext — containers, VMs, pools, Splunk sizing (replaces `.env/terraform.tfvars`)
-- **SOPS/age**: 3 encrypted values in `terraform.sops.json` — `network_prefix`, SSH key paths
+- **SOPS/age**: 5 encrypted values in `terraform.sops.json` — `network_prefix`, `domain`, SSH key paths, `proxmox_ssh_username`
 
 ### Config File Architecture
 
 ```text
 deployment.json          (committed, plaintext) — containers, VMs, pools, proxmox_node
-terraform.sops.json      (committed, encrypted) — network_prefix, vm_ssh_*_key_path
+terraform.sops.json      (committed, encrypted) — network_prefix, domain, vm_ssh_*_key_path, proxmox_ssh_username
 Doppler env vars         (runtime only)         — PROXMOX_VE_*, SPLUNK_*, SSH key content
 locals.tf derivations    (computed)             — management_network, splunk_network_ips
 ```
+
+> **WARNING**: `terraform.tfvars` is intentionally gitignored and must NOT exist. It silently overrides
+> `deployment.json` due to Terraform variable precedence (tfvars = level 3, TF_VAR_* = level 2).
+> If it exists in your worktree, delete it: `rm terraform.tfvars`
 
 See [docs/SOPS_SETUP.md](./docs/SOPS_SETUP.md) for full setup and usage.
 
 - `.sops.yaml` - Age public key configuration (safe to commit)
 - `deployment.json` - Non-secret config (edit and commit directly)
-- `terraform.sops.json.example` - SOPS template with 3 values (copy, fill in, encrypt)
+- `terraform.sops.json.example` - SOPS template with 5 values (copy, fill in, encrypt)
 
 ## Dev Environment
 
