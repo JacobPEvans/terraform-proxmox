@@ -139,6 +139,16 @@ resource "proxmox_virtual_environment_firewall_rules" "cribl_stream_container" {
   }
 
   rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.syslog.name
+    comment        = "Syslog ingestion (TCP/UDP 514, 1514-1518)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.netflow.name
+    comment        = "NetFlow/IPFIX ingestion (UDP 2055)"
+  }
+
+  rule {
     security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
     comment        = "Outbound to internal only (reaches Splunk HEC 8088)"
   }
