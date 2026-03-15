@@ -134,12 +134,12 @@ variable "host_services" {
   description = "Host-level services config (ZFS datasets, Samba shares) for ansible-proxmox consumption"
   type = object({
     nas = optional(object({
-      zfs_dataset   = string
-      zfs_quota     = string
-      mount_point   = string
-      smb_share_name  = string
-      directories     = list(string)
-      description     = optional(string)
+      zfs_dataset    = string
+      zfs_quota      = string
+      mount_point    = string
+      smb_share_name = string
+      directories    = list(string)
+      description    = optional(string)
     }))
   })
   default = {}
