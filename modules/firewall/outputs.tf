@@ -22,3 +22,8 @@ output "vectordb_container_firewall_enabled" {
   description = "Map of vector database container IDs with firewall enabled (Qdrant)"
   value       = { for k, v in proxmox_virtual_environment_firewall_options.vectordb_container : k => v.enabled }
 }
+
+output "rag_container_firewall_enabled" {
+  description = "Map of RAG engine container IDs with firewall enabled (LlamaIndex)"
+  value       = { for k, v in proxmox_virtual_environment_firewall_options.rag_container : k => v.enabled }
+}
