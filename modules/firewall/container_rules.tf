@@ -275,3 +275,41 @@ resource "proxmox_virtual_environment_firewall_rules" "vectordb_container" {
 
   depends_on = [proxmox_virtual_environment_firewall_options.vectordb_container]
 }
+
+# =============================================================================
+# RAG Engine Container Firewall Configuration (LlamaIndex)
+# CPU-only RAG engine with Ollama embeddings - internal access only
+# =============================================================================
+
+resource "proxmox_virtual_environment_firewall_options" "rag_container" {
+  for_each = var.rag_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = local.firewall_defaults.enabled
+  input_policy  = local.firewall_defaults.input_policy
+  output_policy = local.firewall_defaults.output_policy
+  log_level_in  = local.firewall_defaults.log_level_in
+  log_level_out = local.firewall_defaults.log_level_out
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "rag_container" {
+  for_each = var.rag_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
+    comment        = "Outbound to internal only"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.rag_container]
+}

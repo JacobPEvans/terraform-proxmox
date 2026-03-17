@@ -48,6 +48,12 @@ locals {
     if contains(coalesce(try(v.tags, null), []), "vectordb")
   }
 
+  # RAG engine containers: LlamaIndex (rag tag)
+  rag_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(coalesce(try(v.tags, null), []), "rag")
+  }
+
   # APT caching proxy containers: apt-cacher-ng (apt-cache tag)
   apt_cacher_ng_container_ids = {
     for k, v in var.containers : k => v.vm_id

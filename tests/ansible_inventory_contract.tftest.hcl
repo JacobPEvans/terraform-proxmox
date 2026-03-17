@@ -119,6 +119,15 @@ run "ansible_inventory_constants_notification_ports_exists" {
   }
 }
 
+run "ansible_inventory_constants_vector_db_ports_exists" {
+  command = plan
+
+  assert {
+    condition     = can(output.ansible_inventory.constants.vector_db_ports)
+    error_message = "ansible_inventory.constants must contain 'vector_db_ports' key"
+  }
+}
+
 # --- key port value tests ---
 
 run "ansible_inventory_splunk_hec_port_value" {

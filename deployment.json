@@ -219,7 +219,7 @@
       "description": "Qdrant vector database - AI RAG memory store (Docker in LXC)",
       "cpu_cores": 2,
       "memory_dedicated": 8192,
-      "memory_swap": 4096,
+      "memory_swap": 8192,
       "tags": ["terraform", "container", "vectordb", "ai", "docker"],
       "pool_id": "ai",
       "root_disk": { "size": 8 },
@@ -227,6 +227,17 @@
         { "volume": "local-zfs", "size": "100G", "path": "/opt/qdrant" }
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
+    "llamaindex": {
+      "vm_id": 166,
+      "hostname": "llamaindex",
+      "description": "LlamaIndex RAG engine with Ollama embeddings (CPU-only)",
+      "cpu_cores": 2,
+      "memory_dedicated": 4096,
+      "memory_swap": 4096,
+      "tags": ["terraform", "container", "ai", "rag"],
+      "pool_id": "ai",
+      "root_disk": { "size": 16 }
     },
     "nginx-proxy-manager": {
       "vm_id": 170,
