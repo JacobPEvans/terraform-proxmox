@@ -278,7 +278,10 @@ resource "proxmox_virtual_environment_firewall_rules" "vectordb_container" {
 
 # =============================================================================
 # RAG Engine Container Firewall Configuration (LlamaIndex)
-# CPU-only RAG engine with Ollama embeddings - internal access only
+# CPU-only RAG engine with Ollama embeddings
+# Inbound: SSH/ICMP from internal (internal-access)
+# Outbound: RFC1918 only so it can reach Qdrant/Ollama (outbound-internal)
+# No service port rules — LlamaIndex does not expose ports to the network
 # =============================================================================
 
 resource "proxmox_virtual_environment_firewall_options" "rag_container" {
