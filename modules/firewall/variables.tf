@@ -33,6 +33,12 @@ variable "vectordb_container_ids" {
   default     = {}
 }
 
+variable "rag_container_ids" {
+  description = "Map of RAG engine container names to their IDs (LlamaIndex)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "apt_cacher_ng_container_ids" {
   description = "Map of APT caching proxy container names to their IDs (apt-cacher-ng)"
   type        = map(number)
