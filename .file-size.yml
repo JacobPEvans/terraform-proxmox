@@ -1,0 +1,18 @@
+# File size check configuration
+# Consumed by JacobPEvans/.github/_file-size.yml reusable workflow
+# Schema: defaults (warn/error bytes), scan (extensions), extended (higher limit), exempt (no limit)
+defaults:
+  warn: 6144
+  error: 12288
+
+scan:
+  - .md
+  - .tf
+
+extended:
+  limit: 32768
+  files:
+    - TROUBLESHOOTING
+
+exempt:
+  - CHANGELOG
