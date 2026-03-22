@@ -62,12 +62,12 @@ aws-vault list
 ```bash
 # Direct commands (direnv handles nix shell)
 cd ~/git/terraform-proxmox/main
-aws-vault exec default -- terragrunt refresh
-aws-vault exec default -- terragrunt plan
+aws-vault exec terraform -- terragrunt refresh
+aws-vault exec terraform -- terragrunt plan
 
 # Long session approach
 cd ~/git/terraform-proxmox/main
-aws-vault exec default -- bash
+aws-vault exec terraform -- bash
 terragrunt refresh
 terragrunt plan
 ```
@@ -96,10 +96,10 @@ Ensure direnv is allowed (`direnv allow`). If not using direnv, nest commands co
 
 ```bash
 # CORRECT - aws-vault wraps nix develop
-aws-vault exec default -- \
+aws-vault exec terraform -- \
   nix develop ~/git/terraform-proxmox/main --command terragrunt plan
 
 # INCORRECT - nix develop doesn't have AWS credentials
 nix develop ~/path/to/shell --command \
-  aws-vault exec default -- terragrunt plan
+  aws-vault exec terraform -- terragrunt plan
 ```
