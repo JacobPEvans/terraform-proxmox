@@ -4,11 +4,8 @@
 
 ## Executive Summary
 
-This document defines the architecture for a 3-node Splunk Enterprise cluster
-on Proxmox VE for local log aggregation and analysis. The cluster consists of
-two indexer VMs and one management LXC container, with complete network
-isolation to prevent outbound internet access while maintaining internal
-cluster communication.
+This document defines the architecture for a 3-node Splunk Enterprise cluster on Proxmox VE for local log aggregation and analysis.
+The cluster consists of two indexer VMs and one management LXC container, with network isolation blocking outbound internet while allowing internal cluster communication.
 
 ### Key Objectives
 
@@ -81,8 +78,7 @@ cluster communication.
 
 ### Approach: File-Based (Simplified)
 
-**Rationale**: Proxmox is air-gapped with no internet access. Cloud-based
-secrets management is not viable for the cluster nodes.
+**Rationale**: Proxmox is air-gapped with no internet access. Cloud-based secrets management is not viable for the cluster nodes.
 
 - **Local (Mac)**: Doppler for Proxmox API creds; SSH keys for host/VM access
 - **Proxmox Host**: Splunk package pre-staged at `/opt/splunk-packages/`

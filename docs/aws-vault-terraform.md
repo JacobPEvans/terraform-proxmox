@@ -1,8 +1,7 @@
 # Using aws-vault with Terraform
 
-This repository uses `aws-vault` to securely manage AWS credentials from
-the macOS Keychain for accessing the S3 state backend. With direnv handling
-the Nix shell, the command patterns are simplified.
+This repository uses `aws-vault` to securely manage AWS credentials from the macOS Keychain for S3 state backend access.
+With direnv handling the Nix shell, command patterns are simplified.
 
 **Back to:** [Nix Shell Setup](nix-shell-setup.md)
 

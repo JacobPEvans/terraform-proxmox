@@ -19,8 +19,7 @@ nix develop ~/git/terraform-proxmox/main --rebuild
 
 **Symptom**: `Cannot connect to the Docker daemon`
 
-The Nix shell provides the Docker CLI client only. Docker must be running
-on the host system:
+The Nix shell provides the Docker CLI client only. Docker must be running on the host system:
 
 ```bash
 # macOS: Ensure Docker Desktop is running
@@ -77,9 +76,8 @@ cd ~/git/terraform-proxmox/main
 
 ### Customizing the Shell
 
-The repo's `flake.nix` defines `devShells.default`. To add local customizations
-without modifying the committed flake, set extra environment variables in your
-`.envrc` after `use flake`:
+The repo's `flake.nix` defines `devShells.default`.
+To add local customizations without modifying the committed flake, set extra environment variables in your `.envrc` after `use flake`:
 
 ```bash
 # .envrc (local only, gitignored for personal overrides)

@@ -1,7 +1,6 @@
 # Using Nix Shells with Terraform Proxmox Repository
 
-This guide covers setting up and using Nix development shells for
-Terraform/Terragrunt work in this repository.
+This guide covers setting up and using Nix development shells for Terraform/Terragrunt work in this repository.
 
 **Related guides:**
 
