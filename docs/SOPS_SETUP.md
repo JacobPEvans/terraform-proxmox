@@ -4,7 +4,7 @@ This repository uses a 3-layer architecture for deployment configuration.
 
 ## The 3 Layers
 
-```
+```text
 LAYER 1: deployment.json (committed, plaintext, git-diffable)
   containers, VMs, pools, template IDs, disk sizes, CPU/memory/tags, proxmox_node
 
@@ -22,7 +22,7 @@ DERIVED (locals.tf — no input needed):
 ## What Goes Where
 
 | Value | File | Why |
-|-------|------|-----|
+| --- | --- | --- |
 | Container/VM definitions | `deployment.json` | Not secret |
 | Pool definitions | `deployment.json` | Not secret |
 | Template/ISO names | `deployment.json` | Not secret |
@@ -117,7 +117,7 @@ Doppler provides all credentials via environment variables. See your local envir
 documentation for Doppler project/config details.
 
 | Secret | Purpose |
-|--------|---------|
+| --- | --- |
 | `PROXMOX_VE_ENDPOINT` | API URL |
 | `PROXMOX_VE_API_TOKEN` | API token |
 | `PROXMOX_VE_INSECURE` | Skip TLS verification |

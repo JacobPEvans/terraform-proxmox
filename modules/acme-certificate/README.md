@@ -18,7 +18,7 @@ The module handles three key components:
 - ✅ Multi-account and multi-certificate support via `for_each`
 - ✅ Terraform state management for existing certificates
 
-## Prerequisites
+## Requirements
 
 1. **Proxmox VE** with ACME support (tested with 7.x+)
 2. **AWS Route53** access for DNS challenge validation
@@ -66,6 +66,7 @@ module "acme_certificates" {
 Map of ACME account configurations.
 
 **Example:**
+
 ```hcl
 acme_accounts = {
   "letsencrypt" = {
@@ -82,6 +83,7 @@ acme_accounts = {
 ```
 
 **Fields:**
+
 - `email` - Email for Let's Encrypt notifications (required)
 - `directory` - ACME directory URL (required)
   - Production: `https://acme-v02.api.letsencrypt.org/directory`
@@ -93,6 +95,7 @@ acme_accounts = {
 Map of DNS challenge plugin configurations.
 
 **Example (Route53):**
+
 ```hcl
 dns_plugins = {
   "route53" = {
@@ -103,16 +106,18 @@ dns_plugins = {
 ```
 
 **Fields:**
+
 - `plugin_type` - Plugin identifier (e.g., "route53", "dns01")
 - `api_type` - API type (e.g., "aws")
 
-**Note:** API credentials (AWS access key, secret key) are configured in Proxmox at `/etc/pve/priv/acme/plugins.cfg`. These are populated via the Proxmox API but not directly managed by this module.
+**Note:** API credentials (AWS access key, secret key) are stored in Proxmox at `/etc/pve/priv/acme/plugins.cfg`, not managed by this module.
 
 ### `acme_certificates`
 
 Map of certificate configurations.
 
 **Example:**
+
 ```hcl
 acme_certificates = {
   "pve-cert" = {
@@ -125,6 +130,7 @@ acme_certificates = {
 ```
 
 **Fields:**
+
 - `node_name` - Proxmox node name (e.g., "pve")
 - `domain` - Primary domain for certificate
 - `account_id` - Associated ACME account ID
@@ -193,6 +199,7 @@ output "certs" {
 ### Ordering
 
 When a certificate is first created:
+
 1. Proxmox contacts Let's Encrypt ACME directory
 2. Proxmox creates DNS TXT records for validation
 3. Let's Encrypt validates DNS records
@@ -201,12 +208,14 @@ When a certificate is first created:
 ### Renewal
 
 Proxmox automatically renews certificates via `pve-daily-update.service`:
+
 - Runs daily
 - Checks certificates 30 days before expiry
 - Re-validates via DNS-01 challenge
 - Updates certificate in place
 
 **Monitor renewal:**
+
 ```bash
 systemctl status pve-daily-update.timer
 journalctl -u pve-daily-update.service --since "7 days ago"
@@ -215,6 +224,7 @@ journalctl -u pve-daily-update.service --since "7 days ago"
 ### Manual Renewal
 
 If needed, trigger renewal manually:
+
 ```bash
 pvenode acme cert order
 ```
@@ -241,12 +251,14 @@ terraform import 'module.acme_certificates.proxmox_virtual_environment_acme_cert
 **Issue:** Let's Encrypt cannot validate DNS records
 
 **Causes:**
+
 - Route53 credentials incorrect
 - IAM permissions insufficient
 - DNS records not propagating
 - Proxmox cannot reach AWS
 
 **Solution:**
+
 1. Verify Route53 IAM policy allows DNS operations
 2. Check DNS propagation: `dig -t TXT _acme-challenge.pve.example.com @8.8.8.8`
 3. Monitor Proxmox logs: `journalctl -u pve-daily-update.service`
@@ -256,11 +268,13 @@ terraform import 'module.acme_certificates.proxmox_virtual_environment_acme_cert
 **Issue:** Proxmox cannot renew existing certificate
 
 **Causes:**
+
 - Route53 credentials expired or revoked
 - DNS plugin misconfiguration
 - Proxmox service issues
 
 **Solution:**
+
 1. Verify Doppler secrets are up to date
 2. Check Proxmox service status: `systemctl status pveproxy`
 3. Review renewal logs: `journalctl -u pve-daily-update.service`
@@ -270,6 +284,7 @@ terraform import 'module.acme_certificates.proxmox_virtual_environment_acme_cert
 **Issue:** Imported resources don't match Terraform configuration
 
 **Solution:**
+
 1. Extract imported state: `terraform state show 'module.acme_certificates.proxmox_virtual_environment_acme_account.accounts["letsencrypt"]'`
 2. Compare with variable values
 3. Update variables to match Proxmox configuration

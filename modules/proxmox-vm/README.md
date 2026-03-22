@@ -102,7 +102,7 @@ module "vms" {
 ## Input Variables
 
 | Name | Description | Type | Required | Default |
-|------|-------------|------|----------|---------|
+| ------ | ------------- | ------ | ---------- | --------- |
 | `vms` | Map of VMs to create | `map(object)` | ✅ | `{}` |
 | `environment` | Environment name for tagging | `string` | ✅ | - |
 | `default_datastore` | Default datastore for VMs | `string` | ❌ | `"local-lvm"` |
@@ -171,7 +171,7 @@ module "vms" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ------ | ------------- |
 | `vm_details` | Complete VM configuration details |
 | `vm_ipv4_addresses` | Map of VM names to IPv4 addresses |
 | `vm_ipv6_addresses` | Map of VM names to IPv6 addresses |
