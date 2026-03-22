@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.1.0...v1.2.0) (2026-03-22)
+
+
+### Features
+
+* add FQDN auto-config and pipeline container definitions ([#185](https://github.com/JacobPEvans/terraform-proxmox/issues/185)) ([7f2a6e4](https://github.com/JacobPEvans/terraform-proxmox/commit/7f2a6e42b19783cb64e5d5ab1657f684b3e7b034))
+* add host-level NAS storage config for ansible-proxmox consumption ([#184](https://github.com/JacobPEvans/terraform-proxmox/issues/184)) ([71fa736](https://github.com/JacobPEvans/terraform-proxmox/commit/71fa736e9d76baf1719c12313b86e9810f2a7bde))
+* add LlamaIndex container and fix Qdrant swap ([#194](https://github.com/JacobPEvans/terraform-proxmox/issues/194)) ([54f42d3](https://github.com/JacobPEvans/terraform-proxmox/commit/54f42d3d328170b3dad47632f0c73c0dada97171))
+* complete deployment.json migration, delete terraform.tfvars ([#186](https://github.com/JacobPEvans/terraform-proxmox/issues/186)) ([30cef3c](https://github.com/JacobPEvans/terraform-proxmox/commit/30cef3c95ae01dd7dbced434dc6021f11c6e3116))
+
+
+### Bug Fixes
+
+* add .file-size.yml with extended limit for TROUBLESHOOTING ([#199](https://github.com/JacobPEvans/terraform-proxmox/issues/199)) ([5da46ee](https://github.com/JacobPEvans/terraform-proxmox/commit/5da46ee867f301244e20140bf5dfee1fdf62f1ae))
+* add release-please config for manifest mode ([f17447f](https://github.com/JacobPEvans/terraform-proxmox/commit/f17447f8f0550451b6571cc352fcf7238232f0dd))
+* add syslog and netflow firewall rules to Cribl Stream containers ([#189](https://github.com/JacobPEvans/terraform-proxmox/issues/189)) ([51737aa](https://github.com/JacobPEvans/terraform-proxmox/commit/51737aa0b845d321a3a0af3c2073a2328f98071d))
+* **ci:** add pull-requests:write for release-please auto-approve ([8dfe391](https://github.com/JacobPEvans/terraform-proxmox/commit/8dfe391755961c81aa0ed6a2363a4bdf188df6bb))
+* **ci:** implement Merge Gatekeeper pattern with ci-gate.yml ([#187](https://github.com/JacobPEvans/terraform-proxmox/issues/187)) ([dc3126f](https://github.com/JacobPEvans/terraform-proxmox/commit/dc3126fca6e86f7698b489d3080d18eb942cf4eb))
+* split oversized files and resolve lint errors blocking CI ([#203](https://github.com/JacobPEvans/terraform-proxmox/issues/203)) ([36b77df](https://github.com/JacobPEvans/terraform-proxmox/commit/36b77df4fae09fecd65889ddfaf68b01f53acff0))
+* sync release-please config, permissions, VERSION, and unpin workflow ([c8f7b1a](https://github.com/JacobPEvans/terraform-proxmox/commit/c8f7b1a0a7548ebfaf0498adc2428602279fe27a))
+
 ## [1.1.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.0.0...v1.1.0) (2026-03-11)
 
 

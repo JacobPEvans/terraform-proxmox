@@ -40,6 +40,7 @@ Recursively process GitHub issues in repository **${{ github.repository }}** and
 ### Step 1: Find Open Parent Issues
 
 Use the GitHub MCP server to search for open issues that have sub-issues. Look for:
+
 - Issues with state = "OPEN"
 - Issues that have tracked issues (sub-issues)
 - Issues that appear to be tracking/parent issues based on their structure
@@ -55,6 +56,7 @@ For each parent issue found, check the completion status of its sub-issues:
 3. Calculate the completion percentage
 
 **Completion Criteria:**
+
 - A parent issue is considered "100% complete" when ALL of its sub-issues are closed
 - If even one sub-issue is still open, the parent should remain open
 - Empty parent issues (no sub-issues) should be skipped
@@ -62,6 +64,7 @@ For each parent issue found, check the completion status of its sub-issues:
 ### Step 3: Recursive Processing
 
 After closing a parent issue:
+
 1. Check if that issue itself is a sub-issue of another parent
 2. If it has a parent issue, check that parent's completion status
 3. Recursively close parent issues up the tree as they reach 100% completion
@@ -73,18 +76,25 @@ After closing a parent issue:
 For each parent issue that is 100% complete:
 
 1. **Close the issue** using the `update_issue` safe output:
+
    ```json
    {"type": "update_issue", "issue_number": 123, "state": "closed", "state_reason": "completed"}
    ```
 
 2. **Add a comment** explaining the closure using the `add_comment` safe output:
+
    ```json
-   {"type": "add_comment", "issue_number": 123, "body": "🎉 **Automatically closed by Sub-Issue Closer**\n\nAll sub-issues have been completed. This parent issue is now closed automatically.\n\n**Sub-issues status:** X/X closed (100%)"}
+   {
+     "type": "add_comment",
+     "issue_number": 123,
+     "body": "🎉 **Automatically closed by Sub-Issue Closer**\n\nAll sub-issues have been completed.\n\n**Sub-issues status:** X/X closed (100%)"
+   }
    ```
 
 ### Step 5: Report Summary
 
 At the end of processing, provide a summary of:
+
 - Total parent issues analyzed
 - Issues closed in this run
 - Issues that remain open (with reason: incomplete sub-issues)
@@ -103,7 +113,7 @@ At the end of processing, provide a summary of:
 
 During processing, maintain clear logging:
 
-```
+```text
 🔍 Analyzing parent issues...
 
 📋 Issue #42: "Feature: Add dark mode"

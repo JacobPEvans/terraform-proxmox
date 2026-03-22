@@ -1,0 +1,82 @@
+# Splunk variables: VM sizing, identity, and SSH access for the Splunk deployment
+
+variable "splunk_vm_id" {
+  description = "VM ID for the Splunk VM"
+  type        = number
+  default     = 100
+  validation {
+    condition     = var.splunk_vm_id > 0 && var.splunk_vm_id < 10000
+    error_message = "Splunk VM ID must be between 1 and 9999."
+  }
+}
+
+variable "splunk_vm_name" {
+  description = "Name of the Splunk VM"
+  type        = string
+  default     = "splunk-vm"
+  validation {
+    condition     = length(var.splunk_vm_name) > 0 && length(var.splunk_vm_name) <= 63
+    error_message = "Splunk VM name must be between 1 and 63 characters."
+  }
+}
+
+variable "splunk_vm_pool_id" {
+  description = "Resource pool ID for the Splunk VM (optional)"
+  type        = string
+  default     = ""
+}
+
+variable "splunk_boot_disk_size" {
+  description = "Size of Splunk VM boot disk in GB"
+  type        = number
+  default     = 25
+
+  validation {
+    condition     = var.splunk_boot_disk_size > 0 && var.splunk_boot_disk_size <= 1000
+    error_message = "Splunk boot disk size must be between 1 and 1000 GB."
+  }
+}
+
+variable "splunk_data_disk_size" {
+  description = "Size of Splunk VM additional data disk in GB (0 = no additional disk)"
+  type        = number
+  default     = 200
+
+  validation {
+    condition     = var.splunk_data_disk_size >= 0 && var.splunk_data_disk_size <= 1000
+    error_message = "Splunk data disk size must be between 0 and 1000 GB."
+  }
+}
+
+variable "splunk_cpu_cores" {
+  description = "Number of CPU cores for the Splunk VM"
+  type        = number
+  default     = 8 # increased from 6: more indexing pipelines for high-volume ingest
+
+  validation {
+    condition     = var.splunk_cpu_cores >= 1 && var.splunk_cpu_cores <= 32
+    error_message = "CPU cores must be between 1 and 32."
+  }
+}
+
+variable "splunk_memory" {
+  description = "Memory in MB for the Splunk VM"
+  type        = number
+  default     = 12288 # increased from 6144: Splunk Enterprise minimum is 12 GB; 6 GB caused OOM kills
+
+  validation {
+    condition     = var.splunk_memory >= 1024 && var.splunk_memory <= 65536
+    error_message = "Memory must be between 1024 MB and 65536 MB."
+  }
+}
+
+variable "ssh_public_key" {
+  description = "SSH public key content for Splunk VM access (optional)"
+  type        = string
+  default     = ""
+  sensitive   = true
+  validation {
+    condition     = can(regex("^(ssh-rsa |ssh-ed25519 |ecdsa-sha2-|$)", var.ssh_public_key))
+    error_message = "SSH public key must be empty or start with a valid SSH key type prefix."
+  }
+}
