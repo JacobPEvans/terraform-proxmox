@@ -42,7 +42,7 @@ nix develop ~/git/terraform-proxmox/main
 ### 3. Verify Installation
 
 ```bash
-terraform version
+tofu version
 terragrunt --version
 ansible --version
 tfsec --version

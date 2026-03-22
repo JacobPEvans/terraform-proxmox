@@ -24,16 +24,16 @@ cluster communication.
 
 | Component | ID | IP | Specs | Storage | Purpose |
 | --- | --- | --- | --- | --- | --- |
-| splunk-mgmt (LXC) | 205 | 192.168.1.205/24 | 3 cores, 3GB RAM, 100GB | local-zfs | All-in-one management |
-| splunk-idx1 (VM) | 100 | 192.168.1.100/24 | 6 cores, 6GB RAM, 200GB | local-zfs | Indexer 1 |
-| splunk-idx2 (VM) | 101 | 192.168.1.101/24 | 6 cores, 6GB RAM, 200GB | local-zfs | Indexer 2 |
+| splunk-mgmt (LXC) | 205 | 192.168.x.205/24 | 3 cores, 3GB RAM, 100GB | local-zfs | All-in-one management |
+| splunk-idx1 (VM) | 100 | 192.168.x.100/24 | 6 cores, 6GB RAM, 200GB | local-zfs | Indexer 1 |
+| splunk-idx2 (VM) | 101 | 192.168.x.101/24 | 6 cores, 6GB RAM, 200GB | local-zfs | Indexer 2 |
 
 **Total Resource Allocation**: 15 cores, 15GB RAM, 500GB storage
 
 ### Network Configuration
 
 - Domain: `pve.example.com`
-- Network: 192.168.1.0/24
+- Network: 192.168.x.0/24
 - Gateway: 192.168.1.1
 - Bridge: vmbr0
 
@@ -122,7 +122,7 @@ Splunk-to-Splunk communication deferred to post-deployment (tracked in GitHub is
 ### User Must Provide
 
 1. Cloud-init Template: VM 9000 with Debian 13
-2. SSH Keys: `~/.ssh/id_rsa_vm`, `~/.ssh/id_rsa_pve`
+2. SSH Keys: VM and PVE SSH key pairs (paths configured in SOPS)
 3. AWS Credentials: For Terragrunt S3 backend
 4. Doppler: Configured locally for Proxmox API credentials
 
