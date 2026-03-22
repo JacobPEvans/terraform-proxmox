@@ -110,9 +110,8 @@ dns_plugins = {
 - `plugin_type` - Plugin identifier (e.g., "route53", "dns01")
 - `api_type` - API type (e.g., "aws")
 
-**Note:** API credentials (AWS access key, secret key) are configured in Proxmox
-at `/etc/pve/priv/acme/plugins.cfg`. These are populated via the Proxmox API but
-not directly managed by this module.
+**Note:** API credentials (AWS access key, secret key) are configured in Proxmox at `/etc/pve/priv/acme/plugins.cfg`.
+These are populated via the Proxmox API but not directly managed by this module.
 
 ### `acme_certificates`
 
