@@ -1,0 +1,7 @@
+# markdownlint-cli2 configuration
+# Rules are in .markdownlint.yml; this file handles CLI-level ignores.
+
+ignores:
+  - "CHANGELOG.md"
+  - ".docs/**"
+  - ".direnv/**"
