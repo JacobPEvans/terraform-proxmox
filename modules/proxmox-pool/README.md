@@ -96,7 +96,7 @@ module "vms" {
 ## Input Variables
 
 | Name | Description | Type | Required | Default |
-|------|-------------|------|----------|---------|
+| ------ | ------------- | ------ | ---------- | --------- |
 | `pools` | Map of resource pools to create | `map(object)` | ✅ | `{}` |
 | `environment` | Environment name for resource tagging | `string` | ✅ | - |
 
@@ -112,7 +112,7 @@ module "vms" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ------ | ------------- |
 | `pool_details` | Complete pool configuration details |
 | `pool_ids` | List of created pool IDs |
 

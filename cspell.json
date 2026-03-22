@@ -78,7 +78,21 @@
     "Technitium",
     "keyctl",
     "Qdrant",
-    "qdrant"
+    "qdrant",
+    "Ryzen",
+    "pveproxy",
+    "diffable",
+    "keypair",
+    "updatekeys",
+    "ciphertext",
+    "letsencrypt",
+    "journalctl",
+    "pvenode",
+    "pveDaily",
+    "systemctl",
+    "pvesh",
+    "AAAAB",
+    "poolid"
   ],
   "ignorePaths": [
     ".terraform/**",

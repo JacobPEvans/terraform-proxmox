@@ -7,6 +7,7 @@
 ## Completed ✅
 
 ### 1. Implementation Planning
+
 - [x] Comprehensive plan document created (`.claude/plans/quizzical-herding-fountain.md`)
 - [x] Quick reference guide (`ACME_IMPLEMENTATION_PLAN.md`)
 - [x] GitHub issue hierarchy created:
@@ -18,6 +19,7 @@
   - **Child:** #66 - Add ACME certificate management documentation
 
 ### 2. ACME Certificate Module (Issue #62)
+
 - [x] `modules/acme-certificate/main.tf`
   - BPG Proxmox ACME account resource
   - DNS plugin resource (Route53)
@@ -45,6 +47,7 @@
   - Import procedures
 
 ### 3. Root Configuration Integration
+
 - [x] `main.tf` - ACME module instantiation
 - [x] `variables.tf` - ACME variables added
 - [x] `outputs.tf` - ACME outputs added
@@ -52,9 +55,11 @@
 ## In Progress 🚧
 
 ### 4. Doppler Secret Configuration (Issue #65)
+
 **Status:** Awaiting user setup of Route53 IAM credentials
 
 **Required Actions:**
+
 1. Create AWS IAM user with Route53 least-privilege policy
 2. Generate AWS access keys
 3. Add secrets to Doppler:
@@ -65,9 +70,11 @@
    - `ACME_DOMAIN`
 
 ### 5. Resource Import (Issue #63)
+
 **Status:** Blocked pending Doppler configuration
 
 **Required Actions:**
+
 1. Discover existing ACME resources via Proxmox API
 2. Import ACME account into state
 3. Import DNS plugin into state
@@ -76,18 +83,22 @@
 6. Validate zero-drift with `terraform plan`
 
 ### 6. Proxmox Port 443 Configuration (Issue #64)
+
 **Status:** Awaiting manual execution on Proxmox host
 
 **Required Actions:**
+
 1. Modify `/etc/default/pveproxy` on Proxmox node
 2. Restart pveproxy service
 3. Verify ports 443 and 8006 are listening
 4. Add firewall rule for port 443 (if needed)
 
 ### 7. Documentation (Issue #66)
+
 **Status:** Module README created; main documentation pending
 
 **Required Actions:**
+
 1. Create `ACME_CERTIFICATE_MANAGEMENT.md`
 2. Enhance module README with deployment examples
 3. Document renewal monitoring procedures
@@ -96,12 +107,14 @@
 ## Next Steps
 
 ### Immediate (Required for next session)
+
 1. **Configure Doppler secrets** - Set up Route53 IAM credentials
 2. **Discover existing ACME configuration** - Query Proxmox API
 3. **Import resources** - Bring existing certificates into Terraform state
 4. **Test terraform plan** - Validate zero-drift after import
 
 ### Then
+
 1. Configure Proxmox for port 443 (manual SSH to Proxmox)
 2. Validate HTTPS access works on both ports
 3. Complete documentation
@@ -123,7 +136,7 @@
 
 ## Commits So Far
 
-```
+```text
 43b82b3 docs: Add ACME certificate implementation planning document
 f5b3562 feat: Create ACME certificate Terraform module
 05786ca feat: Integrate ACME certificate module into root configuration
@@ -132,6 +145,7 @@ f5b3562 feat: Create ACME certificate Terraform module
 ## Files Modified/Created
 
 **New Files:**
+
 - `ACME_IMPLEMENTATION_PLAN.md` (reference guide)
 - `modules/acme-certificate/main.tf` (ACME resources)
 - `modules/acme-certificate/variables.tf` (module inputs)
@@ -140,6 +154,7 @@ f5b3562 feat: Create ACME certificate Terraform module
 - `ACME_PROGRESS.md` (this file)
 
 **Modified Files:**
+
 - `main.tf` (+11 lines - module instantiation)
 - `variables.tf` (+42 lines - ACME variables)
 - `outputs.tf` (+16 lines - ACME outputs)
@@ -147,24 +162,28 @@ f5b3562 feat: Create ACME certificate Terraform module
 ## Key Design Decisions
 
 ✅ **Module Architecture**
+
 - Follows existing 7-module pattern
 - Uses `for_each` for multi-account/certificate support
 - Conditional instantiation based on `acme_accounts`
 - Proper dependency ordering and lifecycle management
 
 ✅ **Variable Structure**
+
 - Email validation for ACME accounts
 - Sensitive flag for AWS credentials
 - Optional parameters with sensible defaults
 - Type validation throughout
 
 ✅ **Import Strategy**
+
 - Non-destructive import (preserves existing certificates)
 - Lifecycle `ignore_changes` prevents unnecessary regeneration
 - Zero-drift validation after import
 - Clear import command documentation in module README
 
 ✅ **AWS Credential Management**
+
 - All credentials in Doppler (never in tfvars)
 - Least-privilege IAM policy for Route53
 - Rotation strategy (90-day keys)
@@ -173,6 +192,7 @@ f5b3562 feat: Create ACME certificate Terraform module
 ## Related Work
 
 This feature complements and enables resolution of:
+
 - **Issue #24** - Security: Example configuration enables insecure TLS
 - **Issue #42** - CRITICAL: proxmox_insecure insecure default in terraform.tfvars.example
 
@@ -181,6 +201,7 @@ Once ACME certificates are properly configured, `proxmox_insecure = false` can b
 ## Blockers
 
 None at module level. Proceeding with:
+
 1. Waiting for user to configure Doppler secrets
 2. Waiting for user to run discovery and import commands
 3. Waiting for manual Proxmox configuration (port 443)
@@ -188,8 +209,8 @@ None at module level. Proceeding with:
 ## Links
 
 - **Plan Document:** `.claude/plans/quizzical-herding-fountain.md`
-- **PR:** https://github.com/JacobPEvans/terraform-proxmox/pull/65
-- **Parent Issue:** https://github.com/JacobPEvans/terraform-proxmox/issues/61
+- **PR:** <https://github.com/JacobPEvans/terraform-proxmox/pull/65>
+- **Parent Issue:** <https://github.com/JacobPEvans/terraform-proxmox/issues/61>
 - **Module README:** `modules/acme-certificate/README.md`
 
 ---

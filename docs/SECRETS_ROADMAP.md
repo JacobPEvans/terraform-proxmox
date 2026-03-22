@@ -78,7 +78,7 @@ Doppler continues to manage all credentials. They work together, not as alternat
 **Division of responsibility:**
 
 | What | Where | Examples |
-|------|-------|---------|
+| --- | --- | --- |
 | API tokens, passwords, SSH keys | Doppler | `PROXMOX_VE_API_TOKEN`, `SPLUNK_PASSWORD` |
 | Node name, IPs, topology, container/VM definitions | SOPS | `proxmox_node`, `management_network`, `containers` |
 
@@ -100,7 +100,7 @@ aws-vault exec terraform -- doppler run -- terragrunt plan
 **Files:**
 
 | File | Status | Purpose |
-|------|--------|---------|
+| --- | --- | --- |
 | `.sops.yaml` | Committed | Age public key config |
 | `terraform.sops.json` | Committed (encrypted) | Deployment config for Terragrunt |
 | `terraform.sops.json.example` | Committed | Template with placeholder values |
@@ -108,7 +108,7 @@ aws-vault exec terraform -- doppler run -- terragrunt plan
 **Repositories using SOPS:**
 
 | Repository | Status |
-|------------|--------|
+| --- | --- |
 | terraform-proxmox | ACTIVE |
 | ansible-proxmox-apps | Planned |
 | ansible-splunk | Planned |
