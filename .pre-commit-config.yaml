@@ -68,6 +68,7 @@ repos:
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
+        stages: [pre-push]  # Requires aws-vault Keychain + Doppler credentials (interactive only)
 
       - id: terragrunt-plan
         name: terragrunt plan
