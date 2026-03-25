@@ -146,16 +146,20 @@ These are exposed via `ansible_inventory.constants` in `outputs.tf` for downstre
 | ansible-proxmox-apps | `ansible_inventory` (containers, docker_vms, constants) | Cribl, HAProxy, DNS |
 | ansible-splunk | `ansible_inventory` (splunk_vm) | Splunk Enterprise (Docker) |
 
-### Regenerating Inventory
+### Inventory Sync (Automatic)
 
-After `terragrunt apply`, regenerate inventory for downstream repos:
+Inventory sync to downstream repos is **automatic** via a Terragrunt `after_hook` in `terragrunt.hcl`.
+After every `terragrunt apply`, `terraform_inventory.json` is written to both
+`ansible-proxmox-apps` and `ansible-splunk` if they are cloned at `~/git/<repo>/main/`.
+Repos not present are skipped with a stderr warning.
+
+To sync manually (e.g., after importing state without apply):
 
 ```bash
-# For ansible-proxmox-apps
-terragrunt output -json ansible_inventory > ~/git/ansible-proxmox-apps/main/inventory/terraform_inventory.json
-
-# For ansible-splunk
-terragrunt output -json ansible_inventory > ~/git/ansible-splunk/main/inventory/terraform_inventory.json
+aws-vault exec terraform -- doppler run -- \
+  terragrunt output -json ansible_inventory \
+  | tee ~/git/ansible-proxmox-apps/main/inventory/terraform_inventory.json \
+  > ~/git/ansible-splunk/main/inventory/terraform_inventory.json
 ```
 
 ## Development Workflow
