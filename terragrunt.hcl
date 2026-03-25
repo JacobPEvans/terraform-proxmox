@@ -83,7 +83,7 @@ terraform {
     }
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.90"
+      version = "~> 0.99"
     }
     local = {
       source  = "hashicorp/local"
