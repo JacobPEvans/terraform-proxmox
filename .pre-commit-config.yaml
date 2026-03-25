@@ -66,8 +66,9 @@ repos:
         name: terragrunt validate
         entry: bash -c 'nix develop --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"'
         language: system
-        files: '\.(tf|hcl)$'
+        always_run: true
         pass_filenames: false
+        stages: [pre-push]
 
       - id: terragrunt-plan
         name: terragrunt plan

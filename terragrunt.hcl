@@ -38,6 +38,14 @@ locals {
 
 terraform {
   source = "."
+
+  # Automatically sync ansible_inventory to downstream Ansible repos after every apply.
+  # Writes terraform_inventory.json to ansible-proxmox-apps and ansible-splunk.
+  after_hook "sync_inventory" {
+    commands     = ["apply"]
+    execute      = ["bash", "-c", "INV=$(tofu output -json ansible_inventory) && for repo in ansible-proxmox-apps ansible-splunk; do TARGET=\"$HOME/git/$repo/main/inventory/terraform_inventory.json\"; [ -d \"$(dirname \"$TARGET\")\" ] && echo \"$INV\" > \"$TARGET\" && echo \"Synced inventory → $repo\" >&2; done"]
+    run_on_error = false
+  }
 }
 
 # Remote state backend configuration using S3 + DynamoDB
