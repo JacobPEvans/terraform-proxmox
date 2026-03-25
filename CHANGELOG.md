@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.2.0...v1.2.1) (2026-03-25)
+
+
+### Bug Fixes
+
+* sync terragrunt provider version with main.tf ([#206](https://github.com/JacobPEvans/terraform-proxmox/issues/206)) ([e9a6ef7](https://github.com/JacobPEvans/terraform-proxmox/commit/e9a6ef7e9d7d613211d773925c00250faad47559))
+
 ## [1.2.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.1.0...v1.2.0) (2026-03-22)
 
 
