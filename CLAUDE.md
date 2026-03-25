@@ -150,7 +150,8 @@ These are exposed via `ansible_inventory.constants` in `outputs.tf` for downstre
 
 Inventory sync to downstream repos is **automatic** via a Terragrunt `after_hook` in `terragrunt.hcl`.
 After every `terragrunt apply`, `terraform_inventory.json` is written to both
-`ansible-proxmox-apps` and `ansible-splunk`. No manual steps required.
+`ansible-proxmox-apps` and `ansible-splunk` if they are cloned at `~/git/<repo>/main/`.
+Repos not present are skipped with a stderr warning.
 
 To sync manually (e.g., after importing state without apply):
 
