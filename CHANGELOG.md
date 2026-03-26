@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.2.1...v1.3.0) (2026-03-25)
+
+
+### Features
+
+* auto-sync inventory to downstream repos after apply ([#207](https://github.com/JacobPEvans/terraform-proxmox/issues/207)) ([2fc6fb4](https://github.com/JacobPEvans/terraform-proxmox/commit/2fc6fb47d3b5c65fece2c280f675464dec73680e))
+
 ## [1.2.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.2.0...v1.2.1) (2026-03-25)
 
 
