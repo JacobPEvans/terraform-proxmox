@@ -59,14 +59,14 @@ repos:
     hooks:
       - id: tofu-test
         name: tofu test (mock providers)
-        entry: bash -c 'nix develop --command bash -c "tofu init -backend=false -no-color >/dev/null 2>&1 && tofu test -no-color"'
+        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "tofu init -backend=false -no-color >/dev/null 2>&1 && tofu test -no-color"'
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
 
       - id: terragrunt-validate
         name: terragrunt validate
-        entry: bash -c 'nix develop --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"'
+        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt validate"'
         language: system
         always_run: true
         pass_filenames: false
@@ -74,7 +74,7 @@ repos:
 
       - id: terragrunt-plan
         name: terragrunt plan
-        entry: bash -c 'nix develop --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt plan -detailed-exitcode"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
+        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "aws-vault exec terraform -- doppler run -- terragrunt plan -detailed-exitcode"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
