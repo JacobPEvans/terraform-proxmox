@@ -11,8 +11,8 @@ Common issues and advanced usage for the Nix development shell.
 **Symptom**: `error: getting status of '/nix/store/...': No such file or directory`
 
 ```bash
-nix flake update ~/git/terraform-proxmox/main
-nix develop ~/git/terraform-proxmox/main --rebuild
+nix flake update "github:JacobPEvans/nix-devenv?dir=shells/terraform"
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --rebuild
 ```
 
 ### Docker not available in Nix shell
@@ -76,22 +76,22 @@ cd ~/git/terraform-proxmox/main
 
 ### Customizing the Shell
 
-The repo's `flake.nix` defines `devShells.default`.
-To add local customizations without modifying the committed flake, set extra environment variables in your `.envrc` after `use flake`:
+This repository uses the shared `nix-devenv` terraform shell (see [nix-devenv](https://github.com/JacobPEvans/nix-devenv/tree/main/shells/terraform)).
+To add local customizations without modifying the upstream shell, set extra environment variables in your `.envrc` after `use flake`:
 
 ```bash
 # .envrc (local only, gitignored for personal overrides)
-use flake
+use flake "github:JacobPEvans/nix-devenv?dir=shells/terraform"
 export TF_LOG=DEBUG
 ```
 
-Alternatively, extend the shell by editing `flake.nix` in your feature branch.
+To add packages or change shell behavior, submit a PR to [nix-devenv](https://github.com/JacobPEvans/nix-devenv) and update the shell there.
 
 ### Running Commands Outside the Shell
 
 ```bash
-nix develop ~/git/terraform-proxmox/main --command terragrunt plan
-nix develop ~/git/terraform-proxmox/main --command bash ./scripts/deploy.sh
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command terragrunt plan
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash ./scripts/deploy.sh
 ```
 
 ## Integration with CI/CD
@@ -116,7 +116,7 @@ jobs:
 
       - name: Enter Nix shell and validate
         run: |
-          nix develop . --command bash -c "
+          nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "
             terragrunt init
             terragrunt validate
             tflint
@@ -126,7 +126,7 @@ jobs:
 
 ## Additional Resources
 
-- **Nix Shell Definition**: `~/git/terraform-proxmox/main/flake.nix`
+- **Nix Shell Definition**: [nix-devenv shells/terraform](https://github.com/JacobPEvans/nix-devenv/tree/main/shells/terraform)
 - **Terraform Documentation**: [developer.hashicorp.com/terraform](https://developer.hashicorp.com/terraform/docs)
 - **Terragrunt Documentation**: [terragrunt.gruntwork.io](https://terragrunt.gruntwork.io/docs/)
 - **Proxmox Provider**: [registry.terraform.io/providers/bpg/proxmox](https://registry.terraform.io/providers/bpg/proxmox/latest/docs)
