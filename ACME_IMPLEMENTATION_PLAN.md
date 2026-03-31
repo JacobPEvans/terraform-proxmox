@@ -71,7 +71,7 @@ See `.claude/plans/quizzical-herding-fountain.md` for detailed issue templates.
 
 **For Terraform Deployment:**
 
-1. Local workstation runs: `aws-vault exec terraform -- doppler run -- terragrunt apply`
+1. Local workstation runs: `aws-vault exec tf-proxmox -- doppler run -- terragrunt apply`
 2. Doppler injects `ROUTE53_ACCESS_KEY` and `ROUTE53_SECRET_KEY` as environment variables
 3. Terraform configures Proxmox DNS plugin via BPG provider API calls
 4. Proxmox stores credentials in `/etc/pve/priv/acme/plugins.cfg` (encrypted cluster filesystem)

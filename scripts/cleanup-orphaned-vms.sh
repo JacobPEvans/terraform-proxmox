@@ -23,8 +23,8 @@ echo "Fetching VMs from Terraform state..."
 cd "$(dirname "$0")/.."
 
 run_terragrunt() {
-    nix develop ~/git/terraform-proxmox/main --command bash -c \
-        "aws-vault exec terraform -- doppler run --name-transformer tf-var -- terragrunt $*"
+    nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c \
+        "aws-vault exec tf-proxmox -- doppler run -- terragrunt $*"
 }
 
 # Get VM IDs from state

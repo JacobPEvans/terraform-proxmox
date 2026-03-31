@@ -26,10 +26,17 @@ terraform-proxmox/
 
 ## Why Separate?
 
-1. **Different providers** - AWS and Proxmox have different auth, APIs, lifecycles
+1. **Different providers** - AWS and Proxmox have different auth, APIs, and life cycles
 2. **Independent state** - AWS changes don't require Proxmox state lock
 3. **Clear boundaries** - AWS resources in one place, Proxmox in another
 4. **Different credentials** - AWS uses IAM, Proxmox uses API tokens
+
+## Requirements
+
+- [Nix](https://nixos.org/download/) with flakes enabled (provides Terraform/Terragrunt via nix-devenv)
+- [aws-vault](https://github.com/99designs/aws-vault) with `tf-proxmox` profile configured
+- [Doppler CLI](https://docs.doppler.com/docs/install-cli) configured for `iac-conf-mgmt` project
+- Route53 hosted zone for the Proxmox domain
 
 ## Usage
 
@@ -38,7 +45,7 @@ terraform-proxmox/
 1. Add AWS credentials to Doppler:
 
    ```bash
-   doppler secrets set AWS_ROUTE53_ACCESS_KEY=AKIA...
+   doppler secrets set AWS_ROUTE53_ACCESS_KEY=<your-access-key>
    doppler secrets set AWS_ROUTE53_SECRET_KEY=...
    doppler secrets set ROUTE53_ZONE_ID=Z0123456789ABCDEFGHIJ
    doppler secrets set PROXMOX_DOMAIN=pve.example.com
@@ -49,26 +56,26 @@ terraform-proxmox/
 
    ```bash
    cd aws-infra/
-   nix develop /path/to/terraform-nix-shell --command bash -c \
-     "aws-vault exec terraform -- doppler run -- terragrunt init"
+   nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c \
+     "aws-vault exec tf-proxmox -- doppler run -- terragrunt init"
    ```
 
-   **NOTE**: Replace `/path/to/terraform-nix-shell` with your local Nix dev shell for Terraform.
+   The Nix shell provides Terraform, Terragrunt, aws-vault, and other tools automatically.
 
 ### Commands
 
 ```bash
 # Validate
-nix develop /path/to/terraform-nix-shell --command bash -c \
-  "aws-vault exec terraform -- doppler run -- terragrunt validate"
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c \
+  "aws-vault exec tf-proxmox -- doppler run -- terragrunt validate"
 
 # Plan
-nix develop /path/to/terraform-nix-shell --command bash -c \
-  "aws-vault exec terraform -- doppler run -- terragrunt plan"
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c \
+  "aws-vault exec tf-proxmox -- doppler run -- terragrunt plan"
 
 # Apply
-nix develop /path/to/terraform-nix-shell --command bash -c \
-  "aws-vault exec terraform -- doppler run -- terragrunt apply"
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c \
+  "aws-vault exec tf-proxmox -- doppler run -- terragrunt apply"
 ```
 
 ## Modules

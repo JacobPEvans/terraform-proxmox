@@ -61,20 +61,20 @@ These are created via Proxmox UI and **not** managed by Terraform:
 ```bash
 # Enter Nix shell (direnv handles this automatically if .envrc is allowed)
 # Or enter manually:
-nix develop ~/git/terraform-proxmox/main
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform"
 
 # Validate Terraform syntax
 terragrunt validate
 
 # Check what will be created
-doppler run --name-transformer tf-var -- terragrunt plan
+doppler run -- terragrunt plan
 ```
 
 ### 2. Deploy Terraform-Managed Resources
 
 ```bash
 # Deploy VMs and managed container
-doppler run --name-transformer tf-var -- terragrunt apply
+doppler run -- terragrunt apply
 
 # Verify deployment
 terragrunt state list

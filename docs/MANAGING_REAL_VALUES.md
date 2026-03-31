@@ -155,7 +155,7 @@ For secret values (API tokens, passwords), use Doppler:
 
 ```bash
 # Secrets via Doppler (never in tfvars)
-doppler run --name-transformer tf-var -- terragrunt plan
+doppler run -- terragrunt plan
 
 # TF_VAR_* environment variables automatically injected:
 # - TF_VAR_proxmox_api_token

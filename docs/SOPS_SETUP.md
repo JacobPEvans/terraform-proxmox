@@ -41,7 +41,7 @@ DERIVED (locals.tf — no input needed):
 One command — always this, always both:
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt plan
+aws-vault exec tf-proxmox -- doppler run -- terragrunt plan
 ```
 
 Terragrunt reads `deployment.json` automatically. Terragrunt decrypts `terraform.sops.json`

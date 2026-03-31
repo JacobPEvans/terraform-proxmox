@@ -250,10 +250,10 @@ Verify Splunk VM protection guarantees (plan safety, output structure, live heal
 
 ```bash
 # Plan-level tests (safe, no infrastructure changes):
-aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh
+aws-vault exec tf-proxmox -- doppler run -- ./scripts/test-splunk-protection.sh
 
 # With live VM health checks:
-aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh --live
+aws-vault exec tf-proxmox -- doppler run -- ./scripts/test-splunk-protection.sh --live
 ```
 
 ### Terraform Test Suite

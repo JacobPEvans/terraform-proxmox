@@ -31,7 +31,7 @@ This repo uses:
 ### The Command (always this, always both)
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
+aws-vault exec tf-proxmox -- doppler run -- terragrunt <COMMAND>
 ```
 
 The Nix shell (providing Terraform/Terragrunt/Ansible) is activated automatically via direnv when you enter the repository directory.
@@ -47,7 +47,7 @@ The Nix shell (providing Terraform/Terragrunt/Ansible) is activated automaticall
 
 ### Command Breakdown
 
-1. **`aws-vault exec terraform`** - AWS credentials for S3 backend (profile: `terraform`)
+1. **`aws-vault exec tf-proxmox`** - AWS credentials for S3 backend (profile: `tf-proxmox`, assumes role via `terraform` source profile)
 2. **`doppler run --`** - Injects credentials as env vars (`PROXMOX_VE_*`, `SPLUNK_*`, etc.)
 3. **`terragrunt <COMMAND>`** - Runs Terraform; also auto-decrypts `terraform.sops.json` if present
 
@@ -57,10 +57,10 @@ No `--name-transformer` is needed. See [BPG provider docs](https://registry.terr
 ### Common Commands
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt validate
-aws-vault exec terraform -- doppler run -- terragrunt plan
-aws-vault exec terraform -- doppler run -- terragrunt apply
-aws-vault exec terraform -- doppler run -- terragrunt show
+aws-vault exec tf-proxmox -- doppler run -- terragrunt validate
+aws-vault exec tf-proxmox -- doppler run -- terragrunt plan
+aws-vault exec tf-proxmox -- doppler run -- terragrunt apply
+aws-vault exec tf-proxmox -- doppler run -- terragrunt show
 ```
 
 ### Doppler Configuration
@@ -156,7 +156,7 @@ Repos not present are skipped with a stderr warning.
 To sync manually (e.g., after importing state without apply):
 
 ```bash
-aws-vault exec terraform -- doppler run -- \
+aws-vault exec tf-proxmox -- doppler run -- \
   terragrunt output -json ansible_inventory \
   | tee ~/git/ansible-proxmox-apps/main/inventory/terraform_inventory.json \
   > ~/git/ansible-splunk/main/inventory/terraform_inventory.json
@@ -170,10 +170,10 @@ aws-vault exec terraform -- doppler run -- \
 
 ```bash
 # 1. Validate syntax
-aws-vault exec terraform -- doppler run -- terragrunt validate
+aws-vault exec tf-proxmox -- doppler run -- terragrunt validate
 
 # 2. Plan changes to review what will be modified
-aws-vault exec terraform -- doppler run -- terragrunt plan
+aws-vault exec tf-proxmox -- doppler run -- terragrunt plan
 ```
 
 **Best Practices**:
