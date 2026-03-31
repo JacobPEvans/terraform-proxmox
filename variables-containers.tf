@@ -47,6 +47,7 @@ variable "containers" {
       keys     = list(string)
     }))
 
+    unprivileged  = optional(bool, false)
     protection    = optional(bool, false)
     os_type       = optional(string, "debian")
     start_on_boot = optional(bool, true)

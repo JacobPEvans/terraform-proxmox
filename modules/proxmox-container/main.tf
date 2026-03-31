@@ -23,6 +23,9 @@ resource "proxmox_virtual_environment_container" "containers" {
   # Pool assignment
   pool_id = each.value.pool_id
 
+  # Unprivileged containers can set features without root@pam
+  unprivileged = each.value.unprivileged
+
   # Protection
   protection = each.value.protection
 
