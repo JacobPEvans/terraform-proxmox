@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.3.0...v1.3.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* use nix-devenv terraform shell instead of local flake.nix ([#210](https://github.com/JacobPEvans/terraform-proxmox/issues/210)) ([e1b7a61](https://github.com/JacobPEvans/terraform-proxmox/commit/e1b7a61a82cb7419cdd3983629381a5f611fa44f))
+
 ## [1.3.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.2.1...v1.3.0) (2026-03-25)
 
 
