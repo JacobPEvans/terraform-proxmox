@@ -87,13 +87,11 @@ terraform-proxmox/
 5. **Consistent Configuration**: Standardized VM settings with virtio interfaces
 6. **Performance Optimized**: Virtio disk interfaces eliminate Proxmox warnings
 
-## 🚀 Quick Start
+## Requirements
 
-### Prerequisites
+### Option A: Using Nix Shell (Recommended)
 
-#### Option A: Using Nix Shell (Recommended)
-
-All tools are provided via a self-contained `flake.nix` devShell.
+All tools are provided via the shared [nix-devenv terraform shell](https://github.com/JacobPEvans/nix-devenv/tree/main/shells/terraform).
 The repository ships a committed `.envrc` file that auto-activates
 the shell via direnv when you enter the directory.
 
@@ -107,7 +105,7 @@ the shell via direnv when you enter the directory.
 direnv allow    # one-time per worktree, then automatic on cd
 
 # Manual activation
-nix develop
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform"
 ```
 
 **Tools provided:**
@@ -119,9 +117,9 @@ nix develop
 - `jq`, `yq` -- utilities
 - `pre-commit` -- git hook management
 
-See **[`flake.nix`](./flake.nix)** for the complete dev environment definition.
+See **[nix-devenv shells/terraform](https://github.com/JacobPEvans/nix-devenv/tree/main/shells/terraform)** for the complete dev environment definition.
 
-#### Option B: Manual Installation
+### Option B: Manual Installation
 
 Install the following tools manually:
 
@@ -132,6 +130,8 @@ Install the following tools manually:
 - SSH key pair
 - Security scanners (tfsec, trivy)
 - Ansible and molecule (for configuration management)
+
+## Usage
 
 ### Essential Commands
 
@@ -250,10 +250,10 @@ Verify Splunk VM protection guarantees (plan safety, output structure, live heal
 
 ```bash
 # Plan-level tests (safe, no infrastructure changes):
-aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh
+aws-vault exec tf-proxmox -- doppler run -- ./scripts/test-splunk-protection.sh
 
 # With live VM health checks:
-aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh --live
+aws-vault exec tf-proxmox -- doppler run -- ./scripts/test-splunk-protection.sh --live
 ```
 
 ### Terraform Test Suite

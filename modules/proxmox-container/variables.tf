@@ -50,6 +50,7 @@ variable "containers" {
     }), {})
 
     # Features
+    unprivileged  = optional(bool, false)
     protection    = optional(bool, false)
     start_on_boot = optional(bool, true)
 

@@ -222,11 +222,12 @@
       "memory_swap": 8192,
       "tags": ["terraform", "container", "vectordb", "ai", "docker"],
       "pool_id": "ai",
+      "unprivileged": true,
       "root_disk": { "size": 8 },
       "mount_points": [
         { "volume": "local-zfs", "size": "100G", "path": "/opt/qdrant" }
       ],
-      "features": { "nesting": true, "keyctl": true, "fuse": true }
+      "features": { "nesting": true }
     },
     "llamaindex": {
       "vm_id": 166,

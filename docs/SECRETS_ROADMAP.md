@@ -94,7 +94,7 @@ inputs = merge(local.env_var_defaults, local.sops_inputs)
 **Run command (always both together):**
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt plan
+aws-vault exec tf-proxmox -- doppler run -- terragrunt plan
 ```
 
 **Files:**
@@ -181,7 +181,7 @@ Infisical (planned) — future replacement for Doppler
 ```text
 Current:  Doppler → credentials (API tokens, passwords, SSH keys)
           SOPS    → deployment config (IPs, node, container defs) — replaces .env/terraform.tfvars
-          Both always used together: aws-vault exec terraform -- doppler run -- terragrunt plan
+          Both always used together: aws-vault exec tf-proxmox -- doppler run -- terragrunt plan
 
 Near-term: + Extend SOPS pattern to ansible-proxmox-apps and ansible-splunk
            + Pre-commit guards against committing unencrypted secrets

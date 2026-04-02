@@ -39,7 +39,7 @@ configuration management.
 The Nix shell is activated automatically via direnv (`.envrc`). All commands use the toolchain wrapper:
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
+aws-vault exec tf-proxmox -- doppler run -- terragrunt <COMMAND>
 ```
 
 Common operations:

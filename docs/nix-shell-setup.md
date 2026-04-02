@@ -35,7 +35,7 @@ direnv allow
 **Manual activation:**
 
 ```bash
-nix develop ~/git/terraform-proxmox/main
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform"
 ```
 
 ### 3. Verify Installation

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test Splunk VM protection guarantees
-# Run: aws-vault exec terraform -- doppler run -- ./scripts/test-splunk-protection.sh [--live]
+# Run: aws-vault exec tf-proxmox -- doppler run -- ./scripts/test-splunk-protection.sh [--live]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

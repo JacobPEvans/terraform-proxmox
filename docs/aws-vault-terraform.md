@@ -46,15 +46,17 @@ If direnv is not available, use the manual nix develop wrapper:
 
 ```bash
 aws-vault exec PROFILE_NAME -- \
-  nix develop ~/git/terraform-proxmox/main --command terragrunt plan
+  nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command terragrunt plan
 ```
 
 ## Finding Your AWS Profile Name
 
+This repo uses the `tf-proxmox` profile. Each Terraform repo has its own aws-vault profile.
+
 ```bash
 aws-vault list
 
-# Common profile names: default, terraform, proxmox
+# Per-repo profiles: tf-proxmox, tf-runs-on, tf-splunk-aws, tf-bedrock
 ```
 
 ## Complete Workflow Example
@@ -62,12 +64,12 @@ aws-vault list
 ```bash
 # Direct commands (direnv handles nix shell)
 cd ~/git/terraform-proxmox/main
-aws-vault exec terraform -- terragrunt refresh
-aws-vault exec terraform -- terragrunt plan
+aws-vault exec tf-proxmox -- terragrunt refresh
+aws-vault exec tf-proxmox -- terragrunt plan
 
 # Long session approach
 cd ~/git/terraform-proxmox/main
-aws-vault exec terraform -- bash
+aws-vault exec tf-proxmox -- bash
 terragrunt refresh
 terragrunt plan
 ```
@@ -96,10 +98,10 @@ Ensure direnv is allowed (`direnv allow`). If not using direnv, nest commands co
 
 ```bash
 # CORRECT - aws-vault wraps nix develop
-aws-vault exec terraform -- \
-  nix develop ~/git/terraform-proxmox/main --command terragrunt plan
+aws-vault exec tf-proxmox -- \
+  nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command terragrunt plan
 
 # INCORRECT - nix develop doesn't have AWS credentials
-nix develop ~/path/to/shell --command \
-  aws-vault exec terraform -- terragrunt plan
+nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command \
+  aws-vault exec tf-proxmox -- terragrunt plan
 ```

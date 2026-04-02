@@ -16,14 +16,14 @@ The binary is `tofu`. All HCL is OpenTofu-compatible.
 All commands must be wrapped with aws-vault and Doppler:
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt <COMMAND>
+aws-vault exec tf-proxmox -- doppler run -- terragrunt <COMMAND>
 ```
 
 For plan/apply:
 
 ```bash
-aws-vault exec terraform -- doppler run -- terragrunt plan
-aws-vault exec terraform -- doppler run -- terragrunt apply
+aws-vault exec tf-proxmox -- doppler run -- terragrunt plan
+aws-vault exec tf-proxmox -- doppler run -- terragrunt apply
 ```
 
 ## Technology Stack
