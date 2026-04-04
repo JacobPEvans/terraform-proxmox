@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.3.1...v1.3.2) (2026-04-04)
+
+
+### Bug Fixes
+
+* remove claude-review workflow — replaced by Gemini + Copilot ([#212](https://github.com/JacobPEvans/terraform-proxmox/issues/212)) ([928b6f6](https://github.com/JacobPEvans/terraform-proxmox/commit/928b6f6c90426b108074cf23a5c24c22d72902ce))
+
 ## [1.3.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.3.0...v1.3.1) (2026-04-02)
 
 
