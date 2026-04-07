@@ -232,3 +232,20 @@ resource "proxmox_virtual_environment_cluster_firewall_security_group" "apt_cach
     }
   }
 }
+
+resource "proxmox_virtual_environment_cluster_firewall_security_group" "minio_services" {
+  name    = "minio-svc"
+  comment = "MinIO ports: API (9000) and Console (9001) from internal networks"
+
+  dynamic "rule" {
+    for_each = local.minio_services_rules
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      proto   = rule.value.proto
+      dport   = rule.value.dport
+      source  = rule.value.source
+      comment = rule.value.comment
+    }
+  }
+}

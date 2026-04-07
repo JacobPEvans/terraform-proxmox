@@ -66,6 +66,11 @@ locals {
     { proto = "tcp", dport = "9100", source = local.internal_src, comment = "Cribl Stream API from internal" },
   ]
 
+  minio_services_rules = [
+    { proto = "tcp", dport = "9000", source = local.internal_src, comment = "MinIO API from internal" },
+    { proto = "tcp", dport = "9001", source = local.internal_src, comment = "MinIO Console from internal" },
+  ]
+
   # Outbound to internal RFC1918 only (blocks internet egress)
   outbound_internal_rules = [
     { proto = "tcp", dest = local.internal_src, comment = "Outbound TCP to internal" },

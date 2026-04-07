@@ -1,6 +1,4 @@
-# =============================================================================
-# Splunk Container Firewall Configuration
-# =============================================================================
+# Splunk containers
 
 resource "proxmox_virtual_environment_firewall_options" "splunk_container" {
   for_each = var.splunk_container_ids
@@ -50,10 +48,7 @@ resource "proxmox_virtual_environment_firewall_rules" "splunk_container" {
   depends_on = [proxmox_virtual_environment_firewall_options.splunk_container]
 }
 
-# =============================================================================
-# Pipeline Container Firewall Configuration (HAProxy, Cribl Edge)
-# These containers receive syslog and NetFlow data from network devices
-# =============================================================================
+# Pipeline containers (HAProxy, Cribl Edge — syslog/NetFlow receivers)
 
 resource "proxmox_virtual_environment_firewall_options" "pipeline_container" {
   for_each = var.pipeline_container_ids
@@ -103,10 +98,7 @@ resource "proxmox_virtual_environment_firewall_rules" "pipeline_container" {
   depends_on = [proxmox_virtual_environment_firewall_options.pipeline_container]
 }
 
-# =============================================================================
-# Cribl Stream Container Firewall Configuration
-# Receives log data from Cribl Edge, routes and transforms to Splunk HEC
-# =============================================================================
+# Cribl Stream containers (receives from Edge, routes to Splunk HEC)
 
 resource "proxmox_virtual_environment_firewall_options" "cribl_stream_container" {
   for_each = var.cribl_stream_container_ids
@@ -156,10 +148,7 @@ resource "proxmox_virtual_environment_firewall_rules" "cribl_stream_container" {
   depends_on = [proxmox_virtual_environment_firewall_options.cribl_stream_container]
 }
 
-# =============================================================================
-# Notification Container Firewall Configuration (Mailpit, ntfy)
-# These containers provide SMTP relay and push notification services
-# =============================================================================
+# Notification containers (Mailpit, ntfy)
 
 resource "proxmox_virtual_environment_firewall_options" "notification_container" {
   for_each = var.notification_container_ids
@@ -194,11 +183,7 @@ resource "proxmox_virtual_environment_firewall_rules" "notification_container" {
   depends_on = [proxmox_virtual_environment_firewall_options.notification_container]
 }
 
-# =============================================================================
-# APT Caching Proxy Container Firewall Configuration (apt-cacher-ng)
-# APT package caching proxy - inbound port 3142 from internal networks,
-# outbound internet access to reach upstream APT mirrors
-# =============================================================================
+# APT caching proxy (apt-cacher-ng — outbound ACCEPT for upstream mirrors)
 
 resource "proxmox_virtual_environment_firewall_options" "apt_cacher_ng_container" {
   for_each = var.apt_cacher_ng_container_ids
@@ -233,10 +218,7 @@ resource "proxmox_virtual_environment_firewall_rules" "apt_cacher_ng_container" 
   depends_on = [proxmox_virtual_environment_firewall_options.apt_cacher_ng_container]
 }
 
-# =============================================================================
-# Vector Database Container Firewall Configuration (Qdrant)
-# AI RAG memory store - HTTP API (6333) and gRPC (6334)
-# =============================================================================
+# Vector database containers (Qdrant — HTTP 6333, gRPC 6334)
 
 resource "proxmox_virtual_environment_firewall_options" "vectordb_container" {
   for_each = var.vectordb_container_ids
@@ -276,13 +258,7 @@ resource "proxmox_virtual_environment_firewall_rules" "vectordb_container" {
   depends_on = [proxmox_virtual_environment_firewall_options.vectordb_container]
 }
 
-# =============================================================================
-# RAG Engine Container Firewall Configuration (LlamaIndex)
-# CPU-only RAG engine with Ollama embeddings
-# Inbound: SSH/ICMP from internal (internal-access)
-# Outbound: RFC1918 only so it can reach Qdrant/Ollama (outbound-internal)
-# No service port rules — LlamaIndex does not expose ports to the network
-# =============================================================================
+# RAG engine containers (LlamaIndex — no service ports, outbound-internal only)
 
 resource "proxmox_virtual_environment_firewall_options" "rag_container" {
   for_each = var.rag_container_ids
@@ -315,4 +291,44 @@ resource "proxmox_virtual_environment_firewall_rules" "rag_container" {
   }
 
   depends_on = [proxmox_virtual_environment_firewall_options.rag_container]
+}
+
+# MinIO containers (S3-compatible — API 9000, Console 9001)
+
+resource "proxmox_virtual_environment_firewall_options" "minio_container" {
+  for_each = var.minio_container_ids
+
+  node_name     = var.node_name
+  container_id  = each.value
+  enabled       = local.firewall_defaults.enabled
+  input_policy  = local.firewall_defaults.input_policy
+  output_policy = local.firewall_defaults.output_policy
+  log_level_in  = local.firewall_defaults.log_level_in
+  log_level_out = local.firewall_defaults.log_level_out
+
+  depends_on = [proxmox_virtual_environment_cluster_firewall.main]
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "minio_container" {
+  for_each = var.minio_container_ids
+
+  node_name    = var.node_name
+  container_id = each.value
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.internal_access.name
+    comment        = "Internal access (SSH, ICMP)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.minio_services.name
+    comment        = "MinIO services (TCP/9000 API, TCP/9001 Console)"
+  }
+
+  rule {
+    security_group = proxmox_virtual_environment_cluster_firewall_security_group.outbound_internal.name
+    comment        = "Outbound to internal only"
+  }
+
+  depends_on = [proxmox_virtual_environment_firewall_options.minio_container]
 }

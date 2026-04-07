@@ -60,6 +60,12 @@ locals {
     if contains(coalesce(try(v.tags, null), []), "apt-cache")
   }
 
+  # MinIO object storage containers (minio tag)
+  minio_container_ids = {
+    for k, v in var.containers : k => v.vm_id
+    if contains(coalesce(try(v.tags, null), []), "minio")
+  }
+
   # Cribl Stream containers: tagged cribl + stream (receives from Edge, routes to Splunk)
   # Distinct from pipeline_container_ids (HAProxy + Cribl Edge) as it doesn't receive external traffic
   cribl_stream_container_ids = {
@@ -80,6 +86,8 @@ locals {
       cribl_edge_api   = 9000
       cribl_stream_api = 9100
       apt_cacher_ng    = 3142
+      minio_api        = 9000
+      minio_console    = 9001
     }
     syslog_ports = {
       unifi     = 1514

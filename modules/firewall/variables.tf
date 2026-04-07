@@ -51,6 +51,12 @@ variable "cribl_stream_container_ids" {
   default     = {}
 }
 
+variable "minio_container_ids" {
+  description = "Map of MinIO container names to their IDs"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
