@@ -268,6 +268,42 @@ run "cribl_edge_not_in_cribl_stream_ids" {
   }
 }
 
+# --- minio_container_ids tests ---
+
+run "minio_tagged_container_in_minio_ids" {
+  command = plan
+
+  variables {
+    containers = {
+      "minio" = {
+        vm_id    = 107
+        hostname = "minio"
+        tags     = ["terraform", "container", "minio", "storage", "infrastructure"]
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(keys(local.minio_container_ids), "minio")
+    error_message = "Container with 'minio' tag must be in minio_container_ids"
+  }
+
+  assert {
+    condition     = local.minio_container_ids["minio"] == 107
+    error_message = "minio_container_ids['minio'] should be vm_id 107"
+  }
+
+  assert {
+    condition     = !contains(keys(local.pipeline_container_ids), "minio")
+    error_message = "Container with 'minio' tag must NOT be in pipeline_container_ids"
+  }
+
+  assert {
+    condition     = !contains(keys(local.notification_container_ids), "minio")
+    error_message = "Container with 'minio' tag must NOT be in notification_container_ids"
+  }
+}
+
 run "pipeline_and_stream_containers_mutually_exclusive" {
   command = plan
 

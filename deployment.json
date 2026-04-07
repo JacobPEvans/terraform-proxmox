@@ -119,6 +119,20 @@
       "pool_id": "infrastructure",
       "root_disk": { "size": 16 }
     },
+    "minio": {
+      "vm_id": 107,
+      "hostname": "minio",
+      "description": "MinIO S3-compatible object storage for artifact hosting",
+      "cpu_cores": 1,
+      "memory_dedicated": 1024,
+      "memory_swap": 1024,
+      "tags": ["terraform", "container", "minio", "storage", "infrastructure"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 8 },
+      "mount_points": [
+        { "volume": "local-zfs", "size": "100G", "path": "/opt/minio" }
+      ]
+    },
     "mailpit": {
       "vm_id": 110,
       "hostname": "mailpit",

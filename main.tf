@@ -188,6 +188,9 @@ module "firewall" {
   # Cribl Stream containers: cribl + stream tags (receives from Edge, routes to Splunk)
   cribl_stream_container_ids = local.cribl_stream_container_ids
 
+  # MinIO object storage containers (minio tag)
+  minio_container_ids = local.minio_container_ids
+
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks
