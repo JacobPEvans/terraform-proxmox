@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.3.2...v1.4.0) (2026-04-07)
+
+
+### Features
+
+* add MinIO LXC container for artifact storage ([#216](https://github.com/JacobPEvans/terraform-proxmox/issues/216)) ([2b16d08](https://github.com/JacobPEvans/terraform-proxmox/commit/2b16d0849b1314aae096d1a2a0da56a77b15557d))
+
 ## [1.3.2](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.3.1...v1.3.2) (2026-04-04)
 
 
