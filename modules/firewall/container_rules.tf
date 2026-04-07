@@ -322,7 +322,7 @@ resource "proxmox_virtual_environment_firewall_rules" "minio_container" {
 
   rule {
     security_group = proxmox_virtual_environment_cluster_firewall_security_group.minio_services.name
-    comment        = "MinIO services (API, Console)"
+    comment        = "MinIO services (TCP/9000 API, TCP/9001 Console)"
   }
 
   rule {

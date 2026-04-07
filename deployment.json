@@ -125,7 +125,7 @@
       "description": "MinIO S3-compatible object storage for artifact hosting",
       "cpu_cores": 1,
       "memory_dedicated": 1024,
-      "memory_swap": 1024,
+      "memory_swap": 3072,
       "tags": ["terraform", "container", "minio", "storage", "infrastructure"],
       "pool_id": "infrastructure",
       "root_disk": { "size": 8 },
