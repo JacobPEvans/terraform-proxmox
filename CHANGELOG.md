@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.4.0...v1.5.0) (2026-04-08)
+
+
+### Features
+
+* add AI merge gate ([#215](https://github.com/JacobPEvans/terraform-proxmox/issues/215)) ([c45e616](https://github.com/JacobPEvans/terraform-proxmox/commit/c45e61639230a0c315e59cdf1975d4f8ca73b160))
+
 ## [1.4.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.3.2...v1.4.0) (2026-04-07)
 
 
