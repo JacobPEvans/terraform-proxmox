@@ -117,3 +117,10 @@ scripts/timing-results.txt
 
 # ai-workflows runtime checkout (checked out by CI into .ai-workflows/ at runtime)
 .ai-workflows/
+
+# Claude Code repo-scoped MCP server config. NOT committed because it
+# auto-executes on agent load — committing would silently spawn the listed
+# MCP servers (terraform-mcp-server, bunx-fetched AWS tools, etc.) for every
+# contributor without review or version pinning. Contributors who want MCP
+# tooling in this repo should create their own .mcp.json locally.
+.mcp.json
