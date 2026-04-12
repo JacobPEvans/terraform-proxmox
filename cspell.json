@@ -91,11 +91,14 @@
     "systemctl",
     "pvesh",
     "AAAAB",
-    "poolid"
+    "poolid",
+    "githubnext",
+    "agentics"
   ],
   "ignorePaths": [
     ".terraform/**",
     ".terragrunt-cache/**",
-    "node_modules/**"
+    "node_modules/**",
+    ".github/aw/**"
   ]
 }

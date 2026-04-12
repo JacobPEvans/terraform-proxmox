@@ -5,3 +5,4 @@ ignores:
   - "CHANGELOG.md"
   - ".docs/**"
   - ".direnv/**"
+  - ".github/aw/**"
