@@ -286,8 +286,8 @@ run "pipeline_constants_cribl_ports" {
   }
 
   assert {
-    condition     = local.pipeline_constants.service_ports.cribl_stream_api == 9100
-    error_message = "cribl_stream_api port should be 9100"
+    condition     = local.pipeline_constants.service_ports.cribl_stream_api == 9000
+    error_message = "cribl_stream_api port should be 9000"
   }
 }
 
