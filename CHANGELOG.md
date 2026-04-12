@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.5.0...v1.5.1) (2026-04-12)
+
+
+### Bug Fixes
+
+* correct Cribl Edge API port to 9420 and support assumed-role credentials in hooks ([#223](https://github.com/JacobPEvans/terraform-proxmox/issues/223)) ([9e2ff12](https://github.com/JacobPEvans/terraform-proxmox/commit/9e2ff12c2745d2f4c6ec6804171dd219c402026f))
+
 ## [1.5.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.4.0...v1.5.0) (2026-04-08)
 
 
