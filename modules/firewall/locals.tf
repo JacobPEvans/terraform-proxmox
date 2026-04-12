@@ -40,7 +40,7 @@ locals {
 
   pipeline_services_rules = [
     { proto = "tcp", dport = "8404", source = local.internal_src, comment = "HAProxy stats from internal" },
-    { proto = "tcp", dport = "9000", source = local.internal_src, comment = "Cribl Edge API from internal" },
+    { proto = "tcp", dport = "9420", source = local.internal_src, comment = "Cribl Edge API TCP/9420 from internal" },
   ]
 
   netflow_rules = [
