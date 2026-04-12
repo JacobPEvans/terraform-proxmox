@@ -11,7 +11,7 @@ imports:
 
 permissions:
   contents: read
-  issues: write
+  issues: read
   pull-requests: read
   actions: read
   security-events: read
