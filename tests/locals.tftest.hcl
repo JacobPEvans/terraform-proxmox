@@ -281,8 +281,8 @@ run "pipeline_constants_cribl_ports" {
   command = plan
 
   assert {
-    condition     = local.pipeline_constants.service_ports.cribl_edge_api == 9000
-    error_message = "cribl_edge_api port should be 9000"
+    condition     = local.pipeline_constants.service_ports.cribl_edge_api == 9420
+    error_message = "cribl_edge_api port should be 9420"
   }
 
   assert {
