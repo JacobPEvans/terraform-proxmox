@@ -2,7 +2,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.99"
+      version = "~> 0.101"
     }
   }
 }
@@ -11,7 +11,7 @@ terraform {
 # These are created at the Proxmox/ZFS level and managed outside Terraform
 # Data sources provide type safety and ensure storage exists before use
 
-data "proxmox_virtual_environment_datastores" "available" {
+data "proxmox_datastores" "available" {
   node_name = var.node_name
 }
 
