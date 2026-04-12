@@ -84,7 +84,7 @@ locals {
       splunk_hec       = 8088
       splunk_mgmt      = 8089
       cribl_edge_api   = 9420
-      cribl_stream_api = 9100
+      cribl_stream_api = 9000
       apt_cacher_ng    = 3142
       minio_api        = 9000
       minio_console    = 9001

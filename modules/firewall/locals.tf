@@ -63,7 +63,7 @@ locals {
   ]
 
   cribl_stream_services_rules = [
-    { proto = "tcp", dport = "9100", source = local.internal_src, comment = "Cribl Stream API from internal" },
+    { proto = "tcp", dport = "9000", source = local.internal_src, comment = "Cribl Stream API TCP/9000 from internal" },
   ]
 
   minio_services_rules = [

@@ -106,7 +106,7 @@ run "cribl_stream_rules_always_one" {
 
   assert {
     condition     = length(local.cribl_stream_services_rules) == 1
-    error_message = "cribl_stream_services_rules must be exactly 1 (TCP 9100), got ${length(local.cribl_stream_services_rules)}"
+    error_message = "cribl_stream_services_rules must be exactly 1 (TCP 9000), got ${length(local.cribl_stream_services_rules)}"
   }
 }
 
