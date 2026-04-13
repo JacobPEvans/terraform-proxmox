@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.5.2...v1.5.3) (2026-04-13)
+
+
+### Bug Fixes
+
+* recompile gh-aw workflows with v0.68.1 ([d858ec3](https://github.com/JacobPEvans/terraform-proxmox/commit/d858ec311d9659acfd6df7494b643354ad281edb))
+
 ## [1.5.2](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.5.1...v1.5.2) (2026-04-12)
 
 
