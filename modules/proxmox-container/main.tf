@@ -2,7 +2,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.101"
+      version = "~> 0.102"
     }
   }
 }
@@ -75,6 +75,7 @@ resource "proxmox_virtual_environment_container" "containers" {
   # CPU configuration
   cpu {
     cores = each.value.cpu_cores
+    units = 1024  # explicit: pre-0.102 provider default
   }
 
   # Memory configuration
