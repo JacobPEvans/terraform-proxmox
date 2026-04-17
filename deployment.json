@@ -29,6 +29,51 @@
       "mount_point": "/mnt/nas",
       "smb_share_name": "nas",
       "directories": ["huggingface/hub", "ollama/models", "media", "backups"],
+      "group_name": "nas",
+      "managed_users": [
+        {
+          "name": "homeassistant",
+          "unix_groups": ["nas"],
+          "shell": "/usr/sbin/nologin",
+          "create_home": false,
+          "password_secret_env": "NAS_HOMEASSISTANT_SMB_PASSWORD"
+        }
+      ],
+      "shares": [
+        {
+          "name": "nas",
+          "path": "/mnt/nas",
+          "valid_users": "@nas",
+          "browsable": true,
+          "read_only": false,
+          "force_group": "nas",
+          "create_mask": "0664",
+          "directory_mask": "0775",
+          "comment": "Primary NAS root share"
+        },
+        {
+          "name": "ha-backups",
+          "path": "/mnt/nas/backups",
+          "valid_users": "homeassistant",
+          "browsable": true,
+          "read_only": false,
+          "force_group": "nas",
+          "create_mask": "0664",
+          "directory_mask": "0775",
+          "comment": "Home Assistant backup storage"
+        },
+        {
+          "name": "ha-media",
+          "path": "/mnt/nas/media",
+          "valid_users": "homeassistant",
+          "browsable": true,
+          "read_only": false,
+          "force_group": "nas",
+          "create_mask": "0664",
+          "directory_mask": "0775",
+          "comment": "Home Assistant media storage"
+        }
+      ],
       "description": "Host-level NAS: ZFS dataset on local-zfs served via Samba. Managed by ansible-proxmox."
     }
   },
