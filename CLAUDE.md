@@ -160,7 +160,12 @@ To sync manually (e.g., after importing state without apply):
 aws-vault exec tf-proxmox -- doppler run -- bash -c '
   INV=$(terragrunt output -json ansible_inventory)
   for repo in ansible-proxmox ansible-proxmox-apps ansible-splunk; do
-    printf "%s\n" "$INV" > "$HOME/git/$repo/main/inventory/terraform_inventory.json"
+    TARGET="$HOME/git/$repo/main/inventory/terraform_inventory.json"
+    if [ -d "$(dirname "$TARGET")" ]; then
+      printf "%s\n" "$INV" > "$TARGET"
+    else
+      printf "Skipped %s (not cloned at ~/git/%s/main)\n" "$repo" "$repo" >&2
+    fi
   done
 '
 ```
