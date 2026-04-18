@@ -68,7 +68,7 @@ repos:
         name: terragrunt validate
         entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "doppler run -- terragrunt validate"'
         language: system
-        always_run: true
+        files: '\.(tf|hcl)$'
         pass_filenames: false
         stages: [pre-push]  # Requires AWS credentials in environment + Doppler
 
