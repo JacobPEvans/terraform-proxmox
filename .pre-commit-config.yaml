@@ -54,7 +54,7 @@ repos:
   #     - id: terraform-pre-commit
   #       args: ['scan', '-i', 'terraform', '-t', 'all']
 
-  # Local hooks using the full nix+aws-vault+doppler toolchain
+  # Local hooks using nix+doppler toolchain
   - repo: local
     hooks:
       - id: tofu-test
