@@ -66,15 +66,15 @@ repos:
 
       - id: terragrunt-validate
         name: terragrunt validate
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "if [ -n \"$AWS_SESSION_TOKEN\" ]; then doppler run -- terragrunt validate; else aws-vault exec tf-proxmox -- doppler run -- terragrunt validate; fi"'
+        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "doppler run -- terragrunt validate"'
         language: system
         always_run: true
         pass_filenames: false
-        stages: [pre-push]  # Requires AWS credentials (aws-vault or assumed-role env vars) + Doppler
+        stages: [pre-push]  # Requires AWS credentials in environment + Doppler
 
       - id: terragrunt-plan
         name: terragrunt plan
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "if [ -n \"$AWS_SESSION_TOKEN\" ]; then doppler run -- terragrunt plan -detailed-exitcode; else aws-vault exec tf-proxmox -- doppler run -- terragrunt plan -detailed-exitcode; fi"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
+        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "doppler run -- terragrunt plan -detailed-exitcode"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
