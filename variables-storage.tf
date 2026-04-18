@@ -72,7 +72,26 @@ variable "host_services" {
       mount_point    = string
       smb_share_name = string
       directories    = list(string)
-      description    = optional(string)
+      group_name     = optional(string)
+      managed_users = optional(list(object({
+        name                = string
+        unix_groups         = optional(list(string))
+        shell               = optional(string)
+        create_home         = optional(bool)
+        password_secret_env = string
+      })))
+      shares = optional(list(object({
+        name           = string
+        path           = string
+        valid_users    = string
+        browsable      = optional(bool)
+        read_only      = optional(bool)
+        force_group    = optional(string)
+        create_mask    = optional(string)
+        directory_mask = optional(string)
+        comment        = optional(string)
+      })))
+      description = optional(string)
     }))
   })
   default = {}

@@ -250,6 +250,40 @@ run "ansible_inventory_host_services_nas_propagated" {
         mount_point    = "/mnt/nas"
         smb_share_name = "nas"
         directories    = ["huggingface/hub", "ollama/models", "media", "backups"]
+        group_name     = "nas"
+        managed_users = [
+          {
+            name                = "homeassistant"
+            unix_groups         = ["nas"]
+            shell               = "/usr/sbin/nologin"
+            create_home         = false
+            password_secret_env = "NAS_HOMEASSISTANT_SMB_PASSWORD"
+          }
+        ]
+        shares = [
+          {
+            name           = "nas"
+            path           = "/mnt/nas"
+            valid_users    = "@nas"
+            browsable      = true
+            read_only      = false
+            force_group    = "nas"
+            create_mask    = "0664"
+            directory_mask = "0775"
+            comment        = "Primary NAS root share"
+          },
+          {
+            name           = "ha-backups"
+            path           = "/mnt/nas/backups"
+            valid_users    = "homeassistant"
+            browsable      = true
+            read_only      = false
+            force_group    = "nas"
+            create_mask    = "0664"
+            directory_mask = "0775"
+            comment        = "Home Assistant backup storage"
+          }
+        ]
       }
     }
   }
@@ -262,5 +296,20 @@ run "ansible_inventory_host_services_nas_propagated" {
   assert {
     condition     = output.ansible_inventory.host_services.nas.mount_point == "/mnt/nas"
     error_message = "host_services.nas.mount_point must propagate to ansible_inventory output"
+  }
+
+  assert {
+    condition     = output.ansible_inventory.host_services.nas.group_name == "nas"
+    error_message = "host_services.nas.group_name must propagate to ansible_inventory output"
+  }
+
+  assert {
+    condition     = output.ansible_inventory.host_services.nas.managed_users[0].password_secret_env == "NAS_HOMEASSISTANT_SMB_PASSWORD"
+    error_message = "host_services.nas.managed_users must propagate to ansible_inventory output"
+  }
+
+  assert {
+    condition     = output.ansible_inventory.host_services.nas.shares[1].name == "ha-backups"
+    error_message = "host_services.nas.shares must propagate to ansible_inventory output"
   }
 }

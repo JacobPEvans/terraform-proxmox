@@ -142,24 +142,32 @@ These are exposed via `ansible_inventory.constants` in `outputs.tf` for downstre
 
 | Repo | Consumes | Purpose |
 | --- | --- | --- |
-| ansible-proxmox | N/A | Proxmox host config (kernel, ZFS, monitoring) |
+| ansible-proxmox | `ansible_inventory.host_services` | Proxmox host config (kernel, ZFS, monitoring, NAS/Samba) |
 | ansible-proxmox-apps | `ansible_inventory` (containers, docker_vms, constants) | Cribl, HAProxy, DNS |
 | ansible-splunk | `ansible_inventory` (splunk_vm) | Splunk Enterprise (Docker) |
 
 ### Inventory Sync (Automatic)
 
 Inventory sync to downstream repos is **automatic** via a Terragrunt `after_hook` in `terragrunt.hcl`.
-After every `terragrunt apply`, `terraform_inventory.json` is written to both
-`ansible-proxmox-apps` and `ansible-splunk` if they are cloned at `~/git/<repo>/main/`.
+After every `terragrunt apply`, `terraform_inventory.json` is written to
+`ansible-proxmox`, `ansible-proxmox-apps`, and `ansible-splunk` if they are cloned
+at `~/git/<repo>/main/`.
 Repos not present are skipped with a stderr warning.
 
 To sync manually (e.g., after importing state without apply):
 
 ```bash
-aws-vault exec tf-proxmox -- doppler run -- \
-  terragrunt output -json ansible_inventory \
-  | tee ~/git/ansible-proxmox-apps/main/inventory/terraform_inventory.json \
-  > ~/git/ansible-splunk/main/inventory/terraform_inventory.json
+aws-vault exec tf-proxmox -- doppler run -- bash -c '
+  INV=$(terragrunt output -json ansible_inventory)
+  for repo in ansible-proxmox ansible-proxmox-apps ansible-splunk; do
+    TARGET="$HOME/git/$repo/main/inventory/terraform_inventory.json"
+    if [ -d "$(dirname "$TARGET")" ]; then
+      printf "%s\n" "$INV" > "$TARGET"
+    else
+      printf "Skipped %s (not cloned at ~/git/%s/main)\n" "$repo" "$repo" >&2
+    fi
+  done
+'
 ```
 
 ## Development Workflow
