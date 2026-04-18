@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.0...v1.6.1) (2026-04-18)
+
+
+### Bug Fixes
+
+* assume credentials in environment for pre-push hooks ([#258](https://github.com/JacobPEvans/terraform-proxmox/issues/258)) ([fd1eca1](https://github.com/JacobPEvans/terraform-proxmox/commit/fd1eca10447c6e031d0d48d528b70e281d69b641))
+
 ## [1.6.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.5.3...v1.6.0) (2026-04-18)
 
 
