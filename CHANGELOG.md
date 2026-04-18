@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.5.3...v1.6.0) (2026-04-18)
+
+
+### Features
+
+* declare Samba NAS inventory contract ([#254](https://github.com/JacobPEvans/terraform-proxmox/issues/254)) ([6ac67b3](https://github.com/JacobPEvans/terraform-proxmox/commit/6ac67b3ba5b047f050b96a7e2b6c0e1455e95b44))
+
 ## [1.5.3](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.5.2...v1.5.3) (2026-04-13)
 
 
