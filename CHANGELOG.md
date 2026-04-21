@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.1...v1.6.2) (2026-04-21)
+
+
+### Bug Fixes
+
+* add bot PR CI retrigger workflow ([#261](https://github.com/JacobPEvans/terraform-proxmox/issues/261)) ([91a8814](https://github.com/JacobPEvans/terraform-proxmox/commit/91a88141e1932cb42499a59c60513e800433e0f4))
+
 ## [1.6.1](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.0...v1.6.1) (2026-04-18)
 
 
