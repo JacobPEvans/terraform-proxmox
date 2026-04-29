@@ -82,7 +82,7 @@
     "docker-host": {
       "vm_id": 250,
       "name": "docker",
-      "description": "Docker Swarm host - Cribl Edge and Stream services",
+      "description": "Docker host for GitHub Actions runners and ad-hoc Docker workloads (Cribl moved to dedicated LXCs cribl-edge-* and cribl-stream-*)",
       "cpu_cores": 4,
       "memory_dedicated": 8192,
       "tags": ["terraform", "cribl", "docker", "logging", "swarm"],
