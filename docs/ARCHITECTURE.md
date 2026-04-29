@@ -68,7 +68,8 @@ flowchart LR
     subgraph Collectors["Cribl Edge (LXC, 2 replicas)"]
         CE1[cribl-edge-01<br/>:9420 API]
         CE2[cribl-edge-02<br/>:9420 API]
-        PQ[(100GB persistent queue)]
+        PQ1[(per-node PQ<br/>~100GB)]
+        PQ2[(per-node PQ<br/>~100GB)]
     end
 
     subgraph Processors["Cribl Stream (LXC, 2 replicas)"]
@@ -88,10 +89,10 @@ flowchart LR
     HAP -->|round-robin syslog| CE2
     HAP -->|netflow UDP| CS1
     HAP -->|netflow UDP| CS2
-    CE1 --> PQ
-    CE2 --> PQ
-    PQ --> CS1
-    PQ --> CS2
+    CE1 --> PQ1
+    CE2 --> PQ2
+    PQ1 --> CS1
+    PQ2 --> CS2
     CS1 -->|HEC HTTPS| HEC
     CS2 -->|HEC HTTPS| HEC
 ```
@@ -145,9 +146,11 @@ Managed by `ansible-proxmox` (kernel, ZFS, monitoring, firewall, Samba NAS).
 **Host services declared in `deployment.json`** (`host_services.nas`):
 
 - ZFS dataset `rpool/data/nas` mounted at `/mnt/nas` (1 TB quota)
-- Samba shares: `nas` (general), `media` (media library), `backups`,
-  with subdirs for `huggingface/hub`, `ollama/models`
-- SMB user `homeassistant` for HA integration writes
+- Samba shares: `nas` (general), `ha-media`, `ha-backups`
+- Directories under `/mnt/nas`: `media`, `backups`, `huggingface/hub`,
+  `ollama/models`
+- SMB user `homeassistant` for HA integration writes to `ha-media` /
+  `ha-backups`
 
 ### VMs (terraform-proxmox)
 
@@ -166,14 +169,12 @@ Cribl Edge and Cribl Stream were previously planned for Docker Swarm on
 
 Authoritative list lives in `deployment.json` `containers.*`. Summary by pool:
 
-- **`infrastructure`** — `ansible`, `technitium-dns`, `pi-hole`, `phpipam`,
-  `apt-cacher-ng`, `nginx-proxy-manager`, `homeassistant`, `minio`, `mailpit`,
-  `ntfy`
+- **`infrastructure`** — `ansible`, `pve-scripts-local`, `technitium-dns`,
+  `pi-hole`, `phpipam`, `apt-cacher-ng`, `minio`, `mailpit`, `ntfy`,
+  `homeassistant`, `mssql`, `nginx-proxy-manager`, `prometheus`
 - **`logging`** — `haproxy`, `cribl-edge-01/02`, `cribl-stream-01/02`,
-  `prometheus`, `splunk-mgmt` (SH + DS + LM + CM)
-- **`ai`** — `claude-code-01/02`, `gemini-01/02`
-- **`databases`** — `mssql`, `qdrant`
-- **`ml`** — `llamaindex`
+  `splunk-mgmt` (SH + DS + LM + MC + CM)
+- **`ai`** — `claude-code-01/02`, `gemini-01/02`, `qdrant`, `llamaindex`
 
 Notable per-container facts:
 
@@ -182,7 +183,8 @@ Notable per-container facts:
 - `cribl-edge-01/02` (port 9420 API) and `cribl-stream-01/02` (port 9000 API)
   form the two-tier processing pipeline.
 - `splunk-mgmt` is the LXC search head + deployment server + license manager +
-  cluster manager. The `splunk-aio` VM 200 is the dedicated indexing node.
+  monitoring console + cluster manager. The `splunk-aio` VM 200 is the
+  dedicated indexing node.
 - `mailpit` and `ntfy` run Docker-in-LXC (`nesting: true`, `keyctl: true`) for
   internal notifications.
 
