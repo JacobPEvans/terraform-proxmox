@@ -10,7 +10,7 @@ For module-level reference (variables, outputs, usage examples), see
 
 ## Architecture Overview
 
-```
+```text
 Terraform (local) ──► BPG Proxmox Provider ──► Proxmox VE API
                                                      │
                               Route53 DNS-01 ◄────── pve-daily-update.service
@@ -21,7 +21,7 @@ Terraform (local) ──► BPG Proxmox Provider ──► Proxmox VE API
 ### Components
 
 | Component | Role |
-|---|---|
+| --- | --- |
 | `modules/acme-certificate/` | Terraform module managing accounts, DNS plugins, certificates |
 | BPG Proxmox provider | Translates Terraform HCL into Proxmox API calls |
 | AWS Route53 | DNS-01 challenge: creates `_acme-challenge` TXT records |
@@ -52,7 +52,7 @@ Terraform (local) ──► BPG Proxmox Provider ──► Proxmox VE API
 Before applying, configure the following secrets in Doppler:
 
 | Secret | Description |
-|---|---|
+| --- | --- |
 | `ROUTE53_ACCESS_KEY` | AWS IAM access key with Route53 permissions |
 | `ROUTE53_SECRET_KEY` | AWS IAM secret key |
 | `ROUTE53_ZONE_ID` | Route53 hosted zone ID for the target domain |
@@ -88,6 +88,14 @@ Minimum required IAM policy for Route53:
 
 ### Terraform Variables (`terraform.tfvars`)
 
+The Doppler secrets named `ROUTE53_ACCESS_KEY` / `ROUTE53_SECRET_KEY` are mapped to
+the standard `AWS_*` keys that the BPG Proxmox provider expects via the
+[Doppler config name-transformer](https://docs.doppler.com/docs/cli-name-transformers)
+configured for this project. The Terraform variable `dns_plugins` then references
+those (now-canonically-named) secrets via the `TF_VAR_dns_plugins` env var that
+`doppler run -- terragrunt apply` injects — `terraform.tfvars` itself does not
+read environment variables.
+
 ```hcl
 acme_accounts = {
   "letsencrypt" = {
@@ -97,16 +105,19 @@ acme_accounts = {
   }
 }
 
-dns_plugins = {
-  "myroute53" = {
-    plugin_type = "route53"
-    data = {
-      "AWS_ACCESS_KEY_ID"     = "<injected by Doppler>"
-      "AWS_SECRET_ACCESS_KEY" = "<injected by Doppler>"
-      "AWS_DEFAULT_REGION"    = "us-east-1"
-    }
-  }
-}
+# dns_plugins is provided by Doppler as TF_VAR_dns_plugins (JSON), NOT in terraform.tfvars.
+# Example shape (do not commit literal credentials):
+#
+# dns_plugins = {
+#   "myroute53" = {
+#     plugin_type = "route53"
+#     data = {
+#       "AWS_ACCESS_KEY_ID"     = "<from doppler ROUTE53_ACCESS_KEY>"
+#       "AWS_SECRET_ACCESS_KEY" = "<from doppler ROUTE53_SECRET_KEY>"
+#       "AWS_DEFAULT_REGION"    = "us-east-1"
+#     }
+#   }
+# }
 
 acme_certificates = {
   "pve-cert" = {
@@ -168,14 +179,21 @@ pvenode acme cert order
 If Route53 IAM credentials are rotated:
 
 1. Update secrets in Doppler
+
 2. Re-apply Terraform to push new credentials to Proxmox:
+
    ```bash
    aws-vault exec tf-proxmox -- doppler run -- terragrunt apply
    ```
+
 3. Verify Proxmox has the updated credentials:
+
    ```bash
-   # Proxmox stores credentials in encrypted cluster storage
+   # Confirm the node references the right ACME account + domains
    pvesh get /nodes/pve/config --output-format=json | jq '.acme'
+
+   # Verify the DNS plugin (cluster-wide resource — credentials are masked)
+   pvesh get /cluster/acme/plugins/myroute53 --output-format=json
    ```
 
 ---
@@ -185,19 +203,22 @@ If Route53 IAM credentials are rotated:
 If ACME resources were created manually in Proxmox before Terraform management was added:
 
 ```bash
+# Note: the `acme_certificates` module is declared with `count = length(...) > 0 ? 1 : 0`,
+# so the resource addresses include the `[0]` index.
+
 # Import ACME account
-terraform import \
-  'module.acme_certificates.proxmox_virtual_environment_acme_account.accounts["letsencrypt"]' \
+terragrunt run -- terraform import \
+  'module.acme_certificates[0].proxmox_virtual_environment_acme_account.accounts["letsencrypt"]' \
   'letsencrypt'
 
 # Import DNS plugin
-terraform import \
-  'module.acme_certificates.proxmox_virtual_environment_acme_dns_plugin.dns_plugins["myroute53"]' \
+terragrunt run -- terraform import \
+  'module.acme_certificates[0].proxmox_virtual_environment_acme_dns_plugin.dns_plugins["myroute53"]' \
   'myroute53'
 
 # Import certificate (node name as the ID)
-terraform import \
-  'module.acme_certificates.proxmox_virtual_environment_acme_certificate.certificates["pve-cert"]' \
+terragrunt run -- terraform import \
+  'module.acme_certificates[0].proxmox_virtual_environment_acme_certificate.certificates["pve-cert"]' \
   'pve'
 ```
 
@@ -217,11 +238,15 @@ it cannot find the `_acme-challenge` TXT record.
 
 1. Verify Route53 IAM credentials in Doppler are valid
 2. Confirm IAM policy includes `route53:ChangeResourceRecordSets` and `route53:GetChange`
+
 3. Check DNS propagation:
+
    ```bash
    dig -t TXT _acme-challenge.pve.example.com @8.8.8.8
    ```
+
 4. Review Proxmox certificate logs:
+
    ```bash
    journalctl -u pve-daily-update.service -n 50
    ```
@@ -233,15 +258,20 @@ it cannot find the `_acme-challenge` TXT record.
 **Checks:**
 
 1. Check if Proxmox can reach Let's Encrypt:
+
    ```bash
    curl -I https://acme-v02.api.letsencrypt.org/directory
    ```
+
 2. Verify Route53 credentials have not expired:
+
    ```bash
    # Re-apply Terraform to refresh credentials
    aws-vault exec tf-proxmox -- doppler run -- terragrunt apply
    ```
+
 3. Confirm `pveproxy` is running:
+
    ```bash
    systemctl status pveproxy
    ```
@@ -253,10 +283,12 @@ it cannot find the `_acme-challenge` TXT record.
 **Checks:**
 
 1. Inspect imported state:
+
    ```bash
-   terraform state show \
-     'module.acme_certificates.proxmox_virtual_environment_acme_account.accounts["letsencrypt"]'
+   terragrunt run -- terraform state show \
+     'module.acme_certificates[0].proxmox_virtual_environment_acme_account.accounts["letsencrypt"]'
    ```
+
 2. Compare `email` and `directory` values against `terraform.tfvars`
 3. Update `terraform.tfvars` to match current Proxmox state, then re-plan
 
