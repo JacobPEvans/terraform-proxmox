@@ -42,8 +42,7 @@ graph TD
     AV -->|AWS creds| TA
     CR -->|packs & configs| APA
     SP -->|add-ons| AS
-    SOPS_AGE -.->|planned| TP
-    SOPS_AGE -.->|planned| APA
+    SOPS_AGE -->|terraform.sops.json| TP
 ```
 
 ## Data Pipeline Flow
@@ -62,14 +61,20 @@ flowchart LR
         NF[UniFi IPFIX :2055 UDP]
     end
 
-    subgraph LB["Load Balancer"]
-        HAP[HAProxy LXC<br/>:1514-1518 UDP/TCP<br/>:2055 UDP<br/>Stats :8404]
+    subgraph LB["Load Balancer (LXC)"]
+        HAP[HAProxy<br/>:1514-1518 UDP/TCP<br/>:2055 UDP<br/>Stats :8404]
     end
 
-    subgraph Collectors["Docker Swarm Host"]
-        CE1[Cribl Edge replica 1]
-        CE2[Cribl Edge replica 2]
-        PQ[(100GB persistent queue)]
+    subgraph Collectors["Cribl Edge (LXC, 2 replicas)"]
+        CE1[cribl-edge-01<br/>:9420 API]
+        CE2[cribl-edge-02<br/>:9420 API]
+        PQ1[(per-node PQ<br/>~100GB)]
+        PQ2[(per-node PQ<br/>~100GB)]
+    end
+
+    subgraph Processors["Cribl Stream (LXC, 2 replicas)"]
+        CS1[cribl-stream-01<br/>:9000 API]
+        CS2[cribl-stream-02<br/>:9000 API]
     end
 
     subgraph Destination["Splunk Enterprise VM"]
@@ -80,12 +85,22 @@ flowchart LR
 
     Sources --> HAP
     NetFlow --> HAP
-    HAP -->|round-robin| CE1
-    HAP -->|round-robin| CE2
-    CE1 --> PQ
-    CE2 --> PQ
-    PQ -->|HEC HTTP| HEC
+    HAP -->|round-robin syslog| CE1
+    HAP -->|round-robin syslog| CE2
+    HAP -->|netflow UDP| CS1
+    HAP -->|netflow UDP| CS2
+    CE1 --> PQ1
+    CE2 --> PQ2
+    PQ1 --> CS1
+    PQ2 --> CS2
+    CS1 -->|HEC HTTPS| HEC
+    CS2 -->|HEC HTTPS| HEC
 ```
+
+**Cribl two-tier rationale**: Edge nodes own ingestion + persistent queueing
+(absorbs upstream bursts, survives Splunk outages). Stream nodes own routing
+and central pipeline logic (sourcetype enrichment, HEC output). Both run as
+LXC containers in the `logging` resource pool — no Docker Swarm in this path.
 
 ## Secrets Chain
 
@@ -101,8 +116,8 @@ flowchart TD
         DS[doppler secrets-sync]
     end
 
-    subgraph GitCommitted["Git-Committed Secrets (Planned)"]
-        SOPS[SOPS + Age]
+    subgraph GitCommitted["Git-Committed Secrets (Active)"]
+        SOPS[SOPS + Age<br/>terraform.sops.json]
     end
 
     subgraph Consumers["Consumers"]
@@ -118,8 +133,7 @@ flowchart TD
     DS -->|repository secrets| GHA
     AV -->|AWS_* creds| TF
     KC -->|API keys| AI
-    SOPS -.->|encrypted tfvars| TF
-    SOPS -.->|encrypted vars| ANS
+    SOPS -->|terraform.sops.json| TF
 ```
 
 ## Infrastructure Components
@@ -127,28 +141,52 @@ flowchart TD
 ### Proxmox VE Host
 
 Single-node hypervisor running VMs and LXC containers.
-Managed by `ansible-proxmox` (kernel, ZFS, monitoring, firewall).
+Managed by `ansible-proxmox` (kernel, ZFS, monitoring, firewall, Samba NAS).
+
+**Host services declared in `deployment.json`** (`host_services.nas`):
+
+- ZFS dataset `rpool/data/nas` mounted at `/mnt/nas` (1 TB quota)
+- Samba shares: `nas` (general), `ha-media`, `ha-backups`
+- Directories under `/mnt/nas`: `media`, `backups`, `huggingface/hub`,
+  `ollama/models`
+- SMB user `homeassistant` for HA integration writes to `ha-media` /
+  `ha-backups`
 
 ### VMs (terraform-proxmox)
 
 Provisioned via BPG Proxmox Terraform provider. IPs derived from VM ID:
 `network_prefix.vm_id` (e.g., VM 200 = `192.168.0.200`).
 
-| Resource | Type | Purpose |
-| --- | --- | --- |
-| Splunk VM | VM (dedicated module) | Splunk Enterprise in Docker |
-| Docker Host | VM | Docker Swarm for Cribl Edge |
-| Ansible VM | VM | Ansible control node |
+| Resource      | VM ID | Purpose                                                                     |
+| ------------- | ----- | --------------------------------------------------------------------------- |
+| `splunk-aio`  | 200   | Splunk Enterprise (Docker) — see `modules/splunk-vm/`                       |
+| `docker-host` | 250   | Docker host for ephemeral GitHub Actions runners and other Docker workloads |
+
+Cribl Edge and Cribl Stream were previously planned for Docker Swarm on
+`docker-host` but now run as dedicated LXC containers (see below).
 
 ### LXC Containers (terraform-proxmox)
 
-| Resource | VM ID | Type | Purpose |
-| --- | --- | --- | --- |
-| HAProxy | - | LXC | Syslog load balancer |
-| Technitium DNS | - | LXC | Internal DNS |
-| apt-cacher-ng | 106 | LXC | APT package cache |
-| Mailpit | 110 | LXC | SMTP relay with web UI (Docker in LXC) |
-| ntfy | 111 | LXC | Push notification server (Docker in LXC) |
+Authoritative list lives in `deployment.json` `containers.*`. Summary by pool:
+
+- **`infrastructure`** — `ansible`, `pve-scripts-local`, `technitium-dns`,
+  `pi-hole`, `phpipam`, `apt-cacher-ng`, `minio`, `mailpit`, `ntfy`,
+  `homeassistant`, `mssql`, `nginx-proxy-manager`, `prometheus`
+- **`logging`** — `haproxy`, `cribl-edge-01/02`, `cribl-stream-01/02`,
+  `splunk-mgmt` (SH + DS + LM + MC + CM)
+- **`ai`** — `claude-code-01/02`, `gemini-01/02`, `qdrant`, `llamaindex`
+
+Notable per-container facts:
+
+- `haproxy` LXC fronts syslog 1514-1518 (UDP/TCP) and NetFlow 2055 (UDP) — see
+  [LOGGING_PIPELINE.md](./LOGGING_PIPELINE.md).
+- `cribl-edge-01/02` (port 9420 API) and `cribl-stream-01/02` (port 9000 API)
+  form the two-tier processing pipeline.
+- `splunk-mgmt` is the LXC search head + deployment server + license manager +
+  monitoring console + cluster manager. The `splunk-aio` VM 200 is the
+  dedicated indexing node.
+- `mailpit` and `ntfy` run Docker-in-LXC (`nesting: true`, `keyctl: true`) for
+  internal notifications.
 
 #### Notification Services
 
