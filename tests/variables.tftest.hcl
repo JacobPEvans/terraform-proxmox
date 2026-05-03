@@ -402,6 +402,7 @@ run "acme_account_invalid_email_rejected" {
       test = {
         email     = "not-an-email"
         directory = "https://acme-v02.api.letsencrypt.org/directory"
+        tos       = "https://letsencrypt.org/documents/LE-SA-v1.4-April-3-2024.pdf"
       }
     }
   }
@@ -419,6 +420,7 @@ run "acme_account_non_https_directory_rejected" {
       test = {
         email     = "admin@example.com"
         directory = "http://insecure.acme.org/directory"
+        tos       = "https://letsencrypt.org/documents/LE-SA-v1.4-April-3-2024.pdf"
       }
     }
   }
