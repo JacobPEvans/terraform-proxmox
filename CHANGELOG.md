@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.4](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.3...v1.6.4) (2026-05-06)
+
+
+### Bug Fixes
+
+* re-enable checkov security scanning, bump rev to 3.2.526 ([#126](https://github.com/JacobPEvans/terraform-proxmox/issues/126)) [issue-solver-2026-05-06] ([736909e](https://github.com/JacobPEvans/terraform-proxmox/commit/736909e171da3fe884643b51787a306b6c0023af))
+
 ## [1.6.3](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.2...v1.6.3) (2026-05-06)
 
 
