@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.2...v1.6.3) (2026-05-06)
+
+
+### Bug Fixes
+
+* **ci:** remove deprecated app-id secret passthrough ([a9b2cbd](https://github.com/JacobPEvans/terraform-proxmox/commit/a9b2cbd78b27d200b7b57916e828e1ca7057cd9a))
+
 ## [1.6.2](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.1...v1.6.2) (2026-04-21)
 
 
