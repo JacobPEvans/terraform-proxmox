@@ -40,19 +40,13 @@ repos:
           - --args=--only=terraform_required_providers
           - --args=--only=terraform_standard_module_structure
 
-  # Checkov and Terrascan temporarily disabled - require environment fixes
-  # TODO: Re-enable after fixing rustworkx Rust compiler requirement
-  # - repo: https://github.com/bridgecrewio/checkov.git
-  #   rev: 3.2.255
-  #   hooks:
-  #     - id: checkov
-  #       args: ['-d', '.', '--framework', 'terraform']
-  #
-  # - repo: https://github.com/tenable/terrascan
-  #   rev: v1.19.9
-  #   hooks:
-  #     - id: terraform-pre-commit
-  #       args: ['scan', '-i', 'terraform', '-t', 'all']
+  # Checkov - Terraform IaC security scanner
+  - repo: https://github.com/bridgecrewio/checkov.git
+    rev: 3.2.526
+    hooks:
+      - id: checkov
+        args: ['-d', '.', '--framework', 'terraform', '--quiet']
+        pass_filenames: false
 
   # Local hooks using nix+doppler toolchain
   - repo: local
