@@ -202,3 +202,230 @@ run "container_with_memory_below_minimum_rejected" {
     var.containers,
   ]
 }
+run "template_id_out_of_range_rejected" {
+  command = plan
+
+  variables {
+    template_id = 10000
+  }
+
+  expect_failures = [
+    var.template_id,
+  ]
+}
+
+run "empty_datastore_id_rejected" {
+  command = plan
+
+  variables {
+    datastore_id = ""
+  }
+
+  expect_failures = [
+    var.datastore_id,
+  ]
+}
+
+run "empty_bridge_rejected" {
+  command = plan
+
+  variables {
+    bridge = ""
+  }
+
+  expect_failures = [
+    var.bridge,
+  ]
+}
+
+run "invalid_ssh_public_key_prefix_rejected" {
+  command = plan
+
+  variables {
+    ssh_public_key = "not-a-valid-key"
+  }
+
+  expect_failures = [
+    var.ssh_public_key,
+  ]
+}
+
+run "invalid_proxmox_ssh_private_key_rejected" {
+  command = plan
+
+  variables {
+    proxmox_ssh_private_key = "relative/path/no-slash-or-tilde"
+  }
+
+  expect_failures = [
+    var.proxmox_ssh_private_key,
+  ]
+}
+
+run "vm_with_excessive_cpu_cores_rejected" {
+  command = plan
+
+  variables {
+    vms = {
+      test = {
+        vm_id     = 100
+        name      = "test-vm"
+        cpu_cores = 64
+      }
+    }
+  }
+
+  expect_failures = [
+    var.vms,
+  ]
+}
+
+run "vm_with_memory_above_maximum_rejected" {
+  command = plan
+
+  variables {
+    vms = {
+      test = {
+        vm_id            = 100
+        name             = "test-vm"
+        memory_dedicated = 131072
+      }
+    }
+  }
+
+  expect_failures = [
+    var.vms,
+  ]
+}
+
+run "vm_ssh_public_key_path_missing_pub_extension_rejected" {
+  command = plan
+
+  variables {
+    vm_ssh_public_key_path = "/home/user/.ssh/id_ed25519"
+  }
+
+  expect_failures = [
+    var.vm_ssh_public_key_path,
+  ]
+}
+
+run "vm_ssh_private_key_path_relative_rejected" {
+  command = plan
+
+  variables {
+    vm_ssh_private_key_path = "relative/ssh/key"
+  }
+
+  expect_failures = [
+    var.vm_ssh_private_key_path,
+  ]
+}
+
+run "ansible_cloud_init_file_wrong_directory_rejected" {
+  command = plan
+
+  variables {
+    ansible_cloud_init_file = "config/wrong-dir.yml"
+  }
+
+  expect_failures = [
+    var.ansible_cloud_init_file,
+  ]
+}
+
+run "splunk_vm_name_too_long_rejected" {
+  command = plan
+
+  variables {
+    splunk_vm_name = "this-splunk-vm-name-is-way-too-long-exceeding-63-character-limit"
+  }
+
+  expect_failures = [
+    var.splunk_vm_name,
+  ]
+}
+
+run "splunk_boot_disk_size_out_of_range_rejected" {
+  command = plan
+
+  variables {
+    splunk_boot_disk_size = 1001
+  }
+
+  expect_failures = [
+    var.splunk_boot_disk_size,
+  ]
+}
+
+run "splunk_data_disk_size_out_of_range_rejected" {
+  command = plan
+
+  variables {
+    splunk_data_disk_size = 1001
+  }
+
+  expect_failures = [
+    var.splunk_data_disk_size,
+  ]
+}
+
+run "splunk_cpu_cores_out_of_range_rejected" {
+  command = plan
+
+  variables {
+    splunk_cpu_cores = 64
+  }
+
+  expect_failures = [
+    var.splunk_cpu_cores,
+  ]
+}
+
+run "splunk_memory_out_of_range_rejected" {
+  command = plan
+
+  variables {
+    splunk_memory = 65537
+  }
+
+  expect_failures = [
+    var.splunk_memory,
+  ]
+}
+
+run "acme_account_invalid_email_rejected" {
+  command = plan
+
+  variables {
+    acme_accounts = {
+      test = {
+        email     = "not-an-email"
+        directory = "https://acme-v02.api.letsencrypt.org/directory"
+        tos       = "https://letsencrypt.org/documents/LE-SA-v1.4-April-3-2024.pdf"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.acme_accounts,
+  ]
+}
+
+run "acme_account_non_https_directory_rejected" {
+  command = plan
+
+  variables {
+    acme_accounts = {
+      test = {
+        email     = "admin@example.com"
+        directory = "http://insecure.acme.org/directory"
+        tos       = "https://letsencrypt.org/documents/LE-SA-v1.4-April-3-2024.pdf"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.acme_accounts,
+  ]
+}
