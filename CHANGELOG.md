@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.5](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.4...v1.6.5) (2026-05-07)
+
+
+### Bug Fixes
+
+* **acme:** complete proxmox_acme_* rename with state migration ([#270](https://github.com/JacobPEvans/terraform-proxmox/issues/270)) ([5afe3f1](https://github.com/JacobPEvans/terraform-proxmox/commit/5afe3f1aeb614603914fa005a65c544bfcc38b50))
+* **tests:** add missing validation tests for 17 variable blocks ([#272](https://github.com/JacobPEvans/terraform-proxmox/issues/272)) ([1e999ed](https://github.com/JacobPEvans/terraform-proxmox/commit/1e999ed218d1eef9c1f5af6483a40e51800c275e))
+
 ## [1.6.4](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.3...v1.6.4) (2026-05-06)
 
 
