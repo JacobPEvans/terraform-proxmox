@@ -9,7 +9,7 @@ terraform {
 
 # ACME Account - Let's Encrypt account registration
 # This is a prerequisite for certificate ordering
-resource "proxmox_virtual_environment_acme_account" "accounts" {
+resource "proxmox_acme_account" "accounts" {
   for_each = var.acme_accounts
 
   name      = each.key
@@ -27,7 +27,7 @@ resource "proxmox_virtual_environment_acme_account" "accounts" {
 # DNS Challenge Plugin - AWS Route53
 # Configures Route53 as the DNS-01 challenge provider for ACME validation
 # This allows certificate validation without exposing port 80 publicly
-resource "proxmox_virtual_environment_acme_dns_plugin" "dns_plugins" {
+resource "proxmox_acme_dns_plugin" "dns_plugins" {
   for_each = var.dns_plugins
 
   plugin = each.key               # Plugin identifier (e.g., "myroute53")
@@ -38,7 +38,7 @@ resource "proxmox_virtual_environment_acme_dns_plugin" "dns_plugins" {
 # ACME Certificate - the actual TLS certificate
 # This resource manages the certificate lifecycle including ordering and renewal
 # Proxmox automatically renews certificates 30 days before expiry via pve-daily-update.service
-resource "proxmox_virtual_environment_acme_certificate" "certificates" {
+resource "proxmox_acme_certificate" "certificates" {
   for_each = var.acme_certificates
 
   node_name = each.value.node_name
@@ -55,7 +55,7 @@ resource "proxmox_virtual_environment_acme_certificate" "certificates" {
 
   # Ensure dependencies are satisfied
   depends_on = [
-    proxmox_virtual_environment_acme_account.accounts,
-    proxmox_virtual_environment_acme_dns_plugin.dns_plugins
+    proxmox_acme_account.accounts,
+    proxmox_acme_dns_plugin.dns_plugins
   ]
 }

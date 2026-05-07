@@ -13,6 +13,7 @@ terraform {
 # A Record for Proxmox VE UI
 # Points the Proxmox domain to the Proxmox host IP address
 resource "aws_route53_record" "proxmox" {
+  #checkov:skip=CKV2_AWS_23: Proxmox is on-premises infrastructure with a static IP; AWS alias resource is architecturally inapplicable
   zone_id = var.route53_zone_id
   name    = var.proxmox_domain
   type    = "A"
