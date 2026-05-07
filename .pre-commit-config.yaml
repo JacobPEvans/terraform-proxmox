@@ -60,7 +60,7 @@ repos:
 
       - id: terragrunt-validate
         name: terragrunt validate
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "aws-vault exec tf-proxmox -- doppler run -- terragrunt validate"'
+        entry: bash -c 'aws-vault exec tf-proxmox -- nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command doppler run -- terragrunt validate'
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
@@ -68,7 +68,7 @@ repos:
 
       - id: terragrunt-plan
         name: terragrunt plan
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "aws-vault exec tf-proxmox -- doppler run -- terragrunt plan -detailed-exitcode"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
+        entry: bash -c 'aws-vault exec tf-proxmox -- nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command doppler run -- terragrunt plan -detailed-exitcode; rc=$?; [ $rc -eq 0 ] || [ $rc -eq 2 ]'
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
