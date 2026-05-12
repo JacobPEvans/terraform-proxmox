@@ -228,6 +228,21 @@
       ],
       "features": { "nesting": true, "keyctl": true, "fuse": true }
     },
+    "openproject": {
+      "vm_id": 140,
+      "hostname": "openproject",
+      "description": "OpenProject Community Edition - project management platform (Docker in LXC)",
+      "cpu_cores": 2,
+      "memory_dedicated": 4096,
+      "memory_swap": 4096,
+      "tags": ["terraform", "container", "openproject", "projects", "docker"],
+      "pool_id": "infrastructure",
+      "root_disk": { "size": 16 },
+      "mount_points": [
+        { "volume": "local-zfs", "size": "50G", "path": "/opt/openproject" }
+      ],
+      "features": { "nesting": true, "keyctl": true, "fuse": true }
+    },
     "claude-code-01": {
       "vm_id": 150,
       "hostname": "claude-code-01",
