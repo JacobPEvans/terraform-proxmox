@@ -47,6 +47,10 @@ locals {
     { proto = "udp", dport = "2055", source = local.internal_src, comment = "NetFlow/IPFIX UDP from internal" },
   ]
 
+  ntp_server_rules = [
+    { proto = "udp", dport = "123", source = local.internal_src, comment = "NTP (chrony server) from internal" },
+  ]
+
   notification_services_rules = [
     { proto = "tcp", dport = "1025", source = local.internal_src, comment = "Mailpit SMTP from internal" },
     { proto = "tcp", dport = "8025", source = local.internal_src, comment = "Mailpit Web UI from internal" },
