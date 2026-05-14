@@ -110,6 +110,19 @@ run "cribl_stream_rules_always_one" {
   }
 }
 
+run "ntp_server_rules_always_one" {
+  command = plan
+
+  variables {
+    internal_networks = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+  }
+
+  assert {
+    condition     = length(local.ntp_server_rules) == 1
+    error_message = "ntp_server_rules must be exactly 1 (UDP 123), got ${length(local.ntp_server_rules)}"
+  }
+}
+
 run "syslog_rules_source_matches_joined_networks" {
   command = plan
 
