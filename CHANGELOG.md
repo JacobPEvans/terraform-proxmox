@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.5...v1.7.0) (2026-05-14)
+
+
+### Features
+
+* **containers:** add OpenProject Community Edition LXC ([#284](https://github.com/JacobPEvans/terraform-proxmox/issues/284)) ([4d7cead](https://github.com/JacobPEvans/terraform-proxmox/commit/4d7ceadfdd7e49704eaedb9868516f23dbac77b1))
+
 ## [1.6.5](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.4...v1.6.5) (2026-05-07)
 
 
