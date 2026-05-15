@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Cleanup VMs in pool that aren't defined in Terraform
-# Usage: ./scripts/cleanup-orphaned-vms.sh <pool-name>
+# Run as: av tf-proxmox -- doppler run -- ./scripts/cleanup-orphaned-vms.sh <pool-name>
 
 set -euo pipefail
 
@@ -24,7 +24,7 @@ cd "$(dirname "$0")/.."
 
 run_terragrunt() {
     nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c \
-        "aws-vault exec tf-proxmox -- doppler run -- terragrunt $*"
+        "doppler run -- terragrunt $*"
 }
 
 # Get VM IDs from state
