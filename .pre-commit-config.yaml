@@ -9,23 +9,18 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
 
-  # Terraform hooks - require terraform/tflint installed locally
-  # These run in CI via GitHub Actions instead
+  # Terraform hooks - run on every commit (no credentials required)
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.92.0
     hooks:
       - id: terraform_fmt
-        stages: [manual]  # Run manually or in CI, not on every commit
       - id: terraform_validate
-        stages: [manual]
       - id: terraform_docs
-        stages: [manual]
         args:
           - --hook-config=--path-to-file=README.md
           - --hook-config=--add-to-existing-file=true
           - --hook-config=--create-file-if-not-exist=true
       - id: terraform_tflint
-        stages: [manual]
         args:
           - --args=--only=terraform_deprecated_interpolation
           - --args=--only=terraform_deprecated_index
@@ -48,28 +43,12 @@ repos:
         args: ['-d', '.', '--framework', 'terraform', '--quiet']
         pass_filenames: false
 
-  # Local hooks using nix+doppler toolchain
+  # Local hooks using nix toolchain (no credentials required)
   - repo: local
     hooks:
       - id: tofu-test
         name: tofu test (mock providers)
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "tofu init -backend=false -no-color >/dev/null 2>&1 && tofu test -no-color"'
+        entry: bash -c 'tofu init -backend=false -no-color >/dev/null && tofu test -no-color'
         language: system
         files: '\.(tf|hcl)$'
         pass_filenames: false
-
-      - id: terragrunt-validate
-        name: terragrunt validate
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "aws-vault exec tf-proxmox -- doppler run -- terragrunt validate"'
-        language: system
-        files: '\.(tf|hcl)$'
-        pass_filenames: false
-        stages: [pre-push]  # Requires aws-vault tf-proxmox profile + Doppler
-
-      - id: terragrunt-plan
-        name: terragrunt plan
-        entry: bash -c 'nix develop "github:JacobPEvans/nix-devenv?dir=shells/terraform" --command bash -c "aws-vault exec tf-proxmox -- doppler run -- terragrunt plan -detailed-exitcode"; rc=$?; if [ $rc -eq 0 ] || [ $rc -eq 2 ]; then exit 0; else exit 1; fi'
-        language: system
-        files: '\.(tf|hcl)$'
-        pass_filenames: false
-        stages: [pre-push]
