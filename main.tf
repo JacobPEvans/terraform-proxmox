@@ -191,6 +191,9 @@ module "firewall" {
   # MinIO object storage containers (minio tag)
   minio_container_ids = local.minio_container_ids
 
+  # iDRAC KVM VMs: tagged "idrac" (domistyle/idrac6 containers on dedicated Docker VM)
+  idrac_kvm_vm_ids = local.idrac_kvm_vm_ids
+
   management_network = local.management_network
   splunk_network     = join(",", local.splunk_network_ips)
   internal_networks  = var.internal_networks
