@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.7.0...v1.8.0) (2026-05-16)
+
+
+### Features
+
+* **firewall:** add idrac-kvm VM 251 with tag-driven internal firewall ([#294](https://github.com/JacobPEvans/terraform-proxmox/issues/294)) ([a67c2fa](https://github.com/JacobPEvans/terraform-proxmox/commit/a67c2fab125a2074d371797678c6c88205d97264))
+* **firewall:** allow UDP/123 from VM subnets to Proxmox hosts ([#290](https://github.com/JacobPEvans/terraform-proxmox/issues/290)) ([c55ed2f](https://github.com/JacobPEvans/terraform-proxmox/commit/c55ed2f2f5814b8c06ef3b6602a4b3fb9d6db535)), closes [#285](https://github.com/JacobPEvans/terraform-proxmox/issues/285)
+
 ## [1.7.0](https://github.com/JacobPEvans/terraform-proxmox/compare/v1.6.5...v1.7.0) (2026-05-14)
 
 
