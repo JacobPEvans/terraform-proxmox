@@ -57,6 +57,12 @@ variable "minio_container_ids" {
   default     = {}
 }
 
+variable "idrac_kvm_vm_ids" {
+  description = "Map of iDRAC KVM host VM names to IDs (tag-driven, set by root locals)"
+  type        = map(number)
+  default     = {}
+}
+
 variable "management_network" {
   description = "CIDR of management network for SSH/Web access. Configure in terraform.tfvars for your environment."
   type        = string
