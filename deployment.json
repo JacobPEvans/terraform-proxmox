@@ -101,6 +101,7 @@
       "tags": ["terraform", "docker", "idrac", "oob", "management"],
       "pool_id": "infrastructure",
       "boot_disk": { "datastore_id": "local-zfs", "size": 16 },
+      "network_interfaces": [{ "bridge": "vmbr0", "firewall": true }],
       "clone_template": { "template_id": 9000 },
       "user_account": { "username": "debian", "password": "", "keys": [] }
     }

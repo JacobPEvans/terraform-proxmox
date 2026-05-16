@@ -81,7 +81,7 @@ resource "proxmox_virtual_environment_firewall_rules" "idrac_kvm" {
 
   rule {
     security_group = proxmox_virtual_environment_cluster_firewall_security_group.idrac_kvm_svc.name
-    comment        = "iDRAC KVM HTML5 noVNC (5800, 5801)"
+    comment        = "iDRAC KVM HTML5 noVNC (TCP 5800, 5801)"
   }
 
   rule {

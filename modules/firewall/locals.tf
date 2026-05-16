@@ -84,7 +84,7 @@ locals {
 
   # iDRAC KVM: inbound noVNC HTTP ports from internal; egress reuses outbound_internal
   idrac_kvm_services_rules = [
-    { proto = "tcp", dport = "5800", source = local.internal_src, comment = "iDRAC HTML5 KVM R410 from internal" },
-    { proto = "tcp", dport = "5801", source = local.internal_src, comment = "iDRAC HTML5 KVM R710 from internal" },
+    { proto = "tcp", dport = "5800", source = local.internal_src, comment = "iDRAC HTML5 KVM R410 (TCP 5800) from internal" },
+    { proto = "tcp", dport = "5801", source = local.internal_src, comment = "iDRAC HTML5 KVM R710 (TCP 5801) from internal" },
   ]
 }
